@@ -28,8 +28,6 @@ import onMediaLoad from '../../helpers/onMediaLoad';
 import apiManagerProxy from '../../lib/mtproto/mtprotoworker';
 import {SEND_WHEN_ONLINE_TIMESTAMP, SERVER_IMAGE_MIME_TYPES, STARS_CURRENCY, THUMB_TYPE_FULL} from '../../lib/mtproto/mtproto_config';
 import wrapDocument from '../wrappers/document';
-import createContextMenu from '../../helpers/dom/createContextMenu';
-import findUpClassName from '../../helpers/dom/findUpClassName';
 import wrapMediaSpoiler, {toggleMediaSpoiler} from '../wrappers/mediaSpoiler';
 import {MiddlewareHelper} from '../../helpers/middleware';
 import animationIntersector, {AnimationItemGroup} from '../animationIntersector';
@@ -56,12 +54,20 @@ import {Accessor, createRoot, createSignal, Setter} from 'solid-js';
 import SelectedEffect from '../chat/selectedEffect';
 import PopupMakePaid from './makePaid';
 import paymentsWrapCurrencyAmount from '../../helpers/paymentsWrapCurrencyAmount';
+import { ButtonMenuItemOptions, ButtonMenuItemOptionsVerifiable, ButtonMenuSync } from '../buttonMenu';
+import createContextMenu from '../../helpers/dom/createContextMenu';
+import findUpClassName from '../../helpers/dom/findUpClassName';
 
 type SendFileParams = SendFileDetails & {
   file?: File,
   scaledBlob?: Blob,
   noSound?: boolean,
   itemDiv: HTMLElement,
+  menu: {
+    menuDiv: HTMLElement | undefined,
+    menuButtons: ButtonMenuItemOptionsVerifiable[],
+    isHovering: boolean,
+  }
   mediaSpoiler?: HTMLElement,
   middlewareHelper: MiddlewareHelper
   // strippedBytes?: PhotoSize.photoStrippedSize['bytes']
@@ -833,10 +839,28 @@ export default class PopupNewMedia extends PopupElement {
 
     return scaledBlob && {url, blob: scaledBlob};
   }
+  
+  private createMediaMenu(filterCb: (e: ButtonMenuItemOptions) => boolean, params: SendFileParams): HTMLElement {
+    const butts = ButtonMenuSync({buttons: params.menu.menuButtons.filter(filterCb)});
+    butts.classList.add('image-hovering-menu')
+    butts.classList.remove('btn-menu')
+    if (params.menu.isHovering) {
+      butts.classList.add('image-hovering-menu-visible');   
+    }
+    params.menu.menuDiv?.replaceWith(butts);
+    params.menu.menuDiv = butts;
+
+    return butts;
+  }
 
   private async attachMedia(params: SendFileParams) {
     const {itemDiv} = params;
     itemDiv.classList.add('popup-item-media');
+    params.menu = {
+      menuDiv: undefined, 
+      menuButtons: [], 
+      isHovering: false
+    };
 
     const file = params.file;
     const isVideo = file.type.startsWith('video/');
@@ -883,6 +907,53 @@ export default class PopupNewMedia extends PopupElement {
     } else {
       const img = new Image();
       itemDiv.append(img);
+
+      params.menu.menuButtons = [
+        {
+          icon: 'enhancebars',
+          onClick: () => {
+            // XENA TODO
+          },
+        }, 
+        {
+          icon: 'mediaspoiler',
+          onClick: () => {
+            this.applyMediaSpoiler(params);
+            this.createMediaMenu(((b) => b.icon !== 'mediaspoiler'), params);
+           
+          },
+        },        
+        {
+          icon: 'mediaspoileroff',
+          onClick: () => {
+            this.removeMediaSpoiler(params);
+            this.createMediaMenu(((b) => b.icon !== 'mediaspoileroff'), params);
+          },
+        },        
+        {
+          icon: 'delete',
+          onClick: () => {
+            this.rmFile(params.file);
+          },
+        }
+      ];
+
+      this.createMediaMenu((b) => b.icon !== 'mediaspoileroff', params)
+      if (params.menu.menuDiv) {
+        itemDiv.append(params.menu.menuDiv)
+      }
+
+      const hideMenu = (e: SendFileParams) => {
+        e.menu.isHovering = false;
+        e.menu.menuDiv?.classList.remove('image-hovering-menu-visible') 
+      }
+
+      itemDiv.addEventListener( 'mouseover', () => {
+        this.willAttach.sendFileDetails.forEach((e) => hideMenu(e));
+        params.menu.menuDiv?.classList.add('image-hovering-menu-visible') 
+        params.menu.isHovering = true;
+      })
+      itemDiv.addEventListener('mouseout', () => hideMenu(params));
       const url = params.objectURL = await apiManagerProxy.invoke('createObjectURL', file);
 
       await renderImageFromUrlPromise(img, url);
@@ -1008,6 +1079,12 @@ export default class PopupNewMedia extends PopupElement {
 
   private rmFile(file: File) {
     this.willAttach.sendFileDetails = this.willAttach.sendFileDetails.filter((e) => !this.areFilesEqual(e.file, file));
+    this.files = this.files.filter((e) => !this.areFilesEqual(e, file))
+    if (!this.files.length || !this.willAttach.sendFileDetails.length) {
+      this.hide();
+      return;
+    }
+    this.attachFiles();
   }
 
   // XENA TODO: think of a better way to compare files
@@ -1058,7 +1135,7 @@ export default class PopupNewMedia extends PopupElement {
     animationIntersector.setOnlyOnePlayableGroup(this.animationGroup);
     this.addEventListener('close', () => {
       animationIntersector.setOnlyOnePlayableGroup();
-
+      
       if(!this.ignoreInputValue && this.wasDraft) {
         this.chat.input.setDraft(this.wasDraft, false, true);
       }
