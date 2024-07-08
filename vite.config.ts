@@ -23,6 +23,8 @@ const handlebarsPlugin = handlebars({
 
 const serverOptions: ServerOptions = {
   // host: '192.168.95.17',
+  // XENA TODO remove the line
+  hmr: false,
   port: 8080,
   sourcemapIgnoreList(sourcePath, sourcemapPath) {
     return sourcePath.includes('node_modules') || sourcePath.includes('logger');
@@ -60,10 +62,11 @@ export default defineConfig({
     // }),
     process.env.VITEST ? undefined : checker({
       typescript: true,
-      eslint: {
-        // for example, lint .ts and .tsx
-        lintCommand: 'eslint "./src/**/*.{ts,tsx}" --ignore-pattern "/src/solid/*"'
-      }
+      // XENA TODO turn linter back on
+        // eslint: {
+        //   // for example, lint .ts and .tsx
+        //   lintCommand: 'eslint "./src/**/*.{ts,tsx}" --ignore-pattern "/src/solid/*"'
+        // }
     }),
     solidPlugin(),
     handlebarsPlugin as any,

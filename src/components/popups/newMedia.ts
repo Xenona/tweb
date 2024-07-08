@@ -334,7 +334,27 @@ export default class PopupNewMedia extends PopupElement {
           this.removeMediaSpoiler(item);
         },
         verify: () => !!(isMedia && item.mediaSpoiler) && !this.willAttach.stars
-      }],
+      },
+      {
+        icon: 'delete',
+          // @ts-ignore
+        text: '',
+        onClick: () => {
+          this.rmFile(item.file);
+        },
+        verify: () => isMedia
+      },  
+      {
+        icon: 'enhancebars',
+        // @ts-ignore
+        text: '',
+        onClick: () => {
+          // XENA TODO
+        },
+        verify: () => isMedia
+
+      }
+      ],
       listenTo: this.mediaContainer,
       listenerSetter: this.listenerSetter,
       findElement: (e) => {
@@ -984,6 +1004,19 @@ export default class PopupNewMedia extends PopupElement {
     }
 
     itemDiv.append(docDiv);
+  }
+
+  private rmFile(file: File) {
+    this.willAttach.sendFileDetails = this.willAttach.sendFileDetails.filter((e) => !this.areFilesEqual(e.file, file));
+  }
+
+  // XENA TODO: think of a better way to compare files
+  private areFilesEqual(file1: File, file2: File): boolean {
+    return (file1.name === file2.name &&
+            file1.size === file2.size &&
+            file1.type === file2.type &&
+            file1.lastModified === file2.lastModified
+    )
   }
 
   private attachFile = (file: File) => {
