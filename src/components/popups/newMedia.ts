@@ -696,7 +696,8 @@ export default class PopupNewMedia extends PopupElement {
     const canSend = await PopupNewMedia.canSend(this.chat.getMessageSendingParams());
     const willAttach = this.willAttach;
     willAttach.isMedia = willAttach.type === 'media' || undefined;
-    const {sendFileDetails, isMedia} = willAttach;
+    const { isMedia } = willAttach;
+    const sendFileDetails = willAttach.sendFileDetails.map((e) => delete e.menu)
 
     let foundBad = false;
     this.iterate((sendFileParams) => {
