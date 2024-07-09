@@ -57,6 +57,7 @@ import paymentsWrapCurrencyAmount from '../../helpers/paymentsWrapCurrencyAmount
 import { ButtonMenuItemOptions, ButtonMenuItemOptionsVerifiable, ButtonMenuSync } from '../buttonMenu';
 import createContextMenu from '../../helpers/dom/createContextMenu';
 import findUpClassName from '../../helpers/dom/findUpClassName';
+import PopupMediaEditor from './mediaEditor';
 
 type SendFileParams = SendFileDetails & {
   file?: File,
@@ -914,6 +915,9 @@ export default class PopupNewMedia extends PopupElement {
           icon: 'enhancebars',
           onClick: () => {
             // XENA TODO
+            // need to think what i should do with updated file and how return it
+            // depends on the impl of canvaser
+            PopupElement.createPopup(PopupMediaEditor, params.file).show();    
           },
         }, 
         {
