@@ -15,10 +15,18 @@
     flex: 0 0 auto;
     user-select: none;
     cursor: default;
+    z-index: 4;
 
     .btn-menu {
       overflow-y: overlay;
     }
+
+    .floating-menu-over {
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+
 
     @include respond-to(handhelds) {
       padding-inline: .5rem;

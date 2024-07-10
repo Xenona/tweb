@@ -19,8 +19,12 @@ import ripple from './ripple';
 import Icon from './icon';
 import RadioForm from './radioForm';
 import wrapAttachBotIcon from './wrappers/attachBotIcon';
+import filterAsync from '../helpers/array/filterAsync';
 
-type ButtonMenuItemInner = Omit<Parameters<typeof ButtonMenuSync>[0], 'listenerSetter'>;
+type ButtonMenuItemInner = Omit<Omit<Parameters<typeof ButtonMenuSync>[0], 'listenerSetter'>, 'buttons'> & {
+  buttons: ButtonMenuItemOptionsVerifiable[]
+}
+
 export type ButtonMenuItemOptions = {
   icon?: Icon,
   iconDoc?: Document.document,
@@ -163,7 +167,41 @@ function ButtonMenuItem(options: ButtonMenuItemOptions) {
   if(options.inner) {
     el.append(Icon('next', 'btn-menu-item-icon', 'btn-menu-item-icon-right'));
     el.classList.add('has-inner');
-    (el as any).inner = options.inner;
+    
+    const inner = options.inner;
+    
+    (async () => {
+      const options = await (typeof inner === 'function' ? inner() : inner);
+      options.buttons = await filterAsync(options.buttons, (item) => {
+        if(!item.verify) return true;
+        return item.verify()
+      })
+      const innerMenu = await ButtonMenu(options);
+
+      innerMenu.classList.add('bottom-right', 'inner-backdrop')
+      el.addEventListener('mouseover', () => {
+        el.classList.add('is-visible')
+        innerMenu.classList.add('active')
+      })
+
+
+      const bry = -el.offsetHeight/2+2;
+      console.log('XE', {bry})
+      const brx = el.offsetLeft + el.offsetWidth - 10;
+      innerMenu.style.position = 'absolute';
+      innerMenu.style.top = `${bry}px`;
+      innerMenu.style.left = `${brx}px`;
+      innerMenu.style.zIndex = '4';
+
+  
+      el.addEventListener('mouseout', () => {
+        el.classList.remove('is-visible')
+        innerMenu.classList.remove('active')
+      })
+  
+      el.append(innerMenu);
+      (el as any).inner = innerMenu;
+    })()
   }
 
   const ret: HTMLElement[] = [options.element = el];

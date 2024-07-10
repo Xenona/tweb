@@ -22,7 +22,7 @@ import AppArchivedTab from './tabs/archivedTab';
 import AppAddMembersTab from './tabs/addMembers';
 import I18n, {i18n} from '../../lib/langPack';
 import AppPeopleNearbyTab from './tabs/peopleNearby';
-import {ButtonMenuItemOptions} from '../buttonMenu';
+import ButtonMenu, {ButtonMenuItemOptions} from '../buttonMenu';
 import CheckboxField from '../checkboxField';
 import {IS_MOBILE_SAFARI} from '../../environment/userAgent';
 import appNavigationController, {NavigationItem} from '../appNavigationController';
@@ -73,8 +73,11 @@ import wrapEmojiStatus from '../wrappers/emojiStatus';
 import {makeMediaSize} from '../../helpers/mediaSize';
 import ReactionElement from '../chat/reaction';
 import setBlankToAnchor from '../../lib/richTextProcessor/setBlankToAnchor';
+import { c } from 'vitest/dist/reporters-5f784f42';
 
 export const LEFT_COLUMN_ACTIVE_CLASSNAME = 'is-left-column-shown';
+
+type ButtonMenuVerifiable = (ButtonMenuItemOptions & {verify?: () => boolean | Promise<boolean>})
 
 export class AppSidebarLeft extends SidebarSlider {
   private toolsBtn: HTMLElement;
@@ -156,7 +159,7 @@ export class AppSidebarLeft extends SidebarSlider {
       themeCheckboxField.setValueSilently(themeController.getTheme().name === 'night');
     });
 
-    const menuButtons: (ButtonMenuItemOptions & {verify?: () => boolean | Promise<boolean>})[] = [{
+    const menuButtons: ButtonMenuVerifiable[] = [{
       icon: 'savedmessages',
       text: 'SavedMessages',
       onClick: () => {
@@ -176,6 +179,7 @@ export class AppSidebarLeft extends SidebarSlider {
     }, {
       icon: 'user',
       text: 'Contacts',
+      separatorDown: true,
       onClick: onContactsClick
     }, IS_GEOLOCATION_SUPPORTED ? {
       icon: 'group',
@@ -189,84 +193,108 @@ export class AppSidebarLeft extends SidebarSlider {
       onClick: () => {
         this.createTab(AppSettingsTab).open();
       }
-    }, {
-      icon: 'darkmode',
-      text: 'DarkMode',
-      onClick: () => {
+    },
+    // XENA TODO wallet 
+    {
+      icon: 'more',
+      // XENA TODO should deal with the i18n
+      // @ts-ignore 
+      text: "More",
+      className: 'more-button',
+      onClick: (e) => {
+        e.preventDefault();
+      },
+      inner: {
+        buttons: [
+          {
+            icon: 'darkmode',
+            text: 'DarkMode',
+            onClick: () => {
 
-      },
-      checkboxField: themeCheckboxField
-    }, {
-      icon: 'animations',
-      text: 'Animations',
-      onClick: () => {
+            },
+            checkboxField: themeCheckboxField
+          }, {
+            icon: 'animations',
+            text: 'Animations',
+            onClick: () => {
 
-      },
-      checkboxField: new CheckboxField({
-        toggle: true,
-        checked: liteMode.isAvailable('animations'),
-        stateKey: joinDeepPath('settings', 'liteMode', 'animations'),
-        stateValueReverse: true
-      }),
-      verify: () => !liteMode.isEnabled()
-    }, {
-      icon: 'animations',
-      text: 'LiteMode.Title',
-      onClick: () => {
-        this.createTab(AppPowerSavingTab).open();
-      },
-      verify: () => liteMode.isEnabled()
-    }, {
-      icon: 'help',
-      text: 'TelegramFeatures',
-      onClick: () => {
-        const url = I18n.format('TelegramFeaturesUrl', true);
-        appImManager.openUrl(url);
+            },
+            checkboxField: new CheckboxField({
+              toggle: true,
+              checked: liteMode.isAvailable('animations'),
+              stateKey: joinDeepPath('settings', 'liteMode', 'animations'),
+              stateValueReverse: true
+            }),
+            verify: () => !liteMode.isEnabled()
+          }, {
+            icon: 'animations',
+            text: 'LiteMode.Title',
+            onClick: () => {
+              this.createTab(AppPowerSavingTab).open();
+            },
+            verify: () => liteMode.isEnabled()
+          }, {
+            icon: 'help',
+            text: 'TelegramFeatures',
+            onClick: () => {
+              const url = I18n.format('TelegramFeaturesUrl', true);
+              appImManager.openUrl(url);
+            }
+          }, {
+            icon: 'bug',
+            text: 'ReportBug',
+            onClick: () => {
+              const a = document.createElement('a');
+              setBlankToAnchor(a);
+              a.href = 'https://bugs.telegram.org/?tag_ids=40&sort=time';
+              document.body.append(a);
+              a.click();
+              setTimeout(() => {
+                a.remove();
+              }, 0);
+            }
+          }, {
+            icon: 'char' as Icon,
+            className: 'a',
+            text: 'ChatList.Menu.SwitchTo.A',
+            onClick: () => {
+              Promise.all([
+                sessionStorage.set({ kz_version: 'Z' }),
+                sessionStorage.delete('tgme_sync')
+              ]).then(() => {
+                location.href = 'https://web.telegram.org/a/';
+              });
+            },
+            verify: () => App.isMainDomain
+          }, /* {
+        icon: 'char w',
+        text: 'ChatList.Menu.SwitchTo.Webogram',
+        onClick: () => {
+          sessionStorage.delete('tgme_sync').then(() => {
+            location.href = 'https://web.telegram.org/?legacy=1';
+          });
+        },
+        verify: () => App.isMainDomain
+      }, */ {
+            icon: 'plusround',
+            text: 'PWA.Install',
+            onClick: () => {
+              const installPrompt = getInstallPrompt();
+              installPrompt?.();
+            },
+            verify: () => !!getInstallPrompt()
+          }]
       }
-    }, {
-      icon: 'bug',
-      text: 'ReportBug',
-      onClick: () => {
-        const a = document.createElement('a');
-        setBlankToAnchor(a);
-        a.href = 'https://bugs.telegram.org/?tag_ids=40&sort=time';
-        document.body.append(a);
-        a.click();
-        setTimeout(() => {
-          a.remove();
-        }, 0);
-      }
-    }, {
-      icon: 'char' as Icon,
-      className: 'a',
-      text: 'ChatList.Menu.SwitchTo.A',
-      onClick: () => {
-        Promise.all([
-          sessionStorage.set({kz_version: 'Z'}),
-          sessionStorage.delete('tgme_sync')
-        ]).then(() => {
-          location.href = 'https://web.telegram.org/a/';
-        });
-      },
-      verify: () => App.isMainDomain
-    }, /* {
-      icon: 'char w',
-      text: 'ChatList.Menu.SwitchTo.Webogram',
-      onClick: () => {
-        sessionStorage.delete('tgme_sync').then(() => {
-          location.href = 'https://web.telegram.org/?legacy=1';
-        });
-      },
-      verify: () => App.isMainDomain
-    }, */ {
-      icon: 'plusround',
-      text: 'PWA.Install',
-      onClick: () => {
-        const installPrompt = getInstallPrompt();
-        installPrompt?.();
-      },
-      verify: () => !!getInstallPrompt()
-    }];
+    }
+  ];
+
+  // const buttonsMore: ButtonMenuVerifiable[] = 
+
+
+  
+
+  // console.log("XE", btnMore, buttonsMore)
+
 
     const filteredButtons = menuButtons.filter(Boolean);
     const filteredButtonsSliced = filteredButtons.slice();
@@ -313,18 +341,20 @@ export class AppSidebarLeft extends SidebarSlider {
         t.classList.add('btn-menu-footer-text');
         t.textContent = 'Telegram Web' + App.suffix + ' '/* ' alpha ' */ + App.versionFull;
         btnMenuFooter.append(t);
-        btnMenu.classList.add('has-footer');
+        btnMenu.classList.add('has-footer', 'floating-menu-over');
         btnMenu.append(btnMenuFooter);
-
         const a = btnMenu.querySelector('.a .btn-menu-item-icon');
         if(a) a.textContent = 'A';
+        
 
-        btnArchive.element?.append(this.archivedCount);
+        btnMenu.style.top = `${this.toolsBtn.offsetWidth + 7}px`;
+        btnMenu.style.left = `${this.backBtn.getBoundingClientRect().x}px`
       },
       noIcon: true
     });
-    this.toolsBtn.classList.add('sidebar-tools-button', 'is-visible');
 
+
+    this.toolsBtn.classList.add('sidebar-tools-button', 'is-visible');
     this.backBtn.parentElement.insertBefore(this.toolsBtn, this.backBtn);
 
     this.newBtnMenu = ButtonMenuToggle({
@@ -596,6 +626,12 @@ export class AppSidebarLeft extends SidebarSlider {
 
     fastRaf(onResize);
     mediaSizes.addEventListener('resize', onResize);
+  }
+
+  private constructMenuGroup(buttons: ButtonMenuVerifiable): HTMLElement {
+
+    return
+
   }
 
   private initSearch() {

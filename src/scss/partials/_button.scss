@@ -1092,3 +1092,17 @@ $btn-menu-z-index: 4;
   /* left: var(--offset); */
   inset-inline-end: auto !important;
 }
+
+// Chrome doesn't understand nested backdrops
+// https://stackoverflow.com/questions/60997948/backdrop-filter-not-working-for-nested-elements-in-chrome
+// This can be fixed with, f.e., ::before
+.inner-backdrop::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  border-radius: inherit;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: var(--menu-backdrop-filter);
+  background-color: var(--menu-background-color);
+}

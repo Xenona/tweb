@@ -326,8 +326,10 @@
     width: 100%;
 
     .btn-menu {
-      min-width: 260px;
+      overflow: visible;
+      min-width: 220px;
       max-height: calc(100 * var(--vh) - 3.75rem);
+
 
       &-item {
         --padding-right: .375rem;

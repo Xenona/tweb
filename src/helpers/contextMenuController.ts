@@ -33,21 +33,26 @@ class ContextMenuController extends OverlayClickHandler {
     return !!this.element;
   }
 
-  private onMouseMove = (e: MouseEvent) => {
-    const element = findUpClassName(e.target, 'btn-menu-item');
-    const inner = (element as any)?.inner as ButtonMenuItemOptions['inner'];
-
-    const rect = this.element.getBoundingClientRect();
+  private mouseInRange(el: HTMLElement, e: MouseEvent) {
+    const rect = el.getBoundingClientRect();
     const {clientX, clientY} = e;
-
+    
     const diffX = clientX >= rect.right ? clientX - rect.right : rect.left - clientX;
     const diffY = clientY >= rect.bottom ? clientY - rect.bottom : rect.top - clientY;
+    
+    return diffX < 100 && diffY < 100;
+  }
 
-    if(diffX >= 100 || diffY >= 100) {
-      this.close();
-      // openedMenu.parentElement.click();
+  private onMouseMove = (e: MouseEvent) => {
+    // PROCESS INNER THERE !!!!!! XENONA
+    if(this.mouseInRange(this.element, e)) return;
+    
+    for(const submenu of Array.from(this.element.querySelectorAll('.btn-menu'))) {
+      console.log('XE', submenu)
+      if(submenu instanceof HTMLElement && this.mouseInRange(submenu, e)) return;
     }
-    // console.log('mousemove', diffX, diffY);
+
+    this.close();
   };
 
   public close() {

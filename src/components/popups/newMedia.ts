@@ -915,8 +915,7 @@ export default class PopupNewMedia extends PopupElement {
           icon: 'enhancebars',
           onClick: () => {
             // XENA TODO
-            // need to think what i should do with updated file and how return it
-            // depends on the impl of canvaser
+            // need to think what i should do with updated file
             PopupElement.createPopup(PopupMediaEditor, params.file).show();    
           },
         }, 
