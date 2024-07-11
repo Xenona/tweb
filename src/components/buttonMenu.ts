@@ -49,7 +49,8 @@ export type ButtonMenuItemOptions = {
   loadPromise?: Promise<any>,
   waitForAnimation?: boolean,
   radioGroup?: string,
-  inner?: (() => MaybePromise<ButtonMenuItemInner>) | ButtonMenuItemInner
+  inner?: (() => MaybePromise<ButtonMenuItemInner>) | ButtonMenuItemInner,
+  isFooter?: (btnMenu: HTMLElement) => HTMLAnchorElement[]
   /* , cancelEvent?: true */
 };
 
@@ -172,11 +173,12 @@ function ButtonMenuItem(options: ButtonMenuItemOptions) {
     
     (async () => {
       const options = await (typeof inner === 'function' ? inner() : inner);
-      options.buttons = await filterAsync(options.buttons, (item) => {
+      
+      const filteredButtons = await filterAsync(options.buttons, (item) => {
         if(!item.verify) return true;
         return item.verify()
       })
-      const innerMenu = await ButtonMenu(options);
+      const innerMenu = await ButtonMenu({...options, buttons: filteredButtons});
 
       innerMenu.classList.add('bottom-right', 'inner-backdrop')
       el.addEventListener('mouseover', () => {
@@ -186,7 +188,6 @@ function ButtonMenuItem(options: ButtonMenuItemOptions) {
 
 
       const bry = -el.offsetHeight/2+2;
-      console.log('XE', {bry})
       const brx = el.offsetLeft + el.offsetWidth - 10;
       innerMenu.style.position = 'absolute';
       innerMenu.style.top = `${bry}px`;
@@ -241,7 +242,15 @@ export function ButtonMenuSync({listenerSetter, buttons, radioGroups}: {
     });
   }
 
-  const items = buttons.map(ButtonMenuItem);
+  const items = buttons.map((e) => {
+  
+    if (e.isFooter) {
+      return e.isFooter(el);
+    } else {
+      return ButtonMenuItem(e);
+    }
+  
+  });
   el.append(...flatten(items));
 
   if(radioGroups) {

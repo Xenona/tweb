@@ -141,25 +141,15 @@ export class AppSidebarLeft extends SidebarSlider {
       }
     };
 
-    const themeCheckboxField = new CheckboxField({
-      toggle: true,
-      checked: themeController.getTheme().name === 'night'
-    });
-    themeCheckboxField.input.addEventListener('change', () => {
-      const item = findUpClassName(themeCheckboxField.label, 'btn-menu-item');
-      const icon = item.querySelector('.tgico');
-      const rect = icon.getBoundingClientRect();
-      themeController.switchTheme(themeCheckboxField.checked ? 'night' : 'day', {
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2
-      });
-    });
-
-    rootScope.addEventListener('theme_changed', () => {
-      themeCheckboxField.setValueSilently(themeController.getTheme().name === 'night');
-    });
-
     const menuButtons: ButtonMenuVerifiable[] = [{
+      icon: 'plus',
+      // XENA TODO should deal with the i18n
+      // @ts-ignore 
+      text: 'Add Account',
+      onClick: () => {
+      },
+      separatorDown: true
+    },{
       icon: 'savedmessages',
       text: 'SavedMessages',
       onClick: () => {
@@ -194,12 +184,11 @@ export class AppSidebarLeft extends SidebarSlider {
         this.createTab(AppSettingsTab).open();
       }
     },
-    // XENA TODO wallet 
     {
       icon: 'more',
       // XENA TODO should deal with the i18n
       // @ts-ignore 
-      text: "More",
+      text: 'More',
       className: 'more-button',
       onClick: (e) => {
         e.preventDefault();
@@ -208,32 +197,42 @@ export class AppSidebarLeft extends SidebarSlider {
         buttons: [
           {
             icon: 'darkmode',
-            text: 'DarkMode',
-            onClick: () => {
-
+            // @ts-ignore
+            // XENA TODO deal with i18n
+            text: 'Disable Dark Mode',
+            onClick: (e) => this.switchThemeTo('day', e.target),
+            verify: () => themeController.getTheme().name === 'night'
             },
-            checkboxField: themeCheckboxField
-          }, {
+          {
+            icon: 'darkmode',
+            // @ts-ignore
+            // XENA TODO deal with i18n
+            text: 'Enable Dark Mode',
+            onClick: (e) => this.switchThemeTo('night', e.target),
+            verify: () => themeController.getTheme().name !== 'night'
+          }
+          , {
             icon: 'animations',
-            text: 'Animations',
+            // @ts-ignore
+            // XENA TODO deal with i18n
+            text: 'Disable Animations',
             onClick: () => {
-
+              const stateKey = joinDeepPath('settings', 'liteMode', 'animations');
+              rootScope.managers.appStateManager.setByKey(stateKey, true);
             },
-            checkboxField: new CheckboxField({
-              toggle: true,
-              checked: liteMode.isAvailable('animations'),
-              stateKey: joinDeepPath('settings', 'liteMode', 'animations'),
-              stateValueReverse: true
-            }),
-            verify: () => !liteMode.isEnabled()
-          }, {
+            verify: () => !rootScope.settings.liteMode.animations}
+          , {
             icon: 'animations',
-            text: 'LiteMode.Title',
+            // XENA TODO deal with i18n
+            // @ts-ignore
+            text: 'Enable Animations',
             onClick: () => {
-              this.createTab(AppPowerSavingTab).open();
+              const stateKey = joinDeepPath('settings', 'liteMode', 'animations');
+              rootScope.managers.appStateManager.setByKey(stateKey, false);
             },
-            verify: () => liteMode.isEnabled()
-          }, {
+            verify: () => rootScope.settings.liteMode.animations}
+          ,
+          {
             icon: 'help',
             text: 'TelegramFeatures',
             onClick: () => {
@@ -283,17 +282,38 @@ export class AppSidebarLeft extends SidebarSlider {
               installPrompt?.();
             },
             verify: () => !!getInstallPrompt()
-          }]
+          },
+          {
+            onClick: () => {},
+            isFooter: (btnMenu) => {
+
+              const btnMenuFooter = document.createElement('a');
+              btnMenuFooter.href = 'https://github.com/morethanwords/tweb/blob/master/CHANGELOG.md';
+              setBlankToAnchor(btnMenuFooter);  
+              btnMenuFooter.classList.add('btn-menu-footer');
+              btnMenuFooter.addEventListener(CLICK_EVENT_NAME, (e) => {
+                e.stopPropagation();
+                contextMenuController.close();
+              });
+              const t = document.createElement('span');
+              t.classList.add('btn-menu-footer-text', 'footer-font-setup');
+              t.textContent = 'Telegram Web' + App.suffix + ' '/* ' alpha ' */ + App.versionFull;
+              btnMenuFooter.append(t);
+              btnMenu.classList.add('has-footer', 'floating-menu-over');
+              btnMenu.append(btnMenuFooter);
+              const a = btnMenu.querySelector('.a .btn-menu-item-icon');
+              if(a) a.textContent = 'A';
+              
+              btnMenu.style.top = `${this.toolsBtn.offsetWidth + 7}px`;
+              btnMenu.style.left = `${this.backBtn.getBoundingClientRect().x}px`
+
+              return [btnMenuFooter]
+            }
+          }
+        ]
       }
     }
   ];
-
-  // const buttonsMore: ButtonMenuVerifiable[] = 
-
-
-  
-
-  // console.log("XE", btnMore, buttonsMore)
 
 
     const filteredButtons = menuButtons.filter(Boolean);
@@ -329,23 +349,7 @@ export class AppSidebarLeft extends SidebarSlider {
         filteredButtons.splice(0, filteredButtons.length, ...buttons);
       },
       onOpen: (e, btnMenu) => {
-        const btnMenuFooter = document.createElement('a');
-        btnMenuFooter.href = 'https://github.com/morethanwords/tweb/blob/master/CHANGELOG.md';
-        setBlankToAnchor(btnMenuFooter);
-        btnMenuFooter.classList.add('btn-menu-footer');
-        btnMenuFooter.addEventListener(CLICK_EVENT_NAME, (e) => {
-          e.stopPropagation();
-          contextMenuController.close();
-        });
-        const t = document.createElement('span');
-        t.classList.add('btn-menu-footer-text');
-        t.textContent = 'Telegram Web' + App.suffix + ' '/* ' alpha ' */ + App.versionFull;
-        btnMenuFooter.append(t);
         btnMenu.classList.add('has-footer', 'floating-menu-over');
-        btnMenu.append(btnMenuFooter);
-        const a = btnMenu.querySelector('.a .btn-menu-item-icon');
-        if(a) a.textContent = 'A';
-        
 
         btnMenu.style.top = `${this.toolsBtn.offsetWidth + 7}px`;
         btnMenu.style.left = `${this.backBtn.getBoundingClientRect().x}px`
@@ -628,10 +632,14 @@ export class AppSidebarLeft extends SidebarSlider {
     mediaSizes.addEventListener('resize', onResize);
   }
 
-  private constructMenuGroup(buttons: ButtonMenuVerifiable): HTMLElement {
-
-    return
-
+  private switchThemeTo(theme: 'day' | 'night', e: EventTarget): void {
+    const item = findUpClassName(e, 'btn-menu-item');
+    const icon = item.querySelector('.tgico');
+    const rect = icon.getBoundingClientRect();
+    themeController.switchTheme(theme, {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
+    });
   }
 
   private initSearch() {

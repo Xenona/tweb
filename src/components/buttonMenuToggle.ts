@@ -115,7 +115,6 @@ export default function ButtonMenuToggle({
         buttons: filteredButtons,
         listenerSetter
       });
-      console.log("XE", _element.parentElement)
       if(_tempId !== tempId) return;
       _element.classList.add(direction);
 
@@ -132,7 +131,6 @@ export default function ButtonMenuToggle({
       listenerSetter: attachListenerSetter
     },
     onClose: () => {
-      console.trace('XE')
 
       ++tempId;
       clearCloseTimeout();

@@ -44,11 +44,9 @@ class ContextMenuController extends OverlayClickHandler {
   }
 
   private onMouseMove = (e: MouseEvent) => {
-    // PROCESS INNER THERE !!!!!! XENONA
     if(this.mouseInRange(this.element, e)) return;
     
     for(const submenu of Array.from(this.element.querySelectorAll('.btn-menu'))) {
-      console.log('XE', submenu)
       if(submenu instanceof HTMLElement && this.mouseInRange(submenu, e)) return;
     }
 
