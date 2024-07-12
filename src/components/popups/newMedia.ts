@@ -697,7 +697,7 @@ export default class PopupNewMedia extends PopupElement {
     const canSend = await PopupNewMedia.canSend(this.chat.getMessageSendingParams());
     const willAttach = this.willAttach;
     willAttach.isMedia = willAttach.type === 'media' || undefined;
-    const { isMedia } = willAttach;
+    const {isMedia} = willAttach;
     const sendFileDetails = willAttach.sendFileDetails.map((e) => delete e.menu)
 
     let foundBad = false;
@@ -841,13 +841,13 @@ export default class PopupNewMedia extends PopupElement {
 
     return scaledBlob && {url, blob: scaledBlob};
   }
-  
+
   private createMediaMenu(filterCb: (e: ButtonMenuItemOptions) => boolean, params: SendFileParams): HTMLElement {
     const butts = ButtonMenuSync({buttons: params.menu.menuButtons.filter(filterCb)});
     butts.classList.add('image-hovering-menu')
     butts.classList.remove('btn-menu')
-    if (params.menu.isHovering) {
-      butts.classList.add('image-hovering-menu-visible');   
+    if(params.menu.isHovering) {
+      butts.classList.add('image-hovering-menu-visible');
     }
     params.menu.menuDiv?.replaceWith(butts);
     params.menu.menuDiv = butts;
@@ -859,8 +859,8 @@ export default class PopupNewMedia extends PopupElement {
     const {itemDiv} = params;
     itemDiv.classList.add('popup-item-media');
     params.menu = {
-      menuDiv: undefined, 
-      menuButtons: [], 
+      menuDiv: undefined,
+      menuButtons: [],
       isHovering: false
     };
 
@@ -916,45 +916,44 @@ export default class PopupNewMedia extends PopupElement {
           onClick: () => {
             // XENA TODO
             // need to think what i should do with updated file
-            PopupElement.createPopup(PopupMediaEditor, params.file).show();    
-          },
-        }, 
+            PopupElement.createPopup(PopupMediaEditor, params.file).show();
+          }
+        },
         {
           icon: 'mediaspoiler',
           onClick: () => {
             this.applyMediaSpoiler(params);
             this.createMediaMenu(((b) => b.icon !== 'mediaspoiler'), params);
-           
-          },
-        },        
+          }
+        },
         {
           icon: 'mediaspoileroff',
           onClick: () => {
             this.removeMediaSpoiler(params);
             this.createMediaMenu(((b) => b.icon !== 'mediaspoileroff'), params);
-          },
-        },        
+          }
+        },
         {
           icon: 'delete',
           onClick: () => {
             this.rmFile(params.file);
-          },
+          }
         }
       ];
 
       this.createMediaMenu((b) => b.icon !== 'mediaspoileroff', params)
-      if (params.menu.menuDiv) {
+      if(params.menu.menuDiv) {
         itemDiv.append(params.menu.menuDiv)
       }
 
       const hideMenu = (e: SendFileParams) => {
         e.menu.isHovering = false;
-        e.menu.menuDiv?.classList.remove('image-hovering-menu-visible') 
+        e.menu.menuDiv?.classList.remove('image-hovering-menu-visible')
       }
 
       itemDiv.addEventListener( 'mouseover', () => {
         this.willAttach.sendFileDetails.forEach((e) => hideMenu(e));
-        params.menu.menuDiv?.classList.add('image-hovering-menu-visible') 
+        params.menu.menuDiv?.classList.add('image-hovering-menu-visible')
         params.menu.isHovering = true;
       })
       itemDiv.addEventListener('mouseout', () => hideMenu(params));
@@ -1084,7 +1083,7 @@ export default class PopupNewMedia extends PopupElement {
   private rmFile(file: File) {
     this.willAttach.sendFileDetails = this.willAttach.sendFileDetails.filter((e) => !this.areFilesEqual(e.file, file));
     this.files = this.files.filter((e) => !this.areFilesEqual(e, file))
-    if (!this.files.length || !this.willAttach.sendFileDetails.length) {
+    if(!this.files.length || !this.willAttach.sendFileDetails.length) {
       this.hide();
       return;
     }
@@ -1139,7 +1138,7 @@ export default class PopupNewMedia extends PopupElement {
     animationIntersector.setOnlyOnePlayableGroup(this.animationGroup);
     this.addEventListener('close', () => {
       animationIntersector.setOnlyOnePlayableGroup();
-      
+
       if(!this.ignoreInputValue && this.wasDraft) {
         this.chat.input.setDraft(this.wasDraft, false, true);
       }

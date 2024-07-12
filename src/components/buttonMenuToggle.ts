@@ -15,8 +15,8 @@ import {doubleRaf} from '../helpers/schedulers';
 import callbackify from '../helpers/callbackify';
 
 // TODO: refactor for attachClickEvent, because if move finger after touchstart, it will start anyway
-export function   
-      ButtonMenuToggleHandler({
+export function
+ButtonMenuToggleHandler({
   el,
   onOpen,
   options,
@@ -131,7 +131,6 @@ export default function ButtonMenuToggle({
       listenerSetter: attachListenerSetter
     },
     onClose: () => {
-
       ++tempId;
       clearCloseTimeout();
       onClose?.();

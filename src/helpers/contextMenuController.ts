@@ -36,16 +36,16 @@ class ContextMenuController extends OverlayClickHandler {
   private mouseInRange(el: HTMLElement, e: MouseEvent) {
     const rect = el.getBoundingClientRect();
     const {clientX, clientY} = e;
-    
+
     const diffX = clientX >= rect.right ? clientX - rect.right : rect.left - clientX;
     const diffY = clientY >= rect.bottom ? clientY - rect.bottom : rect.top - clientY;
-    
+
     return diffX < 100 && diffY < 100;
   }
 
   private onMouseMove = (e: MouseEvent) => {
     if(this.mouseInRange(this.element, e)) return;
-    
+
     for(const submenu of Array.from(this.element.querySelectorAll('.btn-menu'))) {
       if(submenu instanceof HTMLElement && this.mouseInRange(submenu, e)) return;
     }

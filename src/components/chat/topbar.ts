@@ -176,18 +176,18 @@ export default class ChatTopbar {
     this.chatTranslation = new ChatTranslation(this, this.chat, this.managers);
 
     if(this.menuButtons.length) {
-        this.btnMore = ButtonMenuToggle({
-          listenerSetter: this.listenerSetter,
-          direction: 'bottom-left',
-          buttons: this.menuButtons,
-          onOpen: async(e, element) => {
-            const deleteButton = this.menuButtons[this.menuButtons.length - 1];
-            if(deleteButton?.element) {
-              const deleteButtonText = await this.managers.appPeersManager.getDeleteButtonText(this.peerId);
-              deleteButton.element.lastChild.replaceWith(i18n(deleteButtonText));
-            }
+      this.btnMore = ButtonMenuToggle({
+        listenerSetter: this.listenerSetter,
+        direction: 'bottom-left',
+        buttons: this.menuButtons,
+        onOpen: async(e, element) => {
+          const deleteButton = this.menuButtons[this.menuButtons.length - 1];
+          if(deleteButton?.element) {
+            const deleteButtonText = await this.managers.appPeersManager.getDeleteButtonText(this.peerId);
+            deleteButton.element.lastChild.replaceWith(i18n(deleteButtonText));
           }
-        });
+        }
+      });
     }
 
     this.chatUtils.append(...[

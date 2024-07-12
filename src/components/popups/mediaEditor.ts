@@ -1,12 +1,10 @@
-import PopupElement from ".";
-import confirmationPopup from "../confirmationPopup";
+import PopupElement from '.';
+import confirmationPopup from '../confirmationPopup';
 
 export default class PopupMediaEditor extends PopupElement {
-
-
   constructor(image: File) {
     super('popup-media-editor', {
-      overlayClosable: true,  
+      overlayClosable: true,
       isConfirmationNeededOnClose: () => {
         return confirmationPopup({
           titleLangKey: 'CancelPollAlertTitle',
@@ -16,7 +14,7 @@ export default class PopupMediaEditor extends PopupElement {
             isDanger: true
           }
         });
-      },
+      }
     })
   }
 }

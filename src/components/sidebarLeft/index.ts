@@ -73,7 +73,7 @@ import wrapEmojiStatus from '../wrappers/emojiStatus';
 import {makeMediaSize} from '../../helpers/mediaSize';
 import ReactionElement from '../chat/reaction';
 import setBlankToAnchor from '../../lib/richTextProcessor/setBlankToAnchor';
-import { c } from 'vitest/dist/reporters-5f784f42';
+import {c} from 'vitest/dist/reporters-5f784f42';
 import PopupElement from '../popups';
 import PopupMediaEditor from '../popups/mediaEditor';
 import PopupLimitReached from '../popups/limitReached';
@@ -147,13 +147,13 @@ export class AppSidebarLeft extends SidebarSlider {
     const menuButtons: ButtonMenuVerifiable[] = [{
       icon: 'plus',
       // XENA TODO should deal with the i18n
-      // @ts-ignore 
+      // @ts-ignore
       text: 'Add Account',
       onClick: () => {
         PopupElement.createPopup(PopupLimitReached).show();
       },
       separatorDown: true
-    },{
+    }, {
       icon: 'savedmessages',
       text: 'SavedMessages',
       onClick: () => {
@@ -191,7 +191,7 @@ export class AppSidebarLeft extends SidebarSlider {
     {
       icon: 'more',
       // XENA TODO should deal with the i18n
-      // @ts-ignore 
+      // @ts-ignore
       text: 'More',
       className: 'more-button',
       onClick: (e) => {
@@ -206,9 +206,9 @@ export class AppSidebarLeft extends SidebarSlider {
             text: 'Disable Dark Mode',
             onClick: (e) => this.switchThemeTo('day', e.target),
             verify: () => themeController.getTheme().name === 'night',
-            // separatorDown: true, 
-            separatorDown: false, 
-           
+            // separatorDown: true,
+            separatorDown: false
+
           },
           {
             icon: 'darkmode',
@@ -217,9 +217,9 @@ export class AppSidebarLeft extends SidebarSlider {
             text: 'Enable Dark Mode',
             onClick: (e) => this.switchThemeTo('night', e.target),
             verify: () => themeController.getTheme().name !== 'night',
-            separatorDown: false, 
-          }
-          , {
+            separatorDown: false
+          },
+          {
             icon: 'animations',
             // @ts-ignore
             // XENA TODO deal with i18n
@@ -229,9 +229,9 @@ export class AppSidebarLeft extends SidebarSlider {
               rootScope.managers.appStateManager.setByKey(stateKey, true);
             },
             verify: () => !rootScope.settings.liteMode.animations,
-            separatorDown: true, 
-          }
-          , {
+            separatorDown: true
+          },
+          {
             icon: 'animations',
             // XENA TODO deal with i18n
             // @ts-ignore
@@ -241,9 +241,8 @@ export class AppSidebarLeft extends SidebarSlider {
               rootScope.managers.appStateManager.setByKey(stateKey, false);
             },
             verify: () => rootScope.settings.liteMode.animations,
-            separatorDown: true, 
-          }
-          ,
+            separatorDown: true
+          },
           {
             icon: 'help',
             text: 'TelegramFeatures',
@@ -270,7 +269,7 @@ export class AppSidebarLeft extends SidebarSlider {
             text: 'ChatList.Menu.SwitchTo.A',
             onClick: () => {
               Promise.all([
-                sessionStorage.set({ kz_version: 'Z' }),
+                sessionStorage.set({kz_version: 'Z'}),
                 sessionStorage.delete('tgme_sync')
               ]).then(() => {
                 location.href = 'https://web.telegram.org/a/';
@@ -298,10 +297,9 @@ export class AppSidebarLeft extends SidebarSlider {
           {
             onClick: () => {},
             isFooter: (btnMenu) => {
-
               const btnMenuFooter = document.createElement('a');
               btnMenuFooter.href = 'https://github.com/morethanwords/tweb/blob/master/CHANGELOG.md';
-              setBlankToAnchor(btnMenuFooter);  
+              setBlankToAnchor(btnMenuFooter);
               btnMenuFooter.classList.add('btn-menu-footer');
               btnMenuFooter.addEventListener(CLICK_EVENT_NAME, (e) => {
                 e.stopPropagation();
@@ -315,7 +313,7 @@ export class AppSidebarLeft extends SidebarSlider {
               btnMenu.append(btnMenuFooter);
               const a = btnMenu.querySelector('.a .btn-menu-item-icon');
               if(a) a.textContent = 'A';
-              
+
               btnMenu.style.top = `${this.toolsBtn.offsetWidth + 7}px`;
               btnMenu.style.left = `${this.backBtn.getBoundingClientRect().x}px`
 
@@ -325,7 +323,7 @@ export class AppSidebarLeft extends SidebarSlider {
         ]
       }
     }
-  ];
+    ];
 
 
     const filteredButtons = menuButtons.filter(Boolean);

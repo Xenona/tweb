@@ -61,7 +61,7 @@ export type ButtonMenuItemOptionsVerifiable = ButtonMenuItemOptions & {
 function ButtonMenuItem(options: ButtonMenuItemOptions) {
   if(options.element) {
     const res = [options.element]
-    
+
     const sepEl = options.separator as HTMLElement
     if(options.separatorDown)
       res.push(sepEl)
@@ -178,12 +178,12 @@ function ButtonMenuItem(options: ButtonMenuItemOptions) {
   if(options.inner) {
     el.append(Icon('next', 'btn-menu-item-icon', 'btn-menu-item-icon-right'));
     el.classList.add('has-inner');
-    
+
     const inner = options.inner;
-    
-    (async () => {
+
+    (async() => {
       const options = await (typeof inner === 'function' ? inner() : inner);
-      
+
       const filteredButtons = await filterAsync(options.buttons, (item) => {
         if(!item.verify) return true;
         return item.verify()
@@ -204,12 +204,12 @@ function ButtonMenuItem(options: ButtonMenuItemOptions) {
       innerMenu.style.left = `${brx}px`;
       innerMenu.style.zIndex = '4';
 
-  
+
       el.addEventListener('mouseout', () => {
         el.classList.remove('is-visible')
         innerMenu.classList.remove('active')
       })
-  
+
       el.append(innerMenu);
       (el as any).inner = innerMenu;
     })()
@@ -253,13 +253,11 @@ export function ButtonMenuSync({listenerSetter, buttons, radioGroups}: {
   }
 
   const items = buttons.map((e) => {
-  
-    if (e.isFooter) {
+    if(e.isFooter) {
       return e.isFooter(el);
     } else {
       return ButtonMenuItem(e);
     }
-  
   });
   el.append(...flatten(items));
 
