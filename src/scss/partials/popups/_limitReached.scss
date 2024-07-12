@@ -1,0 +1,18 @@
+.popup {
+
+  &-header {
+    margin: 0;
+  }
+
+  &-container {
+    width: 360px;
+    padding: 12px 12px 12px 16px;
+  }
+
+  &-limit-reached {
+    .limit-line-container {
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+}

@@ -59,7 +59,6 @@ export type ButtonMenuItemOptionsVerifiable = ButtonMenuItemOptions & {
 };
 
 function ButtonMenuItem(options: ButtonMenuItemOptions) {
-  console.log("XE hhhhhhhhhhhhhhhh")
   if(options.element) {
     const res = [options.element]
     
@@ -189,7 +188,6 @@ function ButtonMenuItem(options: ButtonMenuItemOptions) {
         if(!item.verify) return true;
         return item.verify()
       })
-      console.log('XEf fff', filteredButtons )
       const innerMenu = await ButtonMenu({...options, buttons: filteredButtons});
 
       innerMenu.classList.add('bottom-right', 'inner-backdrop')
@@ -223,7 +221,6 @@ function ButtonMenuItem(options: ButtonMenuItemOptions) {
     ret[options.separatorDown ? 'push' : 'unshift'](options.separator as HTMLElement);
   }
 
-  console.log("XE RET", ret)
   return ret.filter(Boolean);
 }
 

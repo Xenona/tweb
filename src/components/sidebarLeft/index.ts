@@ -361,7 +361,7 @@ export class AppSidebarLeft extends SidebarSlider {
         filteredButtons.splice(0, filteredButtons.length, ...buttons);
       },
       onOpen: (e, btnMenu) => {
-        btnMenu.classList.add('has-footer', 'floating-menu-over');
+        btnMenu.classList.add('floating-menu-over');
 
         btnMenu.style.top = `${this.toolsBtn.offsetWidth + 7}px`;
         btnMenu.style.left = `${this.backBtn.getBoundingClientRect().x}px`
