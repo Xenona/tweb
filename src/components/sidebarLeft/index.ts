@@ -74,6 +74,9 @@ import {makeMediaSize} from '../../helpers/mediaSize';
 import ReactionElement from '../chat/reaction';
 import setBlankToAnchor from '../../lib/richTextProcessor/setBlankToAnchor';
 import { c } from 'vitest/dist/reporters-5f784f42';
+import PopupElement from '../popups';
+import PopupMediaEditor from '../popups/mediaEditor';
+import PopupLimitReached from '../popups/limitReached';
 
 export const LEFT_COLUMN_ACTIVE_CLASSNAME = 'is-left-column-shown';
 
@@ -147,6 +150,7 @@ export class AppSidebarLeft extends SidebarSlider {
       // @ts-ignore 
       text: 'Add Account',
       onClick: () => {
+        PopupElement.createPopup(PopupLimitReached).show();
       },
       separatorDown: true
     },{
@@ -201,15 +205,19 @@ export class AppSidebarLeft extends SidebarSlider {
             // XENA TODO deal with i18n
             text: 'Disable Dark Mode',
             onClick: (e) => this.switchThemeTo('day', e.target),
-            verify: () => themeController.getTheme().name === 'night'
-            },
+            verify: () => themeController.getTheme().name === 'night',
+            // separatorDown: true, 
+            separatorDown: false, 
+           
+          },
           {
             icon: 'darkmode',
             // @ts-ignore
             // XENA TODO deal with i18n
             text: 'Enable Dark Mode',
             onClick: (e) => this.switchThemeTo('night', e.target),
-            verify: () => themeController.getTheme().name !== 'night'
+            verify: () => themeController.getTheme().name !== 'night',
+            separatorDown: false, 
           }
           , {
             icon: 'animations',
@@ -220,7 +228,9 @@ export class AppSidebarLeft extends SidebarSlider {
               const stateKey = joinDeepPath('settings', 'liteMode', 'animations');
               rootScope.managers.appStateManager.setByKey(stateKey, true);
             },
-            verify: () => !rootScope.settings.liteMode.animations}
+            verify: () => !rootScope.settings.liteMode.animations,
+            separatorDown: true, 
+          }
           , {
             icon: 'animations',
             // XENA TODO deal with i18n
@@ -230,7 +240,9 @@ export class AppSidebarLeft extends SidebarSlider {
               const stateKey = joinDeepPath('settings', 'liteMode', 'animations');
               rootScope.managers.appStateManager.setByKey(stateKey, false);
             },
-            verify: () => rootScope.settings.liteMode.animations}
+            verify: () => rootScope.settings.liteMode.animations,
+            separatorDown: true, 
+          }
           ,
           {
             icon: 'help',

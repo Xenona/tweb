@@ -59,7 +59,18 @@ export type ButtonMenuItemOptionsVerifiable = ButtonMenuItemOptions & {
 };
 
 function ButtonMenuItem(options: ButtonMenuItemOptions) {
-  if(options.element) return [options.separator as HTMLElement, options.element].filter(Boolean);
+  console.log("XE hhhhhhhhhhhhhhhh")
+  if(options.element) {
+    const res = [options.element]
+    
+    const sepEl = options.separator as HTMLElement
+    if(options.separatorDown)
+      res.push(sepEl)
+    else
+      res.unshift(sepEl)
+
+    return res.filter(Boolean);
+  }
 
   const {icon, iconDoc, className, text, onClick, checkboxField, noCheckboxClickListener} = options;
   const el = document.createElement('div');
@@ -178,6 +189,7 @@ function ButtonMenuItem(options: ButtonMenuItemOptions) {
         if(!item.verify) return true;
         return item.verify()
       })
+      console.log('XEf fff', filteredButtons )
       const innerMenu = await ButtonMenu({...options, buttons: filteredButtons});
 
       innerMenu.classList.add('bottom-right', 'inner-backdrop')
@@ -211,6 +223,7 @@ function ButtonMenuItem(options: ButtonMenuItemOptions) {
     ret[options.separatorDown ? 'push' : 'unshift'](options.separator as HTMLElement);
   }
 
+  console.log("XE RET", ret)
   return ret.filter(Boolean);
 }
 
