@@ -82,6 +82,7 @@ html.custom-scroll {
   overflow-y: hidden;
   overflow-x: hidden;
   max-height: 100%;
+  will-change: scroll-position, contents;
 
   //@include respond-to(not-handhelds) {
     position: absolute;
