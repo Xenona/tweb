@@ -195,8 +195,8 @@ export class AppSidebarLeft extends SidebarSlider {
       text: 'More',
       className: 'more-button',
       onClick: (e) => {
-        e.preventDefault();
       },
+      keepOpen: true,
       inner: {
         buttons: [
           {

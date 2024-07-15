@@ -20,6 +20,7 @@ import Icon from './icon';
 import RadioForm from './radioForm';
 import wrapAttachBotIcon from './wrappers/attachBotIcon';
 import filterAsync from '../helpers/array/filterAsync';
+import IS_TOUCH_SUPPORTED from '../environment/touchSupport';
 
 type ButtonMenuItemInner = Omit<Omit<Parameters<typeof ButtonMenuSync>[0], 'listenerSetter'>, 'buttons'> & {
   buttons: ButtonMenuItemOptionsVerifiable[]
@@ -191,25 +192,40 @@ function ButtonMenuItem(options: ButtonMenuItemOptions) {
       const innerMenu = await ButtonMenu({...options, buttons: filteredButtons});
 
       innerMenu.classList.add('bottom-right', 'inner-backdrop')
-      el.addEventListener('mouseover', () => {
-        el.classList.add('is-visible')
-        innerMenu.classList.add('active')
+      
+      el.addEventListener('click', () => {
+        if (innerMenu.classList.contains('active')) {
+          el.classList.remove('is-visible')
+          innerMenu.classList.remove('active')
+        } else {
+          el.classList.add('is-visible')
+          innerMenu.classList.add('active')
+        }
       })
 
+      let menuTopLeftY: number = -el.offsetHeight/2+2;
+      let menuTopLeftX: number = el.offsetLeft + el.offsetWidth/2;
 
-      const bry = -el.offsetHeight/2+2;
-      const brx = el.offsetLeft + el.offsetWidth - 10;
+      if (!IS_TOUCH_SUPPORTED) {
+        menuTopLeftX = el.offsetLeft + el.offsetWidth - 10;
+        innerMenu.style.left = `${menuTopLeftX}px`;
+
+        el.addEventListener('mouseover', () => {
+          el.classList.add('is-visible')
+          innerMenu.classList.add('active')
+        })
+
+        el.addEventListener('mouseout', () => {
+          el.classList.remove('is-visible')
+          innerMenu.classList.remove('active')
+        })
+      }
+
       innerMenu.style.position = 'absolute';
-      innerMenu.style.top = `${bry}px`;
-      innerMenu.style.left = `${brx}px`;
+      innerMenu.style.left = `${menuTopLeftX}px`;
+      innerMenu.style.top = `${menuTopLeftY}px`;
       innerMenu.style.zIndex = '4';
-
-
-      el.addEventListener('mouseout', () => {
-        el.classList.remove('is-visible')
-        innerMenu.classList.remove('active')
-      })
-
+      
       el.append(innerMenu);
       (el as any).inner = innerMenu;
     })()
