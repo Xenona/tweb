@@ -28,13 +28,15 @@ export default class SidebarSlider {
   private navigationType: NavigationItem['type'];
   protected managers: AppManagers;
   protected middlewareHelper: MiddlewareHelper;
+  protected isNavigational: boolean;
   public onOpenTab: () => MaybePromise<void>;
 
   constructor(options: {
     sidebarEl: SidebarSlider['sidebarEl'],
     tabs?: SidebarSlider['tabs'],
     canHideFirst?: SidebarSlider['canHideFirst'],
-    navigationType: SidebarSlider['navigationType']
+    navigationType: SidebarSlider['navigationType'],
+    isNavigational?: boolean,
   }) {
     safeAssign(this, options);
 
@@ -75,7 +77,7 @@ export default class SidebarSlider {
     if(id !== undefined && this.historyTabIds[this.historyTabIds.length - 1] !== id) {
       this.removeTabFromHistory(id);
       return false;
-    }
+    }   
 
     // console.log('sidebar-close-button click:', this.historyTabIDs);
     const closingId = this.historyTabIds.pop(); // pop current
@@ -87,6 +89,7 @@ export default class SidebarSlider {
   };
 
   protected pushNavigationItem(tab: SliderSuperTab) {
+    if (!this.isNavigational) return;
     const navigationItem: NavigationItem = {
       type: this.navigationType,
       onPop: (canAnimate) => {

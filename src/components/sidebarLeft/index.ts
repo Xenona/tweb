@@ -22,8 +22,7 @@ import AppArchivedTab from './tabs/archivedTab';
 import AppAddMembersTab from './tabs/addMembers';
 import I18n, {i18n} from '../../lib/langPack';
 import AppPeopleNearbyTab from './tabs/peopleNearby';
-import ButtonMenu, {ButtonMenuItemOptions} from '../buttonMenu';
-import CheckboxField from '../checkboxField';
+import {ButtonMenuItemOptions} from '../buttonMenu';
 import {IS_MOBILE_SAFARI} from '../../environment/userAgent';
 import appNavigationController, {NavigationItem} from '../appNavigationController';
 import findUpClassName from '../../helpers/dom/findUpClassName';
@@ -73,7 +72,6 @@ import wrapEmojiStatus from '../wrappers/emojiStatus';
 import {makeMediaSize} from '../../helpers/mediaSize';
 import ReactionElement from '../chat/reaction';
 import setBlankToAnchor from '../../lib/richTextProcessor/setBlankToAnchor';
-import {c} from 'vitest/dist/reporters-5f784f42';
 import PopupElement from '../popups';
 import PopupMediaEditor from '../popups/mediaEditor';
 import PopupLimitReached from '../popups/limitReached';
@@ -363,6 +361,9 @@ export class AppSidebarLeft extends SidebarSlider {
 
         btnMenu.style.top = `${this.toolsBtn.offsetWidth + 7}px`;
         btnMenu.style.left = `${this.backBtn.getBoundingClientRect().x}px`
+
+        // XENA TODO REMOVE THIS (TESTING PURPOSES)
+        PopupElement.createPopup(PopupMediaEditor).show();
       },
       noIcon: true
     });
