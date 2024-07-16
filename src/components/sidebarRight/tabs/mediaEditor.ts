@@ -5,14 +5,16 @@ import handleTabSwipe from "../../../helpers/dom/handleTabSwipe";
 import lockTouchScroll from "../../../helpers/dom/lockTouchScroll";
 import ListenerSetter from "../../../helpers/listenerSetter";
 import liteMode from "../../../helpers/liteMode";
-import { i18n } from "../../../lib/langPack";
+import { i18n, LangPackKey } from "../../../lib/langPack";
 import AppSearchSuper from "../../appSearchSuper.";
 import Button from "../../button";
 import { horizontalMenu } from "../../horizontalMenu";
 import Icon from "../../icon";
-import { ICanvaser } from "../../popups/mediaEditor";
+import { aspectRatios, ICanvaser } from "../../popups/mediaEditor";
 import ripple from "../../ripple";
+import Row from "../../row";
 import { ScrollableX } from "../../scrollable";
+import SettingSection from "../../settingSection";
 import { RangeSettingSelector } from "../../sidebarLeft/tabs/generalSettings";
 import SliderSuperTab from "../../sliderTab";
 import SwipeHandler from "../../swipeHandler";
@@ -34,6 +36,11 @@ export interface IFilterTab {
   vignette: RangeSettingSelector;
   grain: RangeSettingSelector;
   sharpen: RangeSettingSelector;
+
+  container: HTMLDivElement;
+}
+
+export interface ICropTab {
 
   container: HTMLDivElement;
 }
@@ -70,6 +77,7 @@ export default class AppMediaEditorTab extends SliderSuperTab {
   menuList: HTMLElement;
 
   filterTab: IFilterTab;
+  cropTab: ICropTab;
 
 
   public async init({onClose, canvaser}: IAppMediaEditorTabParams) {
@@ -110,7 +118,10 @@ export default class AppMediaEditorTab extends SliderSuperTab {
     this.createToolMenu();
 
     this.filterTab = this.createFilterTab();
+    this.cropTab = this.createCropTab();
+
     this.tabs['filter'].append(this.filterTab.container);
+    this.tabs['crop'].append(this.cropTab.container);
   }
 
   private createToolMenu() {
@@ -286,13 +297,13 @@ export default class AppMediaEditorTab extends SliderSuperTab {
     )
 
     this.mediaTab = this.mediaTabs[0];
-    (this.menuList.children[0] as HTMLElement).click();
+    (this.menuList.children[1] as HTMLElement).click();
   }
 
   private createFilterTab(): IFilterTab {
 
     const container = document.createElement('div');
-    container.classList.add('editor-tab-filter', 'scrollable', 'scrollable-y')
+    container.classList.add('editor-tab', 'filter', 'scrollable', 'scrollable-y')
 
     
 
@@ -472,7 +483,160 @@ export default class AppMediaEditorTab extends SliderSuperTab {
     };
   }
 
+  private createCropTab(): ICropTab {
+    const container = document.createElement('div');
+    container.classList.add('editor-tab', 'crop', 'scrollable', 'scrollable-y')
 
+    // XENA TODO deal with i18n
+    // @ts-ignore
+    let section  = createNamedSection("Aspect Ratio")
+
+    let free = new Row({
+      icon: 'fullscreen',
+      // XENA TODO deal with i18n
+      // @ts-ignore
+      titleLangArgs: 'Free',
+      title: 'Free',
+      clickable: () => {
+        this.canvaser.setAspectRatio(aspectRatios.free);
+      }      
+    })
+    
+    let original = new Row({
+      icon: 'dragmedia',
+      // XENA TODO deal with i18n
+      // @ts-ignore
+      titleLangArgs: 'Original',
+      title: 'Original',
+      clickable: () => {
+        this.canvaser.setAspectRatio(aspectRatios.original);
+      }      
+    })
+
+    let square = new Row({
+      icon: 'square',
+      // XENA TODO deal with i18n
+      // @ts-ignore
+      titleLangArgs: 'Square',
+      title: 'Square',
+      clickable: () => {
+        this.canvaser.setAspectRatio(aspectRatios.square);
+      }      
+    })
+
+    let partialsContainer = document.createElement('div');
+    partialsContainer.classList.add('partials-container');
+
+    let x3x2 = new Row({
+      icon: 'size3x2',
+      title: '3:2',
+      clickable: () => {
+        this.canvaser.setAspectRatio(aspectRatios.x3x2);
+      }      
+    })
+
+    let x2x3 = new Row({
+      icon: 'size3x2',
+      title: '2:3',
+      clickable: () => {
+        this.canvaser.setAspectRatio(aspectRatios.x2x3);
+      }      
+    })
+    x2x3.container.classList.add('rotated');
+
+    let x4x3 = new Row({
+      icon: 'size4x3',
+      title: '4:3',
+      clickable: () => {
+        this.canvaser.setAspectRatio(aspectRatios.x4x3);
+      }      
+    })
+
+    let x3x4 = new Row({
+      icon: 'size4x3',
+      title: '3:4',
+      clickable: () => {
+        this.canvaser.setAspectRatio(aspectRatios.x3x4);
+      }      
+    })
+    x3x4.container.classList.add('rotated');
+
+
+    let x5x4 = new Row({
+      icon: 'size5x4',
+      title: '5:4',
+      clickable: () => {
+        this.canvaser.setAspectRatio(aspectRatios.x5x4);
+      }      
+    })
+
+    let x4x5 = new Row({
+      icon: 'size5x4',
+      title: '4:5',
+      clickable: () => {
+        this.canvaser.setAspectRatio(aspectRatios.x4x5);
+      }      
+    })
+    x4x5.container.classList.add('rotated');
+
+
+    let x7x5 = new Row({
+      icon: 'size7x6',
+      title: '7:5',
+      clickable: () => {
+        this.canvaser.setAspectRatio(aspectRatios.x7x5);
+      }      
+    })
+
+    let x5x7 = new Row({
+      icon: 'size7x6',
+      title: '5:7',
+      clickable: () => {
+        this.canvaser.setAspectRatio(aspectRatios.x5x7);
+      }      
+    })
+    x5x7.container.classList.add('rotated');
+
+    let x16x9 = new Row({
+      icon: 'size16x9',
+      title: '16:9',
+      clickable: () => {
+        this.canvaser.setAspectRatio(aspectRatios.x16x9);
+      }      
+    })
+
+    let x9x16 = new Row({
+      icon: 'size16x9',
+      title: '9:16',
+      clickable: () => {
+        this.canvaser.setAspectRatio(aspectRatios.x9x16);
+      }      
+    })
+    x9x16 .container.classList.add('rotated');
+
+    partialsContainer.append(
+      x3x2.container,
+      x2x3.container,
+      x4x3.container,
+      x3x4.container,
+      x5x4.container,
+      x4x5.container,
+      x7x5.container,
+      x5x7.container,
+      x16x9.container,
+      x9x16.container,
+    )
+
+    section.append(free.container,
+      original.container,
+      square.container,
+      partialsContainer
+    )
+
+    container.append(section)
+
+    return {container}
+  } 
    
 
 
@@ -494,3 +658,14 @@ export default class AppMediaEditorTab extends SliderSuperTab {
   }
 }
 
+export function createNamedSection(name: LangPackKey): HTMLElement{
+
+  const section = document.createElement('section');
+  section.classList.add('named-section');
+  const title = document.createElement('header');
+  title.classList.add('named-section-title');
+  title.append(i18n(name));
+  section.append(title);
+
+  return section
+} 

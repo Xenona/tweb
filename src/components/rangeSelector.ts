@@ -67,7 +67,9 @@ export default class RangeSelector {
     this.setMinMax(this.min, this.max);
     seek.value = '' + value;
 
-    this.setProgress(value);
+    if (value) {
+      this.setProgress(value);
+    }
 
     const stepStr = '' + this.step;
     const index = stepStr.indexOf('.');

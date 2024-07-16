@@ -4,14 +4,28 @@ import confirmationPopup from '../confirmationPopup';
 import AppMediaEditorTab from '../sidebarRight/tabs/mediaEditor';
 import SidebarSlider from '../slider';
 
+
+export enum aspectRatios {
+  "free",
+  'original',
+  'square',
+  'x3x2',
+  'x2x3',
+  'x4x3',
+  'x3x4',
+  'x5x4',
+  'x4x5',
+  'x7x5',
+  'x5x7',
+  'x16x9',
+  'x9x16',
+} 
+
 export interface ICanvaser {
   undo: () => void,
   redo: () => void,
   
   // all the values are pulled out of design
-
-  ENCHANCE_MIN: number; // 0
-  ENCHANCE_MAX: number; // 100
   onEnchanceChange: (value: number) => void;
   onBrightnessChange: (value: number) => void;
   onContrastChange: (value: number) => void;
@@ -23,7 +37,9 @@ export interface ICanvaser {
   onVignetteChange: (value: number) => void;
   onGrainChange: (value: number) => void;
   onSharpenChange: (value: number) => void;
-
+  
+  ENCHANCE_MIN: number; // 0
+  ENCHANCE_MAX: number; // 100
 
   BRIGHTNESS_MIN: number; // -100
   BRIGHTNESS_MAX: number; // 100
@@ -54,6 +70,8 @@ export interface ICanvaser {
 
   SHARPEN_MIN: number; // 0
   SHARPEN_MAX: number; // 100
+
+  setAspectRatio: (ratio: aspectRatios) => void;
 }
 
 class Canvaser implements ICanvaser {
@@ -90,8 +108,8 @@ class Canvaser implements ICanvaser {
   public SHARPEN_MIN = 0;
   public SHARPEN_MAX = 100;
 
-  private p(text: string) {
-    console.log("XE", text);
+  private p(...args: any[]) {
+    console.log("XE", ...args);
   }
   public undo() {
     this.p("undo");
@@ -100,48 +118,52 @@ class Canvaser implements ICanvaser {
     this.p("redo");
   }
   public onEnchanceChange(value: number) {
-    this.p("enchance changing");
+    this.p("enchance changing", value);
   }
 
-      public onBrightnessChange(value: number) {
-        this.p("brightness changing");
-      }
+  public onBrightnessChange(value: number) {
+    this.p("brightness changing", value);
+  }
 
-      public onContrastChange(value: number) {
-        this.p("contrast changing");
-      }
+  public onContrastChange(value: number) {
+    this.p("contrast changing", value);
+  }
 
-      public onSaturationChange(value: number) {
-        this.p("saturation changing");
-      }
+  public onSaturationChange(value: number) {
+    this.p("saturation changing", value);
+  }
 
-      public onWarmthChange(value: number) {
-        this.p("warmth changing");
-      }
+  public onWarmthChange(value: number) {
+    this.p("warmth changing", value);
+  }
 
-      public onFadeChange(value: number) {
-        this.p("fade changing");
-      }
+  public onFadeChange(value: number) {
+    this.p("fade changing", value);
+  }
 
-      public onHighlightsChange(value: number) {
-        this.p("highlights changing");
-      }
+  public onHighlightsChange(value: number) {
+    this.p("highlights changing", value);
+  }
 
-      public onShadowsChange(value: number) {
-        this.p("shadows changing");
-      }
+  public onShadowsChange(value: number) {
+    this.p("shadows changing", value);
+  }
 
-      public onVignetteChange(value: number) {
-        this.p("vignette changing");
-      }
+  public onVignetteChange(value: number) {
+    this.p("vignette changing", value);
+  }
 
-      public onGrainChange(value: number) {
-        this.p("grain changing");
-      }
+  public onGrainChange(value: number) {
+    this.p("grain changing", value);
+  }
 
-      public onSharpenChange(value: number) {
-        this.p("sharpen changing");
-      }
+  public onSharpenChange(value: number) {
+    this.p("sharpen changing", value);
+  }
+
+  public setAspectRatio(ratio: aspectRatios) {
+    this.p("setting ratio", ratio);
+  } 
 }
 
 export default class PopupMediaEditor extends PopupElement {

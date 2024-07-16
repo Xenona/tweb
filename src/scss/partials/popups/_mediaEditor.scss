@@ -51,21 +51,63 @@
 
 .editor {
 
+  
   &-tab {
-
-    &-filter {
-
+    
+    --left-padding: 1.5rem;
+    --top-padding: 0.5rem;
+    
+    &.filter {
+      
+      padding: var(--top-padding) var(--left-padding);
       // XENA TODO
       // Fix thumb, 
       // line width,
       // number colour when active,
       // font-weight,
       // and some of the paddings
-      padding: 0.5rem 1.5rem;
     }
+
+    &.crop {
+
+      padding: 0 var(--top-padding);
+
+      & .named-section-title {
+        padding-left: var(--left-padding);
+      }
+
+      & .row {
+        width: 100%;
+
+        &.rotated .tgico {
+          transform: rotate(90deg) translateX(-50%);
+        }
+      }
+
+      & .partials-container {
+        display: flex;
+        flex-wrap: wrap;
+        
+        & .row {
+          width: 50%;
+        }
+      }
+    
+    }
+
   }
 }
 
+.named-section {
+
+  padding: var(--top-padding) 0;
+
+  &-title {
+    color: var(--secondary-text-color);
+    font-size: 16px;
+    font-weight: var(--font-weight-bold);
+  }
+}
 
 
 
