@@ -70,7 +70,7 @@ createMode('Filters', () => new NoneTool(canvaser))
   )
   .slider(
     'Blur',
-    [0, 0, 50],
+    [0, 0, 20],
     (val) => {
       canvaser.rootEffects.blur.setValue(val)
     },

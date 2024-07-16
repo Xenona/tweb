@@ -1,9 +1,20 @@
 import type { Canvaser } from "./Canvaser";
 import { RenderCtx } from "./Renderer";
 
+export type EffectInfo = {
+  type: "scalar";
+  min: number;
+  max: number;
+  default: number;
+};
+
 class RootScalarEffect {
-  constructor(effects: RootEffects) {
+  constructor(effects: RootEffects, info: Omit<EffectInfo, 'type'>) {
     this.effects = effects;
+    this.effectInfo = {
+      type: "scalar",
+      ...info
+    };
   }
 
   public setValue(val: number) {
@@ -27,13 +38,22 @@ class RootScalarEffect {
     this.effects.effectUpdate();
   }
 
+  public getInfo(): EffectInfo {
+    return this.effectInfo;
+  }
+
   protected effects: RootEffects;
+  protected effectInfo: EffectInfo;
   protected value: number = 0;
 }
 
 class FilterEffect extends RootScalarEffect {
-  constructor(filter: (v: number) => string, effects: RootEffects) {
-    super(effects);
+  constructor(
+    effects: RootEffects,
+    filter: (v: number) => string,
+    info: Omit<EffectInfo, "type">
+  ) {
+    super(effects, info);
 
     this.filter = filter;
   }
@@ -49,10 +69,26 @@ export class RootEffects {
   constructor(canvaser: Canvaser) {
     this.canvaser = canvaser;
 
-    this.blur = new FilterEffect((v) => `blur(${v}px)`, this);
-    this.brightness = new FilterEffect((v) => `brightness(${v + 100}%)`, this);
-    this.contrast = new FilterEffect((v) => `contrast(${v + 100}%)`, this);
-    this.grayscale = new FilterEffect((v) => `grayscale(${v}%)`, this);
+    this.blur = new FilterEffect(this, (v) => `blur(${v}px)`, {
+      min: 0,
+      max: 20,
+      default: 0
+    });
+    this.brightness = new FilterEffect(this, (v) => `brightness(${v + 100}%)`, {
+      min: -100,
+      max: 100,
+      default: 0
+    });
+    this.contrast = new FilterEffect(this, (v) => `contrast(${v + 100}%)`, {
+      min: -100,
+      max: 100,
+      default: 0
+    });
+    this.grayscale = new FilterEffect(this, (v) => `grayscale(${v}%)`, {
+      min: 0,
+      max: 100,
+      default: 0
+    });
 
     this.lastState = this.getStates();
   }
@@ -64,7 +100,7 @@ export class RootEffects {
         return e.emitFilter();
       })
       .join(" ");
-      
+
     ctx.pushFilters(filterStr);
   }
 
