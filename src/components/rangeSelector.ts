@@ -67,9 +67,7 @@ export default class RangeSelector {
     this.setMinMax(this.min, this.max);
     seek.value = '' + value;
 
-    if(value) {
-      this.setProgress(value);
-    }
+    this.setProgress(value);
 
     const stepStr = '' + this.step;
     const index = stepStr.indexOf('.');
@@ -134,6 +132,7 @@ export default class RangeSelector {
 
   public setFilled(value: number) {
     let percents = (value - this.min) / (this.max - this.min);
+    console.log('XE PER', percents)
     percents = clamp(percents, 0, 1);
 
     // using scaleX and width even with vertical because it will be rotated

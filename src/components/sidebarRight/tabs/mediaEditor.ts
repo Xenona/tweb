@@ -13,12 +13,29 @@ import Icon from "../../icon";
 import { ICanvaser } from "../../popups/mediaEditor";
 import ripple from "../../ripple";
 import { ScrollableX } from "../../scrollable";
+import { RangeSettingSelector } from "../../sidebarLeft/tabs/generalSettings";
 import SliderSuperTab from "../../sliderTab";
 import SwipeHandler from "../../swipeHandler";
 
 export interface IAppMediaEditorTabParams {
   onClose: () => void,
   canvaser: ICanvaser,
+}
+
+export interface IFilterTab {
+  enchance: RangeSettingSelector;
+  brightness: RangeSettingSelector;
+  contrast: RangeSettingSelector;
+  saturation: RangeSettingSelector;
+  warmth: RangeSettingSelector;
+  fade: RangeSettingSelector;
+  highlights: RangeSettingSelector;
+  shadows: RangeSettingSelector;
+  vignette: RangeSettingSelector;
+  grain: RangeSettingSelector;
+  sharpen: RangeSettingSelector;
+
+  container: HTMLDivElement;
 }
 
 export type ScrollableMenuTabType = 'filter' | 'crop' | 'text' | 'paint' | 'emoji';
@@ -51,6 +68,8 @@ export default class AppMediaEditorTab extends SliderSuperTab {
   listenerSetter = new ListenerSetter();
   public tabs: {[t in ScrollableMenuTabType]: HTMLDivElement} = {} as any;
   menuList: HTMLElement;
+
+  filterTab: IFilterTab;
 
 
   public async init({onClose, canvaser}: IAppMediaEditorTabParams) {
@@ -87,50 +106,11 @@ export default class AppMediaEditorTab extends SliderSuperTab {
 
     // ** title
     this.setTitle('Edit');
-
-    // {
-      
-    //   const a  = new AppSearchSuper({
-    //   mediaTabs: [{
-    //     name: 'SharedMedia.SavedDialogs',
-    //     type: 'savedDialogs'
-    //   }, {
-    //     name: 'Stories',
-    //     type: 'stories'
-    //   }, {
-    //     name: 'PeerMedia.Members',
-    //     type: 'members'
-    //   }, {
-    //     inputFilter: 'inputMessagesFilterPhotoVideo',
-    //     name: 'SharedMediaTab2',
-    //     type: 'media'
-    //   }, {
-    //     inputFilter: 'inputMessagesFilterEmpty',
-    //     name: 'SharedMedia.Saved',
-    //     type: 'saved'
-    //   } ],
-    //   scrollable: this.scrollable,
-    //   onChangeTab: (mediaTab) => {
-    //     // lastMediaTabType = mediaTab.type;
-    //     // transitionSubtitle(c.findIndex((item) => item[0] === mediaTab.type));
-
-    //     const timeout = mediaTab.type === 'members' && liteMode.isAvailable('animations') ? 250 : 0;
-    //     // setTimeout(() => {
-    //     //   btnAddMembers.classList.toggle('is-hidden', mediaTab.type !== 'members');
-    //     // }, timeout);
-    //   },
-    //     managers: this.managers,
-        
-    //     // openSavedDialogsInner: !this.isFirst,
-    //     slider: this.slider
-    //   });
-
-    //   a.mediaTab = a.mediaTabs[0];
-    //   this.content.append(a.container)
-
-    // }
    
     this.createToolMenu();
+
+    this.filterTab = this.createFilterTab();
+    this.tabs['filter'].append(this.filterTab.container);
   }
 
   private createToolMenu() {
@@ -233,8 +213,6 @@ export default class AppMediaEditorTab extends SliderSuperTab {
       this.tabs[mediaTab.type] = content;
 
       mediaTab.contentTab = content;
-
-      content.append(mediaTab.type)
     }
 
     container.append(header, this.tabsContainer);
@@ -310,6 +288,195 @@ export default class AppMediaEditorTab extends SliderSuperTab {
     this.mediaTab = this.mediaTabs[0];
     (this.menuList.children[0] as HTMLElement).click();
   }
+
+  private createFilterTab(): IFilterTab {
+
+    const container = document.createElement('div');
+    container.classList.add('editor-tab-filter', 'scrollable', 'scrollable-y')
+
+    
+
+    const enchance = new RangeSettingSelector(
+      // XENA TODO deal with i18n
+      // @ts-ignore
+      "Enchance",
+      1,
+      0,
+      this.canvaser.ENCHANCE_MIN,
+      this.canvaser.ENCHANCE_MAX,
+    );
+    
+    const brightness = new RangeSettingSelector(
+      // XENA TODO deal with i18n
+      // @ts-ignore
+      "Brightness",
+      1,
+      0,
+      this.canvaser.BRIGHTNESS_MIN,
+      this.canvaser.BRIGHTNESS_MAX,
+    );
+    
+    const contrast = new RangeSettingSelector(
+      // XENA TODO deal with i18n
+      // @ts-ignore
+      "Contrast",
+      1,
+      0,
+      this.canvaser.CONTRAST_MIN,
+      this.canvaser.CONTRAST_MAX,
+    );
+    
+    const saturation = new RangeSettingSelector(
+      // XENA TODO deal with i18n
+      // @ts-ignore
+      "Saturation",
+      1,
+      0,
+      this.canvaser.SATURATION_MIN,
+      this.canvaser.SATURATION_MAX,
+    );
+    
+    const warmth = new RangeSettingSelector(
+      // XENA TODO deal with i18n
+      // @ts-ignore
+      "Warmth",
+      1,
+      0,
+      this.canvaser.WARMTH_MIN,
+      this.canvaser.WARMTH_MAX,
+    );
+    
+    const fade = new RangeSettingSelector(
+      // XENA TODO deal with i18n
+      // @ts-ignore
+      "Fade",
+      1,
+      0,
+      this.canvaser.FADE_MIN,
+      this.canvaser.FADE_MAX,
+    );
+    
+    const highlights = new RangeSettingSelector(
+      // XENA TODO deal with i18n
+      // @ts-ignore
+      "Highlights",
+      1,
+      0,
+      this.canvaser.HIGHLIGHTS_MIN,
+      this.canvaser.HIGHLIGHTS_MAX,
+    );
+    
+    const shadows = new RangeSettingSelector(
+      // XENA TODO deal with i18n
+      // @ts-ignore
+      "Shadows",
+      1,
+      0,
+      this.canvaser.SHADOWS_MIN,
+      this.canvaser.SHADOWS_MAX,
+    );
+    
+    const vignette = new RangeSettingSelector(
+      // XENA TODO deal with i18n
+      // @ts-ignore
+      "Vignette",
+      1,
+      0,
+      this.canvaser.VIGNETTE_MIN,
+      this.canvaser.VIGNETTE_MAX,
+    );
+    
+    const grain = new RangeSettingSelector(
+      // XENA TODO deal with i18n
+      // @ts-ignore
+      "Grain",
+      1,
+      0,
+      this.canvaser.GRAIN_MIN,
+      this.canvaser.GRAIN_MAX,
+    );
+    
+    const sharpen = new RangeSettingSelector(
+      // XENA TODO deal with i18n
+      // @ts-ignore
+      "Sharpen",
+      1,
+      0,
+      this.canvaser.SHARPEN_MIN,
+      this.canvaser.SHARPEN_MAX,
+    );
+    
+    enchance.onChange = (value) => {
+      this.canvaser.onEnchanceChange(value);
+    };
+    
+    brightness.onChange = (value) => {
+      this.canvaser.onBrightnessChange(value);
+    };
+    
+    contrast.onChange = (value) => {
+      this.canvaser.onContrastChange(value);
+    };
+    
+    saturation.onChange = (value) => {
+      this.canvaser.onSaturationChange(value);
+    };
+    
+    warmth.onChange = (value) => {
+      this.canvaser.onWarmthChange(value);
+    };
+    
+    fade.onChange = (value) => {
+      this.canvaser.onFadeChange(value);
+    };
+    
+    highlights.onChange = (value) => {
+      this.canvaser.onHighlightsChange(value);
+    };
+    
+    shadows.onChange = (value) => {
+      this.canvaser.onShadowsChange(value);
+    };
+    
+    vignette.onChange = (value) => {
+      this.canvaser.onVignetteChange(value);
+    };
+    
+    grain.onChange = (value) => {
+      this.canvaser.onGrainChange(value);
+    };
+    
+    sharpen.onChange = (value) => {
+      this.canvaser.onSharpenChange(value);
+    };
+    
+    
+    container.append(
+      enchance.container  ,
+      brightness.container,
+      contrast.container,
+      saturation.container,
+      warmth.container,
+      fade.container,
+      highlights.container,
+      shadows.container,
+      vignette.container,
+      grain.container,
+      sharpen.container,
+    );
+  
+
+
+
+    return { container, enchance, brightness, contrast, saturation, warmth, fade, highlights, shadows, vignette, grain, sharpen
+    };
+  }
+
+
+   
+
+
+
 
 
   private onTransitionStart = () => {
