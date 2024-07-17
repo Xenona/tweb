@@ -25,7 +25,7 @@ export interface IAppMediaEditorTabParams {
 }
 
 export interface IFilterTab {
-  enchance: RangeSettingSelector;
+  enhance: RangeSettingSelector;
   brightness: RangeSettingSelector;
   contrast: RangeSettingSelector;
   saturation: RangeSettingSelector;
@@ -305,14 +305,14 @@ export default class AppMediaEditorTab extends SliderSuperTab {
     const container = document.createElement('div');
     container.classList.add('editor-tab', 'filter', 'scrollable', 'scrollable-y')
 
-    
+    // XENA TODO fix value 0
 
-    const enchance = new RangeSettingSelector(
+    const enhance = new RangeSettingSelector(
       // XENA TODO deal with i18n
       // @ts-ignore
-      "Enchance",
+      "Enhance",
       1,
-      0,
+      0.01,
       this.canvaser.ENCHANCE_MIN,
       this.canvaser.ENCHANCE_MAX,
     );
@@ -322,7 +322,7 @@ export default class AppMediaEditorTab extends SliderSuperTab {
       // @ts-ignore
       "Brightness",
       1,
-      0,
+      0.01,
       this.canvaser.BRIGHTNESS_MIN,
       this.canvaser.BRIGHTNESS_MAX,
     );
@@ -332,7 +332,7 @@ export default class AppMediaEditorTab extends SliderSuperTab {
       // @ts-ignore
       "Contrast",
       1,
-      0,
+      0.01,
       this.canvaser.CONTRAST_MIN,
       this.canvaser.CONTRAST_MAX,
     );
@@ -342,7 +342,7 @@ export default class AppMediaEditorTab extends SliderSuperTab {
       // @ts-ignore
       "Saturation",
       1,
-      0,
+      0.01,
       this.canvaser.SATURATION_MIN,
       this.canvaser.SATURATION_MAX,
     );
@@ -417,53 +417,107 @@ export default class AppMediaEditorTab extends SliderSuperTab {
       this.canvaser.SHARPEN_MAX,
     );
     
-    enchance.onChange = (value) => {
-      this.canvaser.onEnchanceChange(value);
+    enhance.onChange = (value) => {
+      if (value != 0) {
+        enhance.valueContainer.classList.add('non-zero')
+      } else {
+        enhance.valueContainer.classList.remove('non-zero')
+      }
+      this.canvaser.onEnhanceChange(value);
     };
     
     brightness.onChange = (value) => {
+      if (value != 0) {
+        brightness.valueContainer.classList.add('non-zero')
+      } else {
+        brightness.valueContainer.classList.remove('non-zero')
+      }
       this.canvaser.onBrightnessChange(value);
     };
     
     contrast.onChange = (value) => {
+      if (value != 0) {
+        contrast.valueContainer.classList.add('non-zero')
+      } else {
+        contrast.valueContainer.classList.remove('non-zero')
+      }
       this.canvaser.onContrastChange(value);
     };
     
     saturation.onChange = (value) => {
+      if (value != 0) {
+        saturation.valueContainer.classList.add('non-zero')
+      } else {
+        saturation.valueContainer.classList.remove('non-zero')
+      }
       this.canvaser.onSaturationChange(value);
     };
     
     warmth.onChange = (value) => {
+      if (value != 0) {
+        warmth.valueContainer.classList.add('non-zero')
+      } else {
+        warmth.valueContainer.classList.remove('non-zero')
+      }
       this.canvaser.onWarmthChange(value);
     };
     
     fade.onChange = (value) => {
+      if (value != 0) {
+        fade.valueContainer.classList.add('non-zero')
+      } else {
+        fade.valueContainer.classList.remove('non-zero')
+      }
       this.canvaser.onFadeChange(value);
     };
     
     highlights.onChange = (value) => {
+      if (value != 0) {
+        highlights.valueContainer.classList.add('non-zero')
+      } else {
+        highlights.valueContainer.classList.remove('non-zero')
+      }
       this.canvaser.onHighlightsChange(value);
     };
     
     shadows.onChange = (value) => {
+      if (value != 0) {
+        shadows.valueContainer.classList.add('non-zero')
+      } else {
+        shadows.valueContainer.classList.remove('non-zero')
+      }
       this.canvaser.onShadowsChange(value);
     };
     
     vignette.onChange = (value) => {
+      if (value != 0) {
+        vignette.valueContainer.classList.add('non-zero')
+      } else {
+        vignette.valueContainer.classList.remove('non-zero')
+      }
       this.canvaser.onVignetteChange(value);
     };
     
     grain.onChange = (value) => {
+      if (value != 0) {
+        grain.valueContainer.classList.add('non-zero')
+      } else {
+        grain.valueContainer.classList.remove('non-zero')
+      }
       this.canvaser.onGrainChange(value);
     };
     
     sharpen.onChange = (value) => {
+      if (value != 0) {
+        sharpen.valueContainer.classList.add('non-zero')
+      } else {
+        sharpen.valueContainer.classList.remove('non-zero')
+      }
       this.canvaser.onSharpenChange(value);
     };
     
-    
     container.append(
-      enchance.container  ,
+      enhance.container  ,
       brightness.container,
       contrast.container,
       saturation.container,
@@ -479,7 +533,7 @@ export default class AppMediaEditorTab extends SliderSuperTab {
 
 
 
-    return { container, enchance, brightness, contrast, saturation, warmth, fade, highlights, shadows, vignette, grain, sharpen
+    return { container, enhance, brightness, contrast, saturation, warmth, fade, highlights, shadows, vignette, grain, sharpen
     };
   }
 

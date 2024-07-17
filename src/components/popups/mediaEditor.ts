@@ -26,7 +26,7 @@ export interface ICanvaser {
   redo: () => void,
   
   // all the values are pulled out of design
-  onEnchanceChange: (value: number) => void;
+  onEnhanceChange: (value: number) => void;
   onBrightnessChange: (value: number) => void;
   onContrastChange: (value: number) => void;
   onSaturationChange: (value: number) => void;
@@ -117,7 +117,7 @@ class Canvaser implements ICanvaser {
   public redo() {
     this.p("redo");
   }
-  public onEnchanceChange(value: number) {
+  public onEnhanceChange(value: number) {
     this.p("enchance changing", value);
   }
 

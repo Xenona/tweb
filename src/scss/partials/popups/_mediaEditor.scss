@@ -42,11 +42,19 @@
 
   & .menu-horizontal-div-item {
     font-size: 1.5rem;  
+
+
+    &:first-child,  &:last-child {
+      padding-left: 0.8rem;
+      padding-right: 0.8rem;
+    }
+
   }
 
   & .btn-circle.btn-corner {
     transform: translateZ(0);
   }
+  
 }
 
 .editor {
@@ -55,11 +63,14 @@
   &-tab {
     
     --left-padding: 1.5rem;
-    --top-padding: 0.5rem;
+    --top-padding: 1.5rem;
     
     &.filter {
       
       padding: var(--top-padding) var(--left-padding);
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
       // XENA TODO
       // Fix thumb, 
       // line width,
@@ -70,10 +81,10 @@
 
     &.crop {
 
-      padding: 0 var(--top-padding);
+      padding: 0 0.5rem;
 
       & .named-section-title {
-        padding-left: var(--left-padding);
+        padding: 0 0 0.5rem 1.1rem;
       }
 
       & .row {
@@ -95,6 +106,30 @@
     
     }
 
+    & .range-setting-selector {
+      padding: 0;
+
+      &:last-child {
+        padding-bottom: 5.5rem;
+      }
+
+      &-details, &-name {
+        font-weight: 700;
+      }
+
+      &-details {
+        margin-bottom: 1.5rem;  
+      }
+    
+      & .non-zero {
+        color: var(--primary-color)
+      }
+
+      & .progress-line {
+        --height: 4px;
+        --thumb-size: 20px;
+      }
+    }
   }
 }
 
