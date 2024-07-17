@@ -38,8 +38,8 @@ export interface ICanvaser {
   onGrainChange: (value: number) => void;
   onSharpenChange: (value: number) => void;
   
-  ENCHANCE_MIN: number; // 0
-  ENCHANCE_MAX: number; // 100
+  ENHANCE_MIN: number; // 0
+  ENHANCE_MAX: number; // 100
 
   BRIGHTNESS_MIN: number; // -100
   BRIGHTNESS_MAX: number; // 100
@@ -75,8 +75,8 @@ export interface ICanvaser {
 }
 
 class Canvaser implements ICanvaser {
-  public ENCHANCE_MIN = 0;
-  public ENCHANCE_MAX = 100;
+  public ENHANCE_MIN = 0;
+  public ENHANCE_MAX = 100;
 
   public BRIGHTNESS_MIN = -100;
   public BRIGHTNESS_MAX = 100;

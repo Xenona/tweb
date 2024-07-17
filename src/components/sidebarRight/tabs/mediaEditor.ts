@@ -10,7 +10,7 @@ import AppSearchSuper from "../../appSearchSuper.";
 import Button from "../../button";
 import { horizontalMenu } from "../../horizontalMenu";
 import Icon from "../../icon";
-import { aspectRatios, ICanvaser } from "../../popups/mediaEditor";
+import { aspectRatios as AspectRatios, ICanvaser } from "../../popups/mediaEditor";
 import ripple from "../../ripple";
 import Row from "../../row";
 import { ScrollableX } from "../../scrollable";
@@ -307,215 +307,109 @@ export default class AppMediaEditorTab extends SliderSuperTab {
 
     // XENA TODO fix value 0
 
-    const enhance = new RangeSettingSelector(
-      // XENA TODO deal with i18n
-      // @ts-ignore
-      "Enhance",
-      1,
-      0.01,
-      this.canvaser.ENCHANCE_MIN,
-      this.canvaser.ENCHANCE_MAX,
-    );
-    
-    const brightness = new RangeSettingSelector(
-      // XENA TODO deal with i18n
-      // @ts-ignore
-      "Brightness",
-      1,
-      0.01,
-      this.canvaser.BRIGHTNESS_MIN,
-      this.canvaser.BRIGHTNESS_MAX,
-    );
-    
-    const contrast = new RangeSettingSelector(
-      // XENA TODO deal with i18n
-      // @ts-ignore
-      "Contrast",
-      1,
-      0.01,
-      this.canvaser.CONTRAST_MIN,
-      this.canvaser.CONTRAST_MAX,
-    );
-    
-    const saturation = new RangeSettingSelector(
-      // XENA TODO deal with i18n
-      // @ts-ignore
-      "Saturation",
-      1,
-      0.01,
-      this.canvaser.SATURATION_MIN,
-      this.canvaser.SATURATION_MAX,
-    );
-    
-    const warmth = new RangeSettingSelector(
-      // XENA TODO deal with i18n
-      // @ts-ignore
-      "Warmth",
-      1,
-      0,
-      this.canvaser.WARMTH_MIN,
-      this.canvaser.WARMTH_MAX,
-    );
-    
-    const fade = new RangeSettingSelector(
-      // XENA TODO deal with i18n
-      // @ts-ignore
-      "Fade",
-      1,
-      0,
-      this.canvaser.FADE_MIN,
-      this.canvaser.FADE_MAX,
-    );
-    
-    const highlights = new RangeSettingSelector(
-      // XENA TODO deal with i18n
-      // @ts-ignore
-      "Highlights",
-      1,
-      0,
-      this.canvaser.HIGHLIGHTS_MIN,
-      this.canvaser.HIGHLIGHTS_MAX,
-    );
-    
-    const shadows = new RangeSettingSelector(
-      // XENA TODO deal with i18n
-      // @ts-ignore
-      "Shadows",
-      1,
-      0,
-      this.canvaser.SHADOWS_MIN,
-      this.canvaser.SHADOWS_MAX,
-    );
-    
-    const vignette = new RangeSettingSelector(
-      // XENA TODO deal with i18n
-      // @ts-ignore
-      "Vignette",
-      1,
-      0,
-      this.canvaser.VIGNETTE_MIN,
-      this.canvaser.VIGNETTE_MAX,
-    );
-    
-    const grain = new RangeSettingSelector(
-      // XENA TODO deal with i18n
-      // @ts-ignore
-      "Grain",
-      1,
-      0,
-      this.canvaser.GRAIN_MIN,
-      this.canvaser.GRAIN_MAX,
-    );
-    
-    const sharpen = new RangeSettingSelector(
-      // XENA TODO deal with i18n
-      // @ts-ignore
-      "Sharpen",
-      1,
-      0,
-      this.canvaser.SHARPEN_MIN,
-      this.canvaser.SHARPEN_MAX,
-    );
-    
-    enhance.onChange = (value) => {
-      if (value != 0) {
-        enhance.valueContainer.classList.add('non-zero')
-      } else {
-        enhance.valueContainer.classList.remove('non-zero')
-      }
-      this.canvaser.onEnhanceChange(value);
-    };
-    
-    brightness.onChange = (value) => {
-      if (value != 0) {
-        brightness.valueContainer.classList.add('non-zero')
-      } else {
-        brightness.valueContainer.classList.remove('non-zero')
-      }
-      this.canvaser.onBrightnessChange(value);
-    };
-    
-    contrast.onChange = (value) => {
-      if (value != 0) {
-        contrast.valueContainer.classList.add('non-zero')
-      } else {
-        contrast.valueContainer.classList.remove('non-zero')
-      }
-      this.canvaser.onContrastChange(value);
-    };
-    
-    saturation.onChange = (value) => {
-      if (value != 0) {
-        saturation.valueContainer.classList.add('non-zero')
-      } else {
-        saturation.valueContainer.classList.remove('non-zero')
-      }
-      this.canvaser.onSaturationChange(value);
-    };
-    
-    warmth.onChange = (value) => {
-      if (value != 0) {
-        warmth.valueContainer.classList.add('non-zero')
-      } else {
-        warmth.valueContainer.classList.remove('non-zero')
-      }
-      this.canvaser.onWarmthChange(value);
-    };
-    
-    fade.onChange = (value) => {
-      if (value != 0) {
-        fade.valueContainer.classList.add('non-zero')
-      } else {
-        fade.valueContainer.classList.remove('non-zero')
-      }
-      this.canvaser.onFadeChange(value);
-    };
-    
-    highlights.onChange = (value) => {
-      if (value != 0) {
-        highlights.valueContainer.classList.add('non-zero')
-      } else {
-        highlights.valueContainer.classList.remove('non-zero')
-      }
-      this.canvaser.onHighlightsChange(value);
-    };
-    
-    shadows.onChange = (value) => {
-      if (value != 0) {
-        shadows.valueContainer.classList.add('non-zero')
-      } else {
-        shadows.valueContainer.classList.remove('non-zero')
-      }
-      this.canvaser.onShadowsChange(value);
-    };
-    
-    vignette.onChange = (value) => {
-      if (value != 0) {
-        vignette.valueContainer.classList.add('non-zero')
-      } else {
-        vignette.valueContainer.classList.remove('non-zero')
-      }
-      this.canvaser.onVignetteChange(value);
-    };
-    
-    grain.onChange = (value) => {
-      if (value != 0) {
-        grain.valueContainer.classList.add('non-zero')
-      } else {
-        grain.valueContainer.classList.remove('non-zero')
-      }
-      this.canvaser.onGrainChange(value);
-    };
-    
-    sharpen.onChange = (value) => {
-      if (value != 0) {
-        sharpen.valueContainer.classList.add('non-zero')
-      } else {
-        sharpen.valueContainer.classList.remove('non-zero')
-      }
-      this.canvaser.onSharpenChange(value);
-    };
-    
+    const [
+      enhance,
+      brightness,
+      contrast,
+      saturation,
+      warmth,
+      fade,
+      highlights,
+      shadows,
+      vignette,
+      grain,
+      sharpen,
+    ] = this.createFilterRangeSelectors([
+      {
+        // XENA TODO deal with i18n
+        // @ts-ignore
+        name: "Enhance",
+        min: this.canvaser.ENHANCE_MIN,
+        max: this.canvaser.ENHANCE_MAX,
+        onChangeCb: this.canvaser.onEnhanceChange.bind(this.canvaser),
+      },
+      {
+        // XENA TODO deal with i18n
+        // @ts-ignore
+        name: "Brightness",
+        min: this.canvaser.BRIGHTNESS_MIN,
+        max: this.canvaser.BRIGHTNESS_MAX,
+        onChangeCb: this.canvaser.onBrightnessChange.bind(this.canvaser),
+      },
+      {
+        // XENA TODO deal with i18n
+        // @ts-ignore
+        name: "Contrast",
+        min: this.canvaser.CONTRAST_MIN,
+        max: this.canvaser.CONTRAST_MAX,
+        onChangeCb: this.canvaser.onContrastChange.bind(this.canvaser),
+      },
+      {
+        // XENA TODO deal with i18n
+        // @ts-ignore
+        name: "Saturation",
+        min: this.canvaser.SATURATION_MIN,
+        max: this.canvaser.SATURATION_MAX,
+        onChangeCb: this.canvaser.onSaturationChange.bind(this.canvaser),
+      },
+      {
+        // XENA TODO deal with i18n
+        // @ts-ignore
+        name: "Warmth",
+        min: this.canvaser.WARMTH_MIN,
+        max: this.canvaser.WARMTH_MAX,
+        onChangeCb: this.canvaser.onWarmthChange.bind(this.canvaser),
+      },
+      {
+        // XENA TODO deal with i18n
+        // @ts-ignore
+        name: "Fade",
+        min: this.canvaser.FADE_MIN,
+        max: this.canvaser.FADE_MAX,
+        onChangeCb: this.canvaser.onFadeChange.bind(this.canvaser),
+      },
+      {
+        // XENA TODO deal with i18n
+        // @ts-ignore
+        name: "Highlights",
+        min: this.canvaser.HIGHLIGHTS_MIN,
+        max: this.canvaser.HIGHLIGHTS_MAX,
+        onChangeCb: this.canvaser.onHighlightsChange.bind(this.canvaser),
+      },
+      {
+        // XENA TODO deal with i18n
+        // @ts-ignore
+        name: "Shadows",
+        min: this.canvaser.SHADOWS_MIN,
+        max: this.canvaser.SHADOWS_MAX,
+        onChangeCb: this.canvaser.onShadowsChange.bind(this.canvaser),
+      },
+      {
+        // XENA TODO deal with i18n
+        // @ts-ignore
+        name: "Vignette",
+        min: this.canvaser.VIGNETTE_MIN,
+        max: this.canvaser.VIGNETTE_MAX,
+        onChangeCb: this.canvaser.onVignetteChange.bind(this.canvaser),
+      },
+      {
+        // XENA TODO deal with i18n
+        // @ts-ignore
+        name: "Grain",
+        min: this.canvaser.GRAIN_MIN,
+        max: this.canvaser.GRAIN_MAX,
+        onChangeCb: this.canvaser.onGrainChange.bind(this.canvaser),
+      },
+      {
+        // XENA TODO deal with i18n
+        // @ts-ignore
+        name: "Sharpen",
+        min: this.canvaser.SHARPEN_MIN,
+        max: this.canvaser.SHARPEN_MAX,
+        onChangeCb: this.canvaser.onSharpenChange.bind(this.canvaser),
+      },
+    ]);
+
     container.append(
       enhance.container  ,
       brightness.container,
@@ -529,9 +423,6 @@ export default class AppMediaEditorTab extends SliderSuperTab {
       grain.container,
       sharpen.container,
     );
-  
-
-
 
     return { container, enhance, brightness, contrast, saturation, warmth, fade, highlights, shadows, vignette, grain, sharpen
     };
@@ -545,128 +436,130 @@ export default class AppMediaEditorTab extends SliderSuperTab {
     // @ts-ignore
     let section  = createNamedSection("Aspect Ratio")
 
-    let free = new Row({
-      icon: 'fullscreen',
-      // XENA TODO deal with i18n
-      // @ts-ignore
-      titleLangArgs: 'Free',
-      title: 'Free',
-      clickable: () => {
-        this.canvaser.setAspectRatio(aspectRatios.free);
-      }      
-    })
-    
-    let original = new Row({
-      icon: 'dragmedia',
-      // XENA TODO deal with i18n
-      // @ts-ignore
-      titleLangArgs: 'Original',
-      title: 'Original',
-      clickable: () => {
-        this.canvaser.setAspectRatio(aspectRatios.original);
-      }      
-    })
-
-    let square = new Row({
-      icon: 'square',
-      // XENA TODO deal with i18n
-      // @ts-ignore
-      titleLangArgs: 'Square',
-      title: 'Square',
-      clickable: () => {
-        this.canvaser.setAspectRatio(aspectRatios.square);
-      }      
-    })
-
+    const [
+      free,
+      original,
+      square,
+      x3x2,
+      x2x3,
+      x4x3,
+      x3x4,
+      x5x4,
+      x4x5,
+      x7x5,
+      x5x7,
+      x16x9,
+      x9x16,
+    ] = this.createCropInfoRow([
+      {
+        icon: "fullscreen",
+        // XENA TODO deal with i18n
+        // @ts-ignore
+        titleLangArgs: "Free",
+        title: "Free",
+        clickable: () => {
+          this.canvaser.setAspectRatio(AspectRatios.free);
+        },
+      },
+      {
+        icon: "dragmedia",
+        // XENA TODO deal with i18n
+        // @ts-ignore
+        titleLangArgs: "Original",
+        title: "Original",
+        clickable: () => {
+          this.canvaser.setAspectRatio(AspectRatios.original);
+        },
+      },
+      {
+        icon: "square",
+        // XENA TODO deal with i18n
+        // @ts-ignore
+        titleLangArgs: "Square",
+        title: "Square",
+        clickable: () => {
+          this.canvaser.setAspectRatio(AspectRatios.square);
+        },
+      },
+      {
+        icon: "size3x2",
+        title: "3:2",
+        clickable: () => {
+          this.canvaser.setAspectRatio(AspectRatios.x3x2);
+        },
+      },
+      {
+        icon: "size3x2",
+        title: "2:3",
+        clickable: () => {
+          this.canvaser.setAspectRatio(AspectRatios.x2x3);
+        },
+        className: "rotated",
+      },
+      {
+        icon: "size4x3",
+        title: "4:3",
+        clickable: () => {
+          this.canvaser.setAspectRatio(AspectRatios.x4x3);
+        },
+      },
+      {
+        icon: "size4x3",
+        title: "3:4",
+        clickable: () => {
+          this.canvaser.setAspectRatio(AspectRatios.x3x4);
+        },
+        className: "rotated",
+      },
+      {
+        icon: "size5x4",
+        title: "5:4",
+        clickable: () => {
+          this.canvaser.setAspectRatio(AspectRatios.x5x4);
+        },
+      },
+      {
+        icon: "size5x4",
+        title: "4:5",
+        clickable: () => {
+          this.canvaser.setAspectRatio(AspectRatios.x4x5);
+        },
+        className: "rotated",
+      },
+      {
+        icon: "size7x6",
+        title: "7:5",
+        clickable: () => {
+          this.canvaser.setAspectRatio(AspectRatios.x7x5);
+        },
+      },
+      {
+        icon: "size7x6",
+        title: "5:7",
+        clickable: () => {
+          this.canvaser.setAspectRatio(AspectRatios.x5x7);
+        },
+        className: "rotated",
+      },
+      {
+        icon: "size16x9",
+        title: "16:9",
+        clickable: () => {
+          this.canvaser.setAspectRatio(AspectRatios.x16x9);
+        },
+      },
+      {
+        icon: "size16x9",
+        title: "9:16",
+        clickable: () => {
+          this.canvaser.setAspectRatio(AspectRatios.x9x16);
+        },
+        className: "rotated",
+      },
+    ]);
+ 
     let partialsContainer = document.createElement('div');
     partialsContainer.classList.add('partials-container');
-
-    let x3x2 = new Row({
-      icon: 'size3x2',
-      title: '3:2',
-      clickable: () => {
-        this.canvaser.setAspectRatio(aspectRatios.x3x2);
-      }      
-    })
-
-    let x2x3 = new Row({
-      icon: 'size3x2',
-      title: '2:3',
-      clickable: () => {
-        this.canvaser.setAspectRatio(aspectRatios.x2x3);
-      }      
-    })
-    x2x3.container.classList.add('rotated');
-
-    let x4x3 = new Row({
-      icon: 'size4x3',
-      title: '4:3',
-      clickable: () => {
-        this.canvaser.setAspectRatio(aspectRatios.x4x3);
-      }      
-    })
-
-    let x3x4 = new Row({
-      icon: 'size4x3',
-      title: '3:4',
-      clickable: () => {
-        this.canvaser.setAspectRatio(aspectRatios.x3x4);
-      }      
-    })
-    x3x4.container.classList.add('rotated');
-
-
-    let x5x4 = new Row({
-      icon: 'size5x4',
-      title: '5:4',
-      clickable: () => {
-        this.canvaser.setAspectRatio(aspectRatios.x5x4);
-      }      
-    })
-
-    let x4x5 = new Row({
-      icon: 'size5x4',
-      title: '4:5',
-      clickable: () => {
-        this.canvaser.setAspectRatio(aspectRatios.x4x5);
-      }      
-    })
-    x4x5.container.classList.add('rotated');
-
-
-    let x7x5 = new Row({
-      icon: 'size7x6',
-      title: '7:5',
-      clickable: () => {
-        this.canvaser.setAspectRatio(aspectRatios.x7x5);
-      }      
-    })
-
-    let x5x7 = new Row({
-      icon: 'size7x6',
-      title: '5:7',
-      clickable: () => {
-        this.canvaser.setAspectRatio(aspectRatios.x5x7);
-      }      
-    })
-    x5x7.container.classList.add('rotated');
-
-    let x16x9 = new Row({
-      icon: 'size16x9',
-      title: '16:9',
-      clickable: () => {
-        this.canvaser.setAspectRatio(aspectRatios.x16x9);
-      }      
-    })
-
-    let x9x16 = new Row({
-      icon: 'size16x9',
-      title: '9:16',
-      clickable: () => {
-        this.canvaser.setAspectRatio(aspectRatios.x9x16);
-      }      
-    })
-    x9x16 .container.classList.add('rotated');
 
     partialsContainer.append(
       x3x2.container,
@@ -692,9 +585,54 @@ export default class AppMediaEditorTab extends SliderSuperTab {
     return {container}
   } 
    
+  private createCropInfoRow(params: {
+    icon: Icon,
+    title: string,
+    clickable?: () => void,
+    titleLangArgs?: any[],
+    className?: string,
+  }[]): Row[] {
+    let res: Row[] = [];
+
+    params.map(e => {
+      let {className, ...options } = e;
+      let row = new Row({
+        ...options,
+      })
+      if (className) {
+        row.container.classList.add(className);
+      }
+      res.push(row);
+    })
+
+    return res;
+  }
 
 
+  private createFilterRangeSelectors(params: {name: LangPackKey, min: number, max: number, onChangeCb: (value: number) => void, }[]): RangeSettingSelector[] {
+    let res: RangeSettingSelector[] = [];
 
+    params.map((e) => {
+      let range = new RangeSettingSelector(
+        e.name, 
+        1,
+        0,
+        e.min,
+        e.max,
+      )
+      range.onChange = (value) => {
+        if (value != 0) {
+          range.valueContainer.classList.add('non-zero')
+        } else {
+          range.valueContainer.classList.remove('non-zero')
+        }
+        e.onChangeCb(value);
+      }
+      res.push(range);
+    }) 
+
+    return res;
+  }
 
 
   private onTransitionStart = () => {
