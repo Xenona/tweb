@@ -1,4 +1,5 @@
 import type { Canvaser } from "./Canvaser";
+import { Mat3 } from "./Mat";
 import { MouseEv, MouseMoveEv } from "./Mouse";
 import { Rect, RenderCtx } from "./Renderer";
 import { IMouseResizable, Resizer } from "./Resizer";
@@ -9,10 +10,14 @@ export class Cropper implements IMouseResizable {
     this.canvaser = canvaser;
 
     this.rect = [-Infinity, -Infinity, Infinity, Infinity];
+    this.angle = 0;
+
     this.prevRect = [-Infinity, -Infinity, Infinity, Infinity];
     this.prevAngle = 0;
 
-    this.angle = 0;
+    this.curInv = Mat3.identity();
+    this.curTranform = Mat3.identity();
+    this.updateTransform();
   }
 
   public getRotatedImageWH(): [number, number] {
@@ -65,17 +70,24 @@ export class Cropper implements IMouseResizable {
 
   public setAngle(angle: number) {
     this.angle = angle;
+    this.updateTransform();
+  }
+
+  private updateTransform() {
+    const rect = this.getRect();
+    this.curTranform = Mat3.identity()
+      .translate(-(rect[0] + rect[2]) / 2, -(rect[1] + rect[3]) / 2)
+      .rotate(this.angle);
+    this.curInv = this.curTranform.inverse();
     this.canvaser.emitUpdate();
   }
 
-  apply(ctx: RenderCtx) {
-    const rect = this.getRect();
+  public getTransform(): Mat3 {
+    return this.curTranform;
+  }
 
-    ctx.pushTransform({
-      rotate: this.angle,
-      x: -(rect[0] + rect[2]) / 2,
-      y: -(rect[1] + rect[3]) / 2,
-    });
+  apply(ctx: RenderCtx) {
+    ctx.pushTransform(this.getTransform());
   }
 
   finish(ctx: RenderCtx) {
@@ -86,17 +98,17 @@ export class Cropper implements IMouseResizable {
     const rect = this.rect;
 
     this.rect = [rect[0] + dx, rect[1] + dy, rect[2] + dx, rect[3] + dy];
-    this.canvaser.emitUpdate();
+    this.updateTransform();
   }
 
   public updateRect(cord: number, val: number) {
     this.rect[cord] = val;
-    this.canvaser.emitUpdate();
+    this.updateTransform();
   }
 
   public reset() {
     this.rect = [-Infinity, -Infinity, Infinity, Infinity];
-    this.canvaser.emitUpdate();
+    this.updateTransform();
     this.finishRectEdit();
   }
 
@@ -116,13 +128,13 @@ export class Cropper implements IMouseResizable {
       undo: () => {
         this.rect = [...prevRect];
         this.prevRect = [...prevRect];
-        this.canvaser.emitUpdate();
+        this.updateTransform();
       },
 
       redo: () => {
         this.rect = [...newRect];
         this.prevRect = [...newRect];
-        this.canvaser.emitUpdate();
+        this.updateTransform();
       },
     });
 
@@ -141,6 +153,10 @@ export class Cropper implements IMouseResizable {
     this.prevAngle = newAngle;
   }
 
+  public toImgCords(x: number, y: number): [number, number] {
+    return this.curInv.applyPoint(x, y);
+  }
+
   private angle: number;
   private rect: [number, number, number, number];
 
@@ -148,6 +164,9 @@ export class Cropper implements IMouseResizable {
   private prevAngle: number;
 
   private canvaser: Canvaser;
+
+  private curTranform: Mat3;
+  private curInv: Mat3;
 }
 
 class CropRect extends Rect {
@@ -226,10 +245,9 @@ export class CropTool extends BaseTool {
     } else if (this.resizer.checkLim(ev.x, ev.y, 16 * ev.iFactor)) {
       const crop = this.canvaser.crop;
       const rect = crop.getRect();
-      
+
       // Make crop rect size a WYSIWG
-      for(let i = 0; i < 4; i++)
-        crop.updateRect(i, rect[i]);
+      for (let i = 0; i < 4; i++) crop.updateRect(i, rect[i]);
     }
   }
 

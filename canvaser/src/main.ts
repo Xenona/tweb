@@ -3,6 +3,7 @@ import { Canvaser } from './canvaser/Canvaser'
 import { Controls, ControlsGroup } from './controls'
 import { BaseTool, NoneTool } from './canvaser/Tool'
 import { CropTool } from './canvaser/Crop'
+import { ArrowBrush, BrusherTool, MarkerBrush, NeonBrush, PenBrush } from './canvaser/Brusher'
 
 const appEl = document.querySelector<HTMLDivElement>('#app')
 
@@ -118,4 +119,37 @@ createMode('Crop', () => {
 })
 .btn('Fix aspect 4:3', () => {
   curCropTool.setForcedRatio(4/3)
+})
+
+
+let curBrushTool: BrusherTool;
+createMode('Brush', () => {
+  curBrushTool = new BrusherTool(canvaser)
+  return curBrushTool
+})
+.slider(
+  'Width',
+  [2, 5, 40],
+  (val) => {
+    curBrushTool.setSize(val)
+  }
+)
+.slider(
+  'Color',
+  [0, 0, 180],
+  (val) => {
+    curBrushTool.setColor(`hsl(${val}, 100%, 50%)`)
+  }
+)
+.btn('Simple brush', () => {
+  curBrushTool.setBrush(PenBrush)
+})
+.btn('Arrow brush', () => {
+  curBrushTool.setBrush(ArrowBrush)  
+})
+.btn('Marker brush', () => {
+  curBrushTool.setBrush(MarkerBrush)
+})
+.btn('Neon brush', () => {
+  curBrushTool.setBrush(NeonBrush)
 })

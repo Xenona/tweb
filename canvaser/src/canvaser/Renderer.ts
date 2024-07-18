@@ -1,3 +1,5 @@
+import { Mat3 } from "./Mat";
+
 export interface IDrawable {
   render(ctx: RenderCtx): void;
 }
@@ -13,14 +15,18 @@ export class RenderCtx {
     this.canvas = canvas;
     this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
     this.filterStack = [];
+
+    this.curTransform = Mat3.identity();
+    this.transformStack = []
   }
 
   public setSize(w: number, h: number) {
     this.canvas.width = w;
     this.canvas.height = h;
 
-    this.ctx.resetTransform();
-    this.ctx.translate(w / 2, h / 2);
+    this.transformStack = [];
+    this.curTransform = Mat3.identity().translate(w / 2, h / 2);
+    this.ctx.setTransform(...this.curTransform.toCanvas())
 
     this.updateIFactor();
   }
@@ -36,15 +42,22 @@ export class RenderCtx {
     this.ctx.filter = this.filterStack.pop() || "";
   }
 
-  public pushTransform(t: Transformation) {
-    this.ctx.save();
-    this.ctx.translate(t.x ?? 0, t.y ?? 0);
+  public pushTransform(t: Transformation | Mat3) {
+    this.transformStack.push(this.curTransform);
+    if(t instanceof Mat3) {
+      this.curTransform = this.curTransform.multiply(t);
+    } else {
+      this.curTransform = this.curTransform.translate(t.x ?? 0, t.y ?? 0);
 
-    if (t.rotate) this.ctx.rotate(t.rotate);
+      if (t.rotate) this.curTransform = this.curTransform.rotate(t.rotate);
+    }
+
+    this.ctx.setTransform(...this.curTransform.toCanvas());
   }
 
   public popTransform() {
-    this.ctx.restore();
+    this.curTransform = this.transformStack.pop() ?? this.curTransform;
+    this.ctx.setTransform(...this.curTransform.toCanvas());
   }
 
   public withTransform(t: Transformation, cb: () => void) {
@@ -57,16 +70,28 @@ export class RenderCtx {
     drawable.render(this);
   }
 
-  public drawImage(image: HTMLImageElement) {
+  public drawImage(image: HTMLImageElement | OffscreenCanvas) {
+    let w: number, h: number;
+
+    if (image instanceof HTMLImageElement) {
+      w = image.naturalWidth;
+      h = image.naturalHeight;
+    } else {
+      w = image.width;
+      h = image.height;
+    }
+
     this.ctx.drawImage(
       image,
-      -image.naturalWidth / 2,
-      -image.naturalHeight / 2
+      -w / 2,
+      -h / 2
     );
   }
 
   public with2D(cb: (ctx: CanvasRenderingContext2D) => void) {
+    this.ctx.save();
     cb(this.ctx);
+    this.ctx.restore();
   }
 
   public updateIFactor(): boolean {
@@ -82,6 +107,9 @@ export class RenderCtx {
   private filterStack: string[];
 
   public iFactor: number = 1;
+
+  private curTransform: Mat3 = Mat3.identity();
+  private transformStack: Mat3[] = [];
 }
 
 export class Rect implements IDrawable {

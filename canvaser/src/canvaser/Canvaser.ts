@@ -1,4 +1,5 @@
 import { Cropper } from "./Crop";
+import { Layer } from "./Layer";
 import { MouseEv } from "./Mouse";
 import { RenderCtx } from "./Renderer";
 import { RootEffects } from "./RootEffects";
@@ -15,14 +16,16 @@ export class Canvaser {
     this.canvas = canvas;
     this.ctx = new RenderCtx(canvas);
 
-    this.crop = new Cropper(this);
     this.rootImage = new RootImage(this, rootImage);
+
+    this.crop = new Cropper(this);
     this.rootEffects = new RootEffects(this);
+    this.layers = [];
 
     this.tool = new NoneTool(this);
 
-    this.resizeObserver = new ResizeObserver(this.canvasActuallyResized)
-    this.resizeObserver.observe(canvas)
+    this.resizeObserver = new ResizeObserver(this.canvasActuallyResized);
+    this.resizeObserver.observe(canvas);
 
     canvas.addEventListener("mousemove", this.mouseMove);
     canvas.addEventListener("mouseup", this.mouseUpDown);
@@ -58,6 +61,8 @@ export class Canvaser {
     this.rootImage.render(ctx);
     this.rootEffects.finish(ctx);
 
+    this.layers.forEach((l) => l.render(ctx));
+
     this.crop.finish(ctx);
   }
 
@@ -83,6 +88,21 @@ export class Canvaser {
     if (!h) return;
     h.redo();
     this.undoStack.push(h);
+  }
+
+  public addLayer(l: Layer) {
+    this.layers.push(l);
+    this.emitHistory({
+      undo: () => {
+        this.layers.splice(this.layers.indexOf(l), 1);
+        this.emitUpdate();
+      },
+      redo: () => {
+        this.layers.push(l);
+        this.emitUpdate();
+      },
+    })
+    this.emitUpdate();
   }
 
   private intoMouseEvent(ev: MouseEvent): MouseEv {
@@ -115,9 +135,7 @@ export class Canvaser {
   };
 
   private canvasActuallyResized = () => {
-    if(this.ctx.updateIFactor()) 
-      this.emitUpdate();
-    console.log(this.ctx.iFactor)
+    if (this.ctx.updateIFactor()) this.emitUpdate();
   };
 
   private canvas: HTMLCanvasElement;
@@ -128,6 +146,8 @@ export class Canvaser {
   public crop: Cropper;
   public rootImage: RootImage;
   public rootEffects: RootEffects;
+
+  public layers: Layer[];
 
   private undoStack: EditHistory[] = [];
   private redoStack: EditHistory[] = [];
