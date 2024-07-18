@@ -1,11 +1,13 @@
 import PopupElement from '.';
 import Button from '../button';
 import confirmationPopup from '../confirmationPopup';
-import AppMediaEditorTab from '../sidebarRight/tabs/mediaEditor';
+import AppActiveSessionsTab from '../sidebarLeft/tabs/activeSessions';
+import AppMediaEditorTab, { Aligns, Strokes } from '../sidebarRight/tabs/mediaEditor';
+import AppSharedMediaTab from '../sidebarRight/tabs/sharedMedia';
 import SidebarSlider from '../slider';
 
 
-export enum aspectRatios {
+export enum AspectRatios {
   "free",
   'original',
   'square',
@@ -20,6 +22,29 @@ export enum aspectRatios {
   'x16x9',
   'x9x16',
 } 
+
+export const FontList: string[] = [
+  'Roboto-Medium.woff2',
+  'Typewriter_Normal.woff2',
+  'AvenirNextCyr-BoldItalic.woff2',
+  'Courier_New_Bold.woff2',
+  'Noteworthy_Bold.woff2',
+  'Georgia.woff2',
+  'Papyrus.woff2',
+  'snell_roundhand.woff2',
+];
+
+export const FontsMap = {
+  roboto: FontList[0],
+  typewriter: FontList[1],
+  avenirNext: FontList[2],
+  courierNew: FontList[3],
+  noteworthy: FontList[4],
+  georgia: FontList[5],
+  papyrus: FontList[6],
+  snellRoundhand: FontList[7],
+} as const;
+
 
 export interface ICanvaser {
   undo: () => void,
@@ -71,7 +96,19 @@ export interface ICanvaser {
   SHARPEN_MIN: number; // 0
   SHARPEN_MAX: number; // 100
 
-  setAspectRatio: (ratio: aspectRatios) => void;
+  setAspectRatio: (ratio: AspectRatios) => void;
+
+  setTextSize: (size: number) => void;
+
+  createFontElement: () => void;
+
+  setFont: (font: string) => void;
+
+  setFontColor: (hex: string) => void;
+
+  setFontAlignment: (alignment: Aligns) => void;
+
+  setFontStroke: (stroke: Strokes) => void;
 }
 
 class Canvaser implements ICanvaser {
@@ -161,9 +198,33 @@ class Canvaser implements ICanvaser {
     this.p("sharpen changing", value);
   }
 
-  public setAspectRatio(ratio: aspectRatios) {
+  public setAspectRatio(ratio: AspectRatios) {
     this.p("setting ratio", ratio);
   } 
+
+  public setTextSize(size: number) {
+    this.p('setting text size', size);
+  }
+
+  public setFont(font: string) {
+    this.p('setting font to', font)
+  }
+
+  public setFontColor(hex: string) {
+    this.p('setting font color to', hex);
+  }
+
+  public setFontAlignment(alignment: 'left' | 'center' | 'right') {
+    this.p('setting font alignment to', alignment)
+  }
+
+  public setFontStroke(stroke: 'no' | 'yes' | 'frame') {
+    this.p('setting font stroke to', stroke)
+  }
+
+  public createFontElement() {
+    this.p('created font element');
+  };
 }
 
 export default class PopupMediaEditor extends PopupElement {
@@ -208,7 +269,7 @@ export default class PopupMediaEditor extends PopupElement {
       icon: 'check',
       noRipple: true, 
     })
-    this.header.nextElementSibling.append(this.acceptBtn  )
+    this.header.nextElementSibling.append(this.acceptBtn)
     this.acceptBtn.onclick = () => this.saveEditedAndMoveBack(); 
 
     const sidebar = new SidebarSlider({
@@ -218,13 +279,9 @@ export default class PopupMediaEditor extends PopupElement {
     }); 
 
  
-    // sidebar.createTab(AppSharedMediaTab).open()
     sidebar
       .createTab(AppMediaEditorTab)
       .open({ canvaser: new Canvaser(), onClose: () => this.hide() });
-
-
-    // this.container.append(sidebar/)
   }
 
   private saveEditedAndMoveBack() {
@@ -233,5 +290,4 @@ export default class PopupMediaEditor extends PopupElement {
     this.gracefullyExiting = true;
     this.hide();
   }
-
 }

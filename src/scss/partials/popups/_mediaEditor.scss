@@ -1,12 +1,10 @@
-  .popup-media-editor {
-  
+.popup-media-editor {
   $parent: ".popup";
   --media-editor-bg-color: #000000;
   --sidebar-width: 400px;
-
   padding: 0;
-  #{$parent} {
 
+  #{$parent} {
     &-header {
       margin: 0;
     }
@@ -24,103 +22,166 @@
 
   & .sidebar-slider {
     $parent: ".sidebar";
-    
     width: var(--sidebar-width);
     max-width: var(--sidebar-width);
     min-width: var(--sidebar-width);
     height: 100%;
 
     #{$parent} {
-
-
       &-header {
         position: static;
       }
-
     }
   }
 
   & .menu-horizontal-div-item {
-    font-size: 1.5rem;  
+    font-size: 1.5rem;
 
-
-    &:first-child,  &:last-child {
+    &:first-child,
+    &:last-child {
       padding-left: 0.8rem;
       padding-right: 0.8rem;
     }
-
   }
 
   & .btn-circle.btn-corner {
     transform: translateZ(0);
   }
-  
 }
 
 .editor {
-
-  
   &-tab {
-    
-    --left-padding: 1.5rem;
+    --left-padding: 1.8rem;
     --top-padding: 1.5rem;
-    
+    --left-for-inner: 0.7rem;
+
     &.filter {
-      
       padding: var(--top-padding) var(--left-padding);
       display: flex;
       flex-direction: column;
       gap: 2rem;
-      // XENA TODO
-      // Fix thumb, 
-      // line width,
-      // number colour when active,
-      // font-weight,
-      // and some of the paddings
     }
 
     &.crop {
-
-      padding: 0 0.5rem;
-
-      & .named-section-title {
-        padding: 0 0 0.5rem 1.1rem;
-      }
-
-      & .row {
-        width: 100%;
-
-        &.rotated .tgico {
-          transform: rotate(90deg) translateX(-50%);
-        }
-      }
-
       & .partials-container {
         display: flex;
         flex-wrap: wrap;
-        
+
         & .row {
           width: 50%;
         }
       }
-    
+    }
+
+    &.text {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding-top: calc(var(--top-padding) - 0.5rem);
+      --range-color: #ffffff;
+      --range-color-bleak: #ffffff14;
+
+      .named-section {
+        padding-top: 1rem;
+      }
+
+      & .range-setting-selector {
+        padding: 0 var(--left-padding);
+        color: var(--secondary-text-color);
+
+        & .progress-line {
+          --color: var(--range-color);
+
+          & .progress-line__filled {
+            background-color: var(--range-color);
+          }
+        }
+      }
+
+      & .tools-container {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        height: 3rem;
+        padding: 0 var(--left-for-inner);
+
+        & .tools {
+          display: flex;
+
+          & .tool {
+            height: 48px;
+            width: 54px;
+            border-radius: 10px !important;
+          }
+        }
+      }
+
+      & .roboto {
+        font-family: Roboto;
+        font-weight: 800;
+      }
+
+      & .typewriter {
+        font-family: Typewriter;
+      }
+
+      & .avenirNext {
+        font-family: "Avenir Next";
+      }
+
+      & .courierNew {
+        font-family: 'Courier New Serif', Courier, monospace;
+        font-weight: 700;
+      }
+
+      & .noteworthy {
+        font-family: "Noteworthy";
+
+        & .row-title {
+          line-height: normal;
+        }
+      }
+
+      & .georgia {
+        font-family: "Georgia";
+      }
+
+      & .papyrus {
+        font-family: 'Papyrus';
+      }
+
+      & .snell-roundhand .row-title {
+        font-family: "Snell Roundhand";
+        font-size: 19px;
+        letter-spacing: -0.5px;
+      }
+    }
+
+    &.text:last-child,
+    &.filter:last-child {
+      padding-bottom: 5.5rem;
+    }
+
+    & .row {
+      width: 100%;
+
+      &.rotated .tgico {
+        transform: rotate(90deg) translateX(-50%);
+      }
     }
 
     & .range-setting-selector {
       padding: 0;
 
-      &:last-child {
-        padding-bottom: 5.5rem;
-      }
-
-      &-details, &-name {
+      &-details,
+      &-name {
         font-weight: 700;
       }
 
       &-details {
-        margin-bottom: 1.5rem;  
+        margin-bottom: 1.5rem;
       }
-    
+
       & .non-zero {
         color: var(--primary-color)
       }
@@ -130,25 +191,115 @@
         --thumb-size: 20px;
       }
     }
+
+    & .tool-selected {
+      background-color: var(--light-secondary-text-color);
+    }
   }
 }
 
 .named-section {
-
-  padding: var(--top-padding) 0;
+  padding: var(--top-padding) var(--left-for-inner);
 
   &-title {
     color: var(--secondary-text-color);
     font-size: 16px;
     font-weight: var(--font-weight-bold);
+    padding: 0 0 0.5rem 1.2rem;
   }
 }
-
-
-
 
 .image-container {
   flex: 1;
 }
 
+.color-picker {
+  &.short {
+    margin: 0;
+    width: auto;
 
+    .color-picks {
+      padding: 0 1.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 48px;
+      background-color: var(--surface-color);
+    }
+
+    & .color-pick {
+      &.active {
+        border: 10px solid var(--range-color-bleak);
+      }
+
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 10px solid var(--surface-color);
+      background-clip: padding-box;
+    }
+
+    & .color-pick:last-child {
+      background-size: 100% 100%;
+      background-position: 0px 0px, 0px 0px;
+      background-image: radial-gradient(75% 75% at 50% 50%, #FFFFFFFF 3%, #073AFF00 31%), conic-gradient(from 0deg at 50% 50%, #FF0000FF 0%, #FFFE00FF 20%, #00FF27FF 39%, #00FFFFFF 50%, #0089FFFF 70%, #FB00FFFF 82%, #FF0707FF 100%);
+      position: relative;
+      z-index: 1;
+    }
+
+    & .inputs {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    & .box-and-inputs {
+      display: flex;
+      width: 100%;
+      padding: 0 var(--left-padding);
+      justify-content: space-between;
+      height: 0;
+      overflow: hidden;
+
+      &.active {
+        height: 152px;
+        padding: 1rem var(--left-padding);
+      }
+    }
+
+    & .color-picker-box {
+      height: 120px;
+      width: auto;
+    }
+
+    & .color-picker-dragger {
+      height: 11px;
+    }
+
+    & .color-picker-sliders {
+      display: flex;
+      justify-content: space-between;
+      padding-left: 1.8rem;
+      padding-right: 1.2rem;
+      height: 42px;
+      transform-origin: center;
+      position: absolute;
+      top: 4px;
+      opacity: 0;
+      transform: scaleY(0);
+
+      &.active {
+        opacity: 1;
+        transform: scaleY(1);
+      }
+    }
+
+    & .color-picker-color-slider {
+      width: 302px;
+    }
+
+    & .input-field {
+      width: 128px;
+    }
+  }
+}

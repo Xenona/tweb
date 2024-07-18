@@ -8,13 +8,16 @@ import liteMode from "../../../helpers/liteMode";
 import { i18n, LangPackKey } from "../../../lib/langPack";
 import AppSearchSuper from "../../appSearchSuper.";
 import Button from "../../button";
+import ButtonIcon from "../../buttonIcon";
+import ColorPicker from "../../colorPicker";
 import { horizontalMenu } from "../../horizontalMenu";
 import Icon from "../../icon";
-import { aspectRatios as AspectRatios, ICanvaser } from "../../popups/mediaEditor";
+import { AspectRatios as AspectRatios,  FontList,  FontsMap, ICanvaser } from "../../popups/mediaEditor";
 import ripple from "../../ripple";
-import Row from "../../row";
+import Row, { createManyRows } from "../../row";
 import { ScrollableX } from "../../scrollable";
 import SettingSection from "../../settingSection";
+import { ShortColorPicker } from "../../shortColorPicker";
 import { RangeSettingSelector } from "../../sidebarLeft/tabs/generalSettings";
 import SliderSuperTab from "../../sliderTab";
 import SwipeHandler from "../../swipeHandler";
@@ -23,28 +26,7 @@ export interface IAppMediaEditorTabParams {
   onClose: () => void,
   canvaser: ICanvaser,
 }
-
-export interface IFilterTab {
-  enhance: RangeSettingSelector;
-  brightness: RangeSettingSelector;
-  contrast: RangeSettingSelector;
-  saturation: RangeSettingSelector;
-  warmth: RangeSettingSelector;
-  fade: RangeSettingSelector;
-  highlights: RangeSettingSelector;
-  shadows: RangeSettingSelector;
-  vignette: RangeSettingSelector;
-  grain: RangeSettingSelector;
-  sharpen: RangeSettingSelector;
-
-  container: HTMLDivElement;
-}
-
-export interface ICropTab {
-
-  container: HTMLDivElement;
-}
-
+ 
 export type ScrollableMenuTabType = 'filter' | 'crop' | 'text' | 'paint' | 'emoji';
 export type ScrollableMenuTab = {
   type: ScrollableMenuTabType,
@@ -76,8 +58,9 @@ export default class AppMediaEditorTab extends SliderSuperTab {
   public tabs: {[t in ScrollableMenuTabType]: HTMLDivElement} = {} as any;
   menuList: HTMLElement;
 
-  filterTab: IFilterTab;
-  cropTab: ICropTab;
+  filterTab: FilterTab;
+  cropTab: CropTab;
+  textTab: TextTab;
 
 
   public async init({onClose, canvaser}: IAppMediaEditorTabParams) {
@@ -117,11 +100,14 @@ export default class AppMediaEditorTab extends SliderSuperTab {
    
     this.createToolMenu();
 
-    this.filterTab = this.createFilterTab();
-    this.cropTab = this.createCropTab();
+
+    this.filterTab = new FilterTab(this.canvaser);
+    this.cropTab = new CropTab(this.canvaser);
+    this.textTab = new TextTab(this.canvaser)
 
     this.tabs['filter'].append(this.filterTab.container);
     this.tabs['crop'].append(this.cropTab.container);
+    this.tabs['text'].append(this.textTab.container);
   }
 
   private createToolMenu() {
@@ -140,7 +126,7 @@ export default class AppMediaEditorTab extends SliderSuperTab {
       icon: 'brush',
     }, {
       type: 'emoji',
-      icon: 'smile',
+      icon: 'smile',  
     }]
 
     const container = this.tools = document.createElement('div');
@@ -270,6 +256,14 @@ export default class AppMediaEditorTab extends SliderSuperTab {
       }
 
       this.prevTabId = id;
+
+      // XENA TODO hacky hack, maybe there's a better option
+      // this allows start creating text right when the tab is opened
+      // also the element should be removed if unchanged and tab was
+      // chanded
+      if (id === 2) {
+        this.canvaser.createFontElement();
+      }
     }, () => {
       this.scrollable.onScroll();
       if(this.mediaTab.scroll !== undefined) {
@@ -286,151 +280,232 @@ export default class AppMediaEditorTab extends SliderSuperTab {
     }, undefined, scrollableX, this.listenerSetter)
  
 
-    const onTabClick = (type: ScrollableMenuTabType) => {
-      const mediaTab = this.mediaTabs.find((mediaTab) => mediaTab.type === type);
-    }
+    // const onTabClick = (type: ScrollableMenuTabType) => {
+    //   const mediaTab = this.mediaTabs.find((mediaTab) => mediaTab.type === type);
+    //   console.log("XE", mediaTab)
+    // }
   
-    this.tabs.crop && attachClickEvent(
-      this.tabs.crop,
-      onTabClick.bind(null, 'crop'),
-      {listenerSetter: this.listenerSetter}
-    )
+    // this.tabs.crop && attachClickEvent(
+    //   this.tabs.crop,
+    //   onTabClick.bind(null, 'crop'),
+    //   {listenerSetter: this.listenerSetter}
+    // )
+
+
 
     this.mediaTab = this.mediaTabs[0];
-    (this.menuList.children[1] as HTMLElement).click();
+    (this.menuList.children[3] as HTMLElement).click();
   }
 
-  private createFilterTab(): IFilterTab {
+  private onTransitionStart = () => {
+    this.container.classList.add('sliding');
+  };
+  private onTransitionEnd = () => {
+    this.container.classList.remove('sliding');
+  };
 
-    const container = document.createElement('div');
-    container.classList.add('editor-tab', 'filter', 'scrollable', 'scrollable-y')
-
-    // XENA TODO fix value 0
-
-    const [
-      enhance,
-      brightness,
-      contrast,
-      saturation,
-      warmth,
-      fade,
-      highlights,
-      shadows,
-      vignette,
-      grain,
-      sharpen,
-    ] = this.createFilterRangeSelectors([
-      {
-        // XENA TODO deal with i18n
-        // @ts-ignore
-        name: "Enhance",
-        min: this.canvaser.ENHANCE_MIN,
-        max: this.canvaser.ENHANCE_MAX,
-        onChangeCb: this.canvaser.onEnhanceChange.bind(this.canvaser),
-      },
-      {
-        // XENA TODO deal with i18n
-        // @ts-ignore
-        name: "Brightness",
-        min: this.canvaser.BRIGHTNESS_MIN,
-        max: this.canvaser.BRIGHTNESS_MAX,
-        onChangeCb: this.canvaser.onBrightnessChange.bind(this.canvaser),
-      },
-      {
-        // XENA TODO deal with i18n
-        // @ts-ignore
-        name: "Contrast",
-        min: this.canvaser.CONTRAST_MIN,
-        max: this.canvaser.CONTRAST_MAX,
-        onChangeCb: this.canvaser.onContrastChange.bind(this.canvaser),
-      },
-      {
-        // XENA TODO deal with i18n
-        // @ts-ignore
-        name: "Saturation",
-        min: this.canvaser.SATURATION_MIN,
-        max: this.canvaser.SATURATION_MAX,
-        onChangeCb: this.canvaser.onSaturationChange.bind(this.canvaser),
-      },
-      {
-        // XENA TODO deal with i18n
-        // @ts-ignore
-        name: "Warmth",
-        min: this.canvaser.WARMTH_MIN,
-        max: this.canvaser.WARMTH_MAX,
-        onChangeCb: this.canvaser.onWarmthChange.bind(this.canvaser),
-      },
-      {
-        // XENA TODO deal with i18n
-        // @ts-ignore
-        name: "Fade",
-        min: this.canvaser.FADE_MIN,
-        max: this.canvaser.FADE_MAX,
-        onChangeCb: this.canvaser.onFadeChange.bind(this.canvaser),
-      },
-      {
-        // XENA TODO deal with i18n
-        // @ts-ignore
-        name: "Highlights",
-        min: this.canvaser.HIGHLIGHTS_MIN,
-        max: this.canvaser.HIGHLIGHTS_MAX,
-        onChangeCb: this.canvaser.onHighlightsChange.bind(this.canvaser),
-      },
-      {
-        // XENA TODO deal with i18n
-        // @ts-ignore
-        name: "Shadows",
-        min: this.canvaser.SHADOWS_MIN,
-        max: this.canvaser.SHADOWS_MAX,
-        onChangeCb: this.canvaser.onShadowsChange.bind(this.canvaser),
-      },
-      {
-        // XENA TODO deal with i18n
-        // @ts-ignore
-        name: "Vignette",
-        min: this.canvaser.VIGNETTE_MIN,
-        max: this.canvaser.VIGNETTE_MAX,
-        onChangeCb: this.canvaser.onVignetteChange.bind(this.canvaser),
-      },
-      {
-        // XENA TODO deal with i18n
-        // @ts-ignore
-        name: "Grain",
-        min: this.canvaser.GRAIN_MIN,
-        max: this.canvaser.GRAIN_MAX,
-        onChangeCb: this.canvaser.onGrainChange.bind(this.canvaser),
-      },
-      {
-        // XENA TODO deal with i18n
-        // @ts-ignore
-        name: "Sharpen",
-        min: this.canvaser.SHARPEN_MIN,
-        max: this.canvaser.SHARPEN_MAX,
-        onChangeCb: this.canvaser.onSharpenChange.bind(this.canvaser),
-      },
-    ]);
-
-    container.append(
-      enhance.container  ,
-      brightness.container,
-      contrast.container,
-      saturation.container,
-      warmth.container,
-      fade.container,
-      highlights.container,
-      shadows.container,
-      vignette.container,
-      grain.container,
-      sharpen.container,
-    );
-
-    return { container, enhance, brightness, contrast, saturation, warmth, fade, highlights, shadows, vignette, grain, sharpen
-    };
+  private scrollToStart() {
+    this.scrollable.scrollIntoViewNew({
+      element: this.container,
+      position: 'start',
+    });
   }
 
-  private createCropTab(): ICropTab {
-    const container = document.createElement('div');
-    container.classList.add('editor-tab', 'crop', 'scrollable', 'scrollable-y')
+
+}
+
+export function setToolActive(toolsContainer: HTMLElement, tool: HTMLElement, className: string) {
+  const c = toolsContainer.querySelectorAll(`.${className}`);
+  for (let i = 0; i < c.length; i++) {
+    if (c[i] instanceof HTMLElement) {
+      c[i].classList.remove(className);
+
+    }
+  }
+  tool.classList.add(className);
+}
+
+export function createNamedSection(name: LangPackKey): HTMLElement{
+
+  const section = document.createElement('section');
+  section.classList.add('named-section');
+  const title = document.createElement('header');
+  title.classList.add('named-section-title');
+  title.append(i18n(name));
+  section.append(title);
+
+  return section
+} 
+
+export function createFilterRangeSelectors(params: {name: LangPackKey, min: number, max: number, onChangeCb: (value: number) => void, }[]): RangeSettingSelector[] {
+  let res: RangeSettingSelector[] = [];
+
+  params.map((e) => {
+    let range = new RangeSettingSelector(
+      e.name, 
+      1,
+      0,
+      e.min,
+      e.max,
+    )
+    range.onChange = (value) => {
+      if (value != 0) {
+        range.valueContainer.classList.add('non-zero')
+      } else {
+        range.valueContainer.classList.remove('non-zero')
+      }
+      e.onChangeCb(value);
+    }
+    res.push(range);
+  }) 
+
+  return res;
+}
+
+export class FilterTab {
+  
+  canvaser: ICanvaser;
+  container: HTMLElement;
+
+  constructor(canvaser: ICanvaser) {
+    this.canvaser = canvaser;
+
+
+      this.container = document.createElement('div');
+      this.container.classList.add('editor-tab', 'filter', 'scrollable', 'scrollable-y')
+  
+      // XENA TODO fix value 0
+  
+      const [
+        enhance,
+        brightness,
+        contrast,
+        saturation,
+        warmth,
+        fade,
+        highlights,
+        shadows,
+        vignette,
+        grain,
+        sharpen,
+      ] = createFilterRangeSelectors([
+        {
+          // XENA TODO deal with i18n
+          // @ts-ignore
+          name: "Enhance",
+          min: this.canvaser.ENHANCE_MIN,
+          max: this.canvaser.ENHANCE_MAX,
+          onChangeCb: this.canvaser.onEnhanceChange.bind(this.canvaser),
+        },
+        {
+          // XENA TODO deal with i18n
+          // @ts-ignore
+          name: "Brightness",
+          min: this.canvaser.BRIGHTNESS_MIN,
+          max: this.canvaser.BRIGHTNESS_MAX,
+          onChangeCb: this.canvaser.onBrightnessChange.bind(this.canvaser),
+        },
+        {
+          // XENA TODO deal with i18n
+          // @ts-ignore
+          name: "Contrast",
+          min: this.canvaser.CONTRAST_MIN,
+          max: this.canvaser.CONTRAST_MAX,
+          onChangeCb: this.canvaser.onContrastChange.bind(this.canvaser),
+        },
+        {
+          // XENA TODO deal with i18n
+          // @ts-ignore
+          name: "Saturation",
+          min: this.canvaser.SATURATION_MIN,
+          max: this.canvaser.SATURATION_MAX,
+          onChangeCb: this.canvaser.onSaturationChange.bind(this.canvaser),
+        },
+        {
+          // XENA TODO deal with i18n
+          // @ts-ignore
+          name: "Warmth",
+          min: this.canvaser.WARMTH_MIN,
+          max: this.canvaser.WARMTH_MAX,
+          onChangeCb: this.canvaser.onWarmthChange.bind(this.canvaser),
+        },
+        {
+          // XENA TODO deal with i18n
+          // @ts-ignore
+          name: "Fade",
+          min: this.canvaser.FADE_MIN,
+          max: this.canvaser.FADE_MAX,
+          onChangeCb: this.canvaser.onFadeChange.bind(this.canvaser),
+        },
+        {
+          // XENA TODO deal with i18n
+          // @ts-ignore
+          name: "Highlights",
+          min: this.canvaser.HIGHLIGHTS_MIN,
+          max: this.canvaser.HIGHLIGHTS_MAX,
+          onChangeCb: this.canvaser.onHighlightsChange.bind(this.canvaser),
+        },
+        {
+          // XENA TODO deal with i18n
+          // @ts-ignore
+          name: "Shadows",
+          min: this.canvaser.SHADOWS_MIN,
+          max: this.canvaser.SHADOWS_MAX,
+          onChangeCb: this.canvaser.onShadowsChange.bind(this.canvaser),
+        },
+        {
+          // XENA TODO deal with i18n
+          // @ts-ignore
+          name: "Vignette",
+          min: this.canvaser.VIGNETTE_MIN,
+          max: this.canvaser.VIGNETTE_MAX,
+          onChangeCb: this.canvaser.onVignetteChange.bind(this.canvaser),
+        },
+        {
+          // XENA TODO deal with i18n
+          // @ts-ignore
+          name: "Grain",
+          min: this.canvaser.GRAIN_MIN,
+          max: this.canvaser.GRAIN_MAX,
+          onChangeCb: this.canvaser.onGrainChange.bind(this.canvaser),
+        },
+        {
+          // XENA TODO deal with i18n
+          // @ts-ignore
+          name: "Sharpen",
+          min: this.canvaser.SHARPEN_MIN,
+          max: this.canvaser.SHARPEN_MAX,
+          onChangeCb: this.canvaser.onSharpenChange.bind(this.canvaser),
+        },
+      ]);
+  
+      this.container.append(
+        enhance.container,
+        brightness.container,
+        contrast.container,
+        saturation.container,
+        warmth.container,
+        fade.container,
+        highlights.container,
+        shadows.container,
+        vignette.container,
+        grain.container,
+        sharpen.container,
+      );
+  
+  }
+}
+
+export class CropTab {
+  
+  canvaser: ICanvaser;
+  container: HTMLElement
+  
+  constructor(canvaser: ICanvaser) {
+    this.canvaser = canvaser;
+
+    this.container = document.createElement('div');
+    this.container.classList.add('editor-tab', 'crop', 'scrollable', 'scrollable-y')
 
     // XENA TODO deal with i18n
     // @ts-ignore
@@ -450,7 +525,7 @@ export default class AppMediaEditorTab extends SliderSuperTab {
       x5x7,
       x16x9,
       x9x16,
-    ] = this.createCropInfoRow([
+    ] = createManyRows([
       {
         icon: "fullscreen",
         // XENA TODO deal with i18n
@@ -580,84 +655,253 @@ export default class AppMediaEditorTab extends SliderSuperTab {
       partialsContainer
     )
 
-    container.append(section)
+    this.container.append(section)
 
-    return {container}
-  } 
-   
-  private createCropInfoRow(params: {
-    icon: Icon,
-    title: string,
-    clickable?: () => void,
-    titleLangArgs?: any[],
-    className?: string,
-  }[]): Row[] {
-    let res: Row[] = [];
-
-    params.map(e => {
-      let {className, ...options } = e;
-      let row = new Row({
-        ...options,
-      })
-      if (className) {
-        row.container.classList.add(className);
-      }
-      res.push(row);
-    })
-
-    return res;
-  }
-
-
-  private createFilterRangeSelectors(params: {name: LangPackKey, min: number, max: number, onChangeCb: (value: number) => void, }[]): RangeSettingSelector[] {
-    let res: RangeSettingSelector[] = [];
-
-    params.map((e) => {
-      let range = new RangeSettingSelector(
-        e.name, 
-        1,
-        0,
-        e.min,
-        e.max,
-      )
-      range.onChange = (value) => {
-        if (value != 0) {
-          range.valueContainer.classList.add('non-zero')
-        } else {
-          range.valueContainer.classList.remove('non-zero')
-        }
-        e.onChangeCb(value);
-      }
-      res.push(range);
-    }) 
-
-    return res;
-  }
-
-
-  private onTransitionStart = () => {
-    this.container.classList.add('sliding');
-  };
-  private onTransitionEnd = () => {
-    this.container.classList.remove('sliding');
-  };
-
-  private scrollToStart() {
-    this.scrollable.scrollIntoViewNew({
-      element: this.container,
-      position: 'start',
-    });
   }
 }
 
-export function createNamedSection(name: LangPackKey): HTMLElement{
 
-  const section = document.createElement('section');
-  section.classList.add('named-section');
-  const title = document.createElement('header');
-  title.classList.add('named-section-title');
-  title.append(i18n(name));
-  section.append(title);
+export type Aligns = 'left' | 'center' | 'right';
+export type Strokes = 'no' | 'yes' | 'frame';
+export class TextTab {
 
-  return section
-} 
+
+  container: HTMLElement;
+  canvaser: ICanvaser;
+  alignmentContainer: HTMLElement;
+  strokeContainer: HTMLElement;
+  sizeRange: RangeSettingSelector;
+  colorPicker: ShortColorPicker;
+  fontSection: HTMLElement;
+
+  constructor(canvaser: ICanvaser) {
+
+    this.canvaser = canvaser;
+
+    this.container = document.createElement('div');
+    this.container.classList.add('editor-tab', 'text', 'scrollable', 'scrollable-y')
+    this.container.style.setProperty('--range-color', '#ffffff')
+
+    this.colorPicker = new ShortColorPicker();
+    this.colorPicker.onChange = (color) => {
+      this.canvaser.setFontColor(color.hex);
+      this.container.style.setProperty('--range-color', color.hex);
+      this.container.style.setProperty('--range-color-bleak', color.hex+'14');
+    } 
+
+    this.container.append(this.colorPicker.container)
+
+    this.alignmentContainer = document.createElement('div');
+    this.alignmentContainer.classList.add('tools');
+    
+    const alignLeft = ButtonIcon('alignleft');
+    alignLeft.classList.add('tool');
+    alignLeft.onclick = () => {
+      this.canvaser.setFontAlignment('left');
+      setToolActive(this.alignmentContainer, alignLeft, 'tool-selected');
+    };
+    const alignCenter = ButtonIcon('aligncentre');
+    alignCenter.classList.add('tool');
+    alignCenter.onclick = () => {
+      this.canvaser.setFontAlignment('center');
+      setToolActive(this.alignmentContainer, alignCenter, 'tool-selected');
+    };
+    const alignRight = ButtonIcon('alignright');
+    alignRight.classList.add('tool');
+    alignRight.onclick = () => {
+      this.canvaser.setFontAlignment('right');
+      setToolActive(this.alignmentContainer, alignRight, 'tool-selected');
+    };
+    
+    // setToolActive(this.alignmentContainer, alignLeft, 'tool-selected');
+    
+
+    this.alignmentContainer.append(alignLeft, alignCenter, alignRight);
+
+    this.strokeContainer = document.createElement('div');
+    this.strokeContainer.classList.add('tools');
+    
+    const noStroke = ButtonIcon('noframe');
+    noStroke.classList.add('tool');
+    noStroke.onclick = () => {
+      this.canvaser.setFontStroke("no");
+      setToolActive(this.strokeContainer, noStroke, 'tool-selected');
+    };
+    
+    const yesStroke = ButtonIcon('black');
+    yesStroke.classList.add('tool');
+    yesStroke.onclick = () => {
+      this.canvaser.setFontStroke("yes");
+      setToolActive(this.strokeContainer, yesStroke, 'tool-selected');
+    };
+    
+    const frameStroke = ButtonIcon('white');
+    frameStroke.classList.add('tool');
+    frameStroke.onclick = () => {
+      this.canvaser.setFontStroke('frame');
+      setToolActive(this.strokeContainer, frameStroke, 'tool-selected');
+    };
+    // setToolActive(this.strokeContainer, noStroke, 'tool-selected');
+
+    this.strokeContainer.append(noStroke, yesStroke, frameStroke);
+
+    const toolContainer = document.createElement('div');
+    toolContainer.classList.add('tools-container');
+    toolContainer.append(this.alignmentContainer, this.strokeContainer);
+    this.container.append(toolContainer)
+
+    // XENA TODO deal with i18n
+    // @ts-ignore
+    this.fontSection = createNamedSection('Font')
+    // XENA TODO deal with i18n
+    // @ts-ignore
+    this.sizeRange = new RangeSettingSelector("Size",
+      1,
+      24,
+      16,
+      48,
+    )
+    this.sizeRange.onChange = (value) => {
+      this.canvaser.setTextSize(value);
+    } 
+
+    const [
+      roboto,
+      typewriter,
+      avenirNext,
+      courierNew,
+      noteworthy,
+      georgia,
+      papyrus,
+      snellRoundhand,
+    ] = createManyRows([
+      {
+        title: "Roboto",
+        className: "roboto",
+        clickable: () => {
+          setToolActive(this.fontSection, roboto.container, 'tool-selected');
+          this.canvaser.setFont(FontsMap.roboto);
+        }
+      },
+      {
+        title: "Typewriter",
+        className: "typewriter",
+        clickable: () => {
+          setToolActive(this.fontSection, typewriter.container, 'tool-selected');
+          this.canvaser.setFont(FontsMap.typewriter);
+        }
+      },
+      {
+        title: "Avenir Next",
+        className: "avenirNext",
+        clickable: () => {
+          setToolActive(this.fontSection, avenirNext.container, 'tool-selected');
+          this.canvaser.setFont(FontsMap.avenirNext);
+        }
+      },
+      {
+        title: "Courier New",
+        className: "courierNew",
+        clickable: () => {
+          setToolActive(this.fontSection, courierNew.container, 'tool-selected');
+          this.canvaser.setFont(FontsMap.courierNew);
+        }
+      },
+      {
+        title: "Noteworthy",
+        className: "noteworthy",
+        clickable: () => {
+          setToolActive(this.fontSection, noteworthy.container, 'tool-selected');
+          this.canvaser.setFont(FontsMap.noteworthy);
+        }
+      },
+      {
+        title: "Georgia",
+        className: "georgia",
+        clickable: () => {
+          setToolActive(this.fontSection, georgia.container, 'tool-selected');
+          this.canvaser.setFont(FontsMap.georgia);
+        }
+      },
+      {
+        title: "Papyrus",
+        className: "papyrus",
+        clickable: () => {
+          setToolActive(this.fontSection, papyrus.container, 'tool-selected');
+          this.canvaser.setFont(FontsMap.papyrus);
+        }
+      },
+      {
+        title: "Snell Roundhand",
+        className: "snell-roundhand",
+        clickable: () => {
+          setToolActive(this.fontSection, snellRoundhand.container, 'tool-selected');
+          this.canvaser.setFont(FontsMap.snellRoundhand);
+        }
+      },
+    ]);
+
+    // setToolActive(this.fontSection, roboto.container, 'tool-selected');
+
+    this.fontSection.append(
+      roboto.container,
+      typewriter.container,
+      avenirNext.container,
+      courierNew.container,
+      noteworthy.container,
+      georgia.container,
+      papyrus.container,
+      snellRoundhand.container)
+    this.container.append(this.sizeRange.container, this.fontSection);
+
+    this.setFontTabWithSettings({
+      alignment: 'left',
+      font: FontList[0],
+      hexColor: "#FFFFFF",
+      size: 24,
+      stroke: 'no'
+    })
+  }
+
+  public setFontTabWithSettings({alignment, hexColor, stroke, size, font}: {
+    alignment: Aligns;
+    hexColor: string; 
+    stroke: Strokes;
+    size: number, 
+    font: string,
+  }) {
+    let id = 0
+    if (alignment === 'center') id = 1;
+    if (alignment === 'right') id = 2;
+    setToolActive(this.alignmentContainer, this.alignmentContainer.children[id] as HTMLElement, 'tool-selected');
+  
+    id = 0;
+    if (stroke === "yes") id = 1;
+    if (stroke === "frame") id = 2;
+    setToolActive(this.strokeContainer, this.strokeContainer.children[id] as HTMLElement, 'tool-selected');
+    
+    id = this.colorPicker.predefinedColors.indexOf(hexColor);
+    if (id === -1) {
+      this.colorPicker.clickCustomPick();
+      setTimeout(() => this.colorPicker.setColor(hexColor), 0);
+    } else {
+      this.colorPicker.clickColorPick(
+        this.colorPicker.colorPicks.children[id] as HTMLElement,
+        hexColor
+      )
+    };
+
+    id = FontList.indexOf(font);
+    if (id === -1) {
+      setToolActive(this.fontSection,
+        this.fontSection.children[1] as HTMLElement,
+        'tool-selected',
+      )
+    } else {
+      setToolActive(this.fontSection, 
+      this.fontSection.children[id+1] as HTMLElement, 'tool-selected')
+    }
+
+    this.sizeRange.setProgress(size);
+  }
+}

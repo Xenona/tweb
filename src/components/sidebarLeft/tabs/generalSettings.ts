@@ -87,6 +87,11 @@ export class RangeSettingSelector {
 
     this.container.append(details, this.range.container);
   }
+
+  public setProgress(value: number) {
+    this.valueContainer.innerText = '' + value;
+    this.range.setProgress(value);
+  }
 }
 
 export default class AppGeneralSettingsTab extends SliderSuperTabEventable {

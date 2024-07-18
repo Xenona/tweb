@@ -134,7 +134,6 @@ export default class RangeSelector {
 
   public setFilled(value: number) {
     let percents = (value - this.min) / (this.max - this.min);
-    console.log('XE PER', percents)
     percents = clamp(percents, 0, 1);
 
     // using scaleX and width even with vertical because it will be rotated

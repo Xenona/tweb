@@ -26,7 +26,7 @@ export default class ColorPicker {
   private saturation = 100;
   private lightness = 50;
   private alpha = 1;
-  private elements: {
+  protected elements: {
     box: SVGSVGElement,
     boxDragger: SVGSVGElement,
     sliders: HTMLElement,
@@ -34,16 +34,40 @@ export default class ColorPicker {
     hueDragger: SVGSVGElement,
     saturation: SVGLinearGradientElement,
   } = {} as any;
-  private hexInputField: InputField;
-  private rgbInputField: InputField;
+  protected hexInputField: InputField;
+  protected rgbInputField: InputField;
   public onChange: (color: ReturnType<ColorPicker['getCurrentColor']>) => void;
 
-  constructor() {
+  constructor({
+    boxWidth,
+    boxHeight,
+    circlesR,
+    sliderH,
+    sliderW,
+    sliderRX,
+    sliderRY
+  }: Partial<{
+    boxWidth: number;
+    boxHeight: number;
+    circlesR: number;
+    sliderH: number;
+    sliderW: number;
+    sliderRY: number;
+    sliderRX: number;
+  }> = {
+    boxWidth: 380,
+    boxHeight: 198,
+    circlesR: 11,
+    sliderH: 8,
+    sliderW: 380,
+    sliderRY: 4,
+    sliderRX: 4,
+  }) {
     this.container = document.createElement('div');
     this.container.classList.add(ColorPicker.BASE_CLASS);
 
     const html = `
-      <svg class="${ColorPicker.BASE_CLASS + '-box'}" viewBox="0 0 380 198">
+      <svg class="${ColorPicker.BASE_CLASS + '-box'}" viewBox="0 0 ${boxWidth} ${boxHeight}">
         <defs>
           <linearGradient id="color-picker-saturation" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stop-color="#fff"></stop>
@@ -58,13 +82,13 @@ export default class ColorPicker {
             <rect x="0" y="0" width="100%" height="100%" fill="url(#color-picker-brightness)"></rect>
           </pattern>
         </defs>
-        <rect rx="10" ry="10" x="0" y="0" width="380" height="198" fill="url(#color-picker-pattern)"></rect>
+        <rect rx="10" ry="10" x="0" y="0" width="${boxWidth}" height="${boxHeight}" fill="url(#color-picker-pattern)"></rect>
         <svg class="${ColorPicker.BASE_CLASS + '-dragger'} ${ColorPicker.BASE_CLASS + '-box-dragger'}" x="0" y="0">
-          <circle r="11" fill="inherit" stroke="#fff" stroke-width="2"></circle>
+          <circle r="${circlesR}" fill="inherit" stroke="#fff" stroke-width="2"></circle>
         </svg>
       </svg>
       <div class="${ColorPicker.BASE_CLASS + '-sliders'}">
-        <svg class="${ColorPicker.BASE_CLASS + '-color-slider'}" viewBox="0 0 380 24">
+        <svg class="${ColorPicker.BASE_CLASS + '-color-slider'}" viewBox="0 0 ${sliderW} ${sliderH+2*circlesR}">
           <defs>
             <linearGradient id="hue" x1="100%" y1="0%" x2="0%" y2="0%">
               <stop offset="0%" stop-color="#f00"></stop>
@@ -76,9 +100,9 @@ export default class ColorPicker {
               <stop offset="100%" stop-color="#f00"></stop>
             </linearGradient>
           </defs>
-          <rect rx="4" ry="4" x="0" y="9" width="380" height="8" fill="url(#hue)"></rect>
-          <svg class="${ColorPicker.BASE_CLASS + '-dragger'} ${ColorPicker.BASE_CLASS + '-color-slider-dragger'}" x="0" y="13">
-            <circle r="11" fill="inherit" stroke="#fff" stroke-width="2"></circle>
+          <rect rx="${sliderRX}" ry="${sliderRY}" x="0" y="9" width="${sliderW}" height="${sliderH}" fill="url(#hue)"></rect>
+          <svg class="${ColorPicker.BASE_CLASS + '-dragger'} ${ColorPicker.BASE_CLASS + '-color-slider-dragger'}" x="0" y="${2*circlesR-1}">
+            <circle r="${circlesR}" fill="inherit" stroke="#fff" stroke-width="2"></circle>
           </svg>
         </svg>
       </div>
@@ -246,7 +270,7 @@ export default class ColorPicker {
   private hueHandler(pageX: number, update = true) {
     const eventX = clamp(pageX - this.hueRect.left, 0, this.hueRect.width);
 
-    const percents = eventX / this.hueRect.width;
+    const percents = (eventX / this.hueRect.width) || 0;
     this.hue = Math.round(360 * percents);
 
     const hsla = `hsla(${this.hue}, 100%, 50%, ${this.alpha})`;
@@ -268,8 +292,8 @@ export default class ColorPicker {
     const eventX = clamp(pageX - this.boxRect.left, 0, maxX);
     const eventY = clamp(pageY - this.boxRect.top, 0, maxY);
 
-    const posX = eventX / maxX * 100;
-    const posY = eventY / maxY * 100;
+    const posX = (eventX / maxX * 100) || 0;
+    const posY = (eventY / maxY * 100) || 0;
 
     const boxDragger = this.elements.boxDragger;
     boxDragger.setAttributeNS(null, 'x', posX + '%');

@@ -435,3 +435,26 @@ export const RadioFormFromValues = (values: {
   }
   return form;
 };
+
+export function createManyRows(params: {
+  title: string,
+  icon?: Icon,
+  clickable?: () => void,
+  titleLangArgs?: any[],
+  className?: string,
+}[]): Row[] {
+  let res: Row[] = [];
+
+  params.map(e => {
+    let {className, ...options } = e;
+    let row = new Row({
+      ...options,
+    })
+    if (className) {
+      row.container.classList.add(className);
+    }
+    res.push(row);
+  })
+
+  return res;
+}
