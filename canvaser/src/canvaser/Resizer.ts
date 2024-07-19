@@ -121,7 +121,6 @@ export class Resizer {
     const d = Math.abs(dw) > Math.abs(dh) ? dw : dh;
     const da = d / ah;
 
-    console.log(aspect, d, da, d / da, rect[closerLeft ? 0 : 2] / rect[closerTop ? 1 : 3])
 
     this.target.updateRect(closerLeft ? 0 : 2, rect[closerLeft ? 0 : 2] + d);
     this.target.updateRect(closerTop ? 1 : 3, rect[closerTop ? 1 : 3] + da);

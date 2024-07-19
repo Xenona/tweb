@@ -3,7 +3,7 @@ import { Canvaser } from './canvaser/Canvaser'
 import { Controls, ControlsGroup } from './controls'
 import { BaseTool, NoneTool } from './canvaser/Tool'
 import { CropTool } from './canvaser/Crop'
-import { ArrowBrush, BrusherTool, MarkerBrush, NeonBrush, PenBrush } from './canvaser/Brusher'
+import { ArrowBrush, BlurBrush, BrusherTool, EraserBrush, MarkerBrush, NeonBrush, PenBrush } from './canvaser/Brusher'
 
 const appEl = document.querySelector<HTMLDivElement>('#app')
 
@@ -152,4 +152,10 @@ createMode('Brush', () => {
 })
 .btn('Neon brush', () => {
   curBrushTool.setBrush(NeonBrush)
+})
+.btn('Eraser brush', () => {
+  curBrushTool.setBrush(EraserBrush)
+})
+.btn('Blur brush', () => {
+  curBrushTool.setBrush(BlurBrush)
 })

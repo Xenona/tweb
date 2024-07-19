@@ -67,12 +67,33 @@ export class BrusherLayer extends Layer {
   }
 
   public beginSegment() {
+    if (this.points.length != 0) {
+      let stash: BrushPoint[] = [];
+      
+      this.canvaser.emitHistory({
+        undo: () => {
+          let cutFrom = this.points.length - 2;
+          while (this.points[cutFrom].type != "end") cutFrom--;
+
+          stash = this.points.splice(cutFrom + 1);
+          this.canvaser.emitUpdate();
+        },
+
+        redo: () => {
+          this.points.push(...stash);
+          stash = [];
+          this.canvaser.emitUpdate();
+        },
+      });
+    }
+
     this.points.push({ type: "begin" });
     this.canvaser.emitUpdate();
   }
 
   public endSegment() {
     this.points.push({ type: "end" });
+
     this.canvaser.emitUpdate();
   }
 
@@ -113,8 +134,8 @@ export class ArrowBrush extends BrusherLayer {
           lastPoints.push([p.x, p.y]);
           if (lastPoints.length > 10) lastPoints.shift();
         } else if (p.type == "end") {
-          if(lastPoints.length < 10) continue;
-          
+          if (lastPoints.length < 10) continue;
+
           const dx = lastPoints[9][0] - lastPoints[0][0];
           const dy = lastPoints[9][1] - lastPoints[0][1];
           c.translate(lastPoints[9][0], lastPoints[9][1]);
@@ -160,6 +181,57 @@ export class NeonBrush extends BrusherLayer {
       this.movePoints(c);
       c.stroke();
     });
+  }
+}
+
+export class EraserBrush extends BrusherLayer {
+  render(ctx: RenderCtx) {
+    ctx.with2D((c) => {
+      c.beginPath();
+
+      c.strokeStyle = "white";
+      c.lineCap = "round";
+      c.lineJoin = "round";
+      c.lineWidth = 2 * this.opts.size * ctx.iFactor;
+      c.globalCompositeOperation = "destination-out";
+
+      this.movePoints(c);
+      c.stroke();
+
+      c.globalCompositeOperation = "destination-over";
+      ctx.putFrame("image");
+    });
+  }
+
+  get combinable(): boolean {
+    return true;
+  }
+}
+
+export class BlurBrush extends BrusherLayer {
+  render(ctx: RenderCtx) {
+    const f = ctx.copyLast();
+    ctx.with2D((c) => {
+      c.beginPath();
+
+      c.strokeStyle = "white";
+      c.lineCap = "round";
+      c.lineJoin = "round";
+      c.lineWidth = 2 * this.opts.size * ctx.iFactor;
+      c.globalCompositeOperation = "destination-out";
+
+      this.movePoints(c);
+      c.stroke();
+
+      c.filter = "blur(10px)";
+      c.globalCompositeOperation = "destination-over";
+      ctx.putFrame(f);
+    });
+    f.dispose();
+  }
+
+  get combinable(): boolean {
+    return true;
   }
 }
 

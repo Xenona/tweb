@@ -51,6 +51,7 @@ export class Canvaser {
     this.updateRequested = false;
     this.tool.update();
     this.tool.render(this.ctx);
+    this.ctx.cleanup();
   }
 
   public render(ctx: RenderCtx) {
@@ -60,6 +61,7 @@ export class Canvaser {
     this.rootEffects.apply(ctx);
     this.rootImage.render(ctx);
     this.rootEffects.finish(ctx);
+    ctx.saveFrame('image');
 
     this.layers.forEach((l) => l.render(ctx));
 

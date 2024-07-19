@@ -10,6 +10,22 @@ export type Transformation = {
   rotate?: number;
 };
 
+export class SavedFrame {
+  constructor(b: ImageBitmap) {
+    this.b = b;
+  }
+
+  public dispose() {
+    this.b.close();
+  }
+
+  public getInternal(): ImageBitmap {
+    return this.b;
+  }
+
+  private b: ImageBitmap;
+}
+
 export class RenderCtx {
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -18,11 +34,16 @@ export class RenderCtx {
 
     this.curTransform = Mat3.identity();
     this.transformStack = []
+
+    this.copyHelper = new OffscreenCanvas(100, 100)
+    this.copyHelperCtx = this.copyHelper.getContext("2d");
   }
 
   public setSize(w: number, h: number) {
     this.canvas.width = w;
     this.canvas.height = h;
+    this.copyHelper.width = w;
+    this.copyHelper.height = h;
 
     this.transformStack = [];
     this.curTransform = Mat3.identity().translate(w / 2, h / 2);
@@ -88,6 +109,32 @@ export class RenderCtx {
     );
   }
 
+  public copyLast(): SavedFrame {
+    this.copyHelperCtx?.drawImage(this.canvas, 0, 0);
+    return new SavedFrame(this.copyHelper.transferToImageBitmap());
+  }
+
+  public saveFrame(name: string) {
+    if(this.savedFrames[name]) this.savedFrames[name].dispose();
+    this.savedFrames[name] = this.copyLast();
+  }
+
+  public cleanup() {
+    Object.values(this.savedFrames).forEach(frame => frame.dispose());
+    this.savedFrames = {};
+  }
+
+  public putFrame(src: string | SavedFrame) {
+    this.ctx.save();
+    this.ctx.resetTransform();
+    if(typeof src == "string") {
+      this.ctx.drawImage(this.savedFrames[src].getInternal(), 0, 0);
+    } else {
+      this.ctx.drawImage(src.getInternal(), 0, 0);
+    }
+    this.ctx.restore();
+  }
+
   public with2D(cb: (ctx: CanvasRenderingContext2D) => void) {
     this.ctx.save();
     cb(this.ctx);
@@ -104,12 +151,17 @@ export class RenderCtx {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
 
+  private copyHelper: OffscreenCanvas;
+  private copyHelperCtx: OffscreenCanvasRenderingContext2D | null;
+
   private filterStack: string[];
 
   public iFactor: number = 1;
 
   private curTransform: Mat3 = Mat3.identity();
   private transformStack: Mat3[] = [];
+  
+  private savedFrames: { [key: string]: SavedFrame } = {};
 }
 
 export class Rect implements IDrawable {
