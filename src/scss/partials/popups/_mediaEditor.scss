@@ -51,12 +51,9 @@
 
 .editor {
   &-tab {
-    --left-padding: 1.8rem;
-    --top-padding: 1.5rem;
-    --left-for-inner: 0.7rem;
 
     &.filter {
-      padding: var(--top-padding) var(--left-padding);
+      padding: 1.5rem 1.8rem;
       display: flex;
       flex-direction: column;
       gap: 2rem;
@@ -77,17 +74,18 @@
       display: flex;
       flex-direction: column;
       gap: 1rem;
-      padding-top: calc(var(--top-padding) - 0.5rem);
+      padding-top: calc(1.5rem - 0.5rem);
       --range-color: #ffffff;
-      --range-color-bleak: #ffffff14;
 
       .named-section {
         padding-top: 1rem;
       }
 
       & .range-setting-selector {
-        padding: 0 var(--left-padding);
-        color: var(--secondary-text-color);
+        &-name {
+          color: var(--secondary-text-color);
+        }
+        padding: 0 1.8rem;
 
         & .progress-line {
           --color: var(--range-color);
@@ -103,7 +101,7 @@
         width: 100%;
         justify-content: space-between;
         height: 3rem;
-        padding: 0 var(--left-for-inner);
+        padding: 0 0.7rem;
 
         & .tools {
           display: flex;
@@ -162,6 +160,85 @@
       padding-bottom: 5.5rem;
     }
 
+    &.brush {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding-top: 1rem;
+      
+      --range-color: #ffffff;
+      --pen-color: #FE4438;
+      --arrow-color: #FFD60A; 
+      --mark-color: #FF8901;
+      --neon-color: #62E5E0;
+
+      & .range-setting-selector {
+
+        &-name {
+          color: var(--secondary-text-color);
+        }
+        padding: 0 1.8rem;
+
+        & .progress-line {
+          --color: var(--range-color);
+
+          & .progress-line__filled {
+            background-color: var(--range-color);
+          }
+        }
+      }
+
+      & .pen {
+        fill: var(--pen-color);
+      }
+      
+      & .arrow {
+        fill: var(--arrow-color);
+        stop-color: var(--arrow-color);
+      }
+
+      & .mark {
+        fill: var(--mark-color);
+      }
+
+      & .neon {
+        fill: var(--neon-color);
+      }
+
+      & .brush-row {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 1rem;
+        justify-content: flex-start;
+        height: 3rem;
+        
+        & > svg {
+          height: 20px;
+          width: 120px;
+          transition: transform 0.6s ease;
+          transform: translateX(-50px);
+          mask-image: linear-gradient(to right, rgba(0, 0, 0, 0) 10% 34%, rgb(0, 0, 0) 53%);
+        }
+
+        & .row-title {
+          transform: translateX(-50px);
+          transition: transform 0.6s ease;
+        }
+
+        &.tool-selected {
+          & > svg {
+            transform: translateX(-10px);
+            mask-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1) 10%);
+          }
+        
+          & .row-title {
+            transform: translateX(-10px);
+          }
+        }
+      }
+    }
+
     & .row {
       width: 100%;
 
@@ -199,7 +276,7 @@
 }
 
 .named-section {
-  padding: var(--top-padding) var(--left-for-inner);
+  padding: 1.5rem 0.7rem;
 
   &-title {
     color: var(--secondary-text-color);
@@ -217,6 +294,16 @@
   &.short {
     margin: 0;
     width: auto;
+    position: relative;
+
+    --range-color-bleak: #ffffff14;
+    transition: filter 0.6s ease;
+    filter: none;
+
+    &.disabled {
+      filter: grayscale(90%);
+      z-index: -1;
+    }
 
     .color-picks {
       padding: 0 1.2rem;
@@ -256,14 +343,14 @@
     & .box-and-inputs {
       display: flex;
       width: 100%;
-      padding: 0 var(--left-padding);
+      padding: 0 1.8rem;
       justify-content: space-between;
       height: 0;
       overflow: hidden;
 
       &.active {
         height: 152px;
-        padding: 1rem var(--left-padding);
+        padding: 1rem 1.8rem;
       }
     }
 
@@ -288,6 +375,13 @@
       opacity: 0;
       transform: scaleY(0);
 
+      height: 42px;
+      transform-origin: center;
+      position: absolute;
+      top: -12px;
+      opacity: 0;
+      transform: scaleY(0);
+      
       &.active {
         opacity: 1;
         transform: scaleY(1);

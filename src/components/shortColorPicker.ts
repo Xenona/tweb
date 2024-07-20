@@ -1,5 +1,6 @@
+import { ColorHsla } from "../helpers/color";
 import liteMode from "../helpers/liteMode";
-import ColorPicker from "./colorPicker";
+import ColorPicker, { ColorPickerColor } from "./colorPicker";
 
 export class ShortColorPicker extends ColorPicker {
 
@@ -7,8 +8,8 @@ export class ShortColorPicker extends ColorPicker {
   predefinedColors  = ['#FFFFFF', '#FE4438', '#FF8901', '#FFD60A', '#33C759', '#62E5E0', '#0A84FF', '#BD5CF3'];
   customColorPick: HTMLButtonElement;
   colorPicks: HTMLElement;
-  
-  constructor() {
+
+  constructor(onChange: (color: ColorPickerColor) => void) {
     super({boxWidth: 200, boxHeight: 120, circlesR: 10, sliderH: 20, sliderW: 300, sliderRX: 10, sliderRY: 10});
     
     this.colorPicks = document.createElement('div');
@@ -18,7 +19,13 @@ export class ShortColorPicker extends ColorPicker {
       colorPick.classList.add('color-pick');
       colorPick.style.setProperty('background-color', color);
       colorPick.onclick = () => {
-       this.clickColorPick(colorPick, color);
+        this.colorPicks.querySelector('.active').classList.remove('active');
+        colorPick.classList.add('active')
+        this.hidePicker();
+        if (this.onChange) {
+          this.setColor(color);
+          this.onChange(this.getCurrentColor());
+        }
       }
       this.colorPicks.append(colorPick);
     })
@@ -35,7 +42,21 @@ export class ShortColorPicker extends ColorPicker {
       this.elements.sliders.style.transition = 'transform 0.6s ease, opacity 0.5s ease';
     }
     this.customColorPick.onclick = () => {
-      this.clickCustomPick()
+      const wasActive = this.colorPicks.querySelector('.active');
+      if (wasActive instanceof HTMLElement) {
+        if (wasActive === this.customColorPick) {
+          if (this.boxAndInputs.classList.contains('active')) {
+            this.hidePicker();
+          } else {
+            this.showPicker();
+          }
+        } else {
+          this.setColor(wasActive.style.backgroundColor, true, true);
+          this.customColorPick.classList.add('active');
+          this.showPicker();
+          wasActive.classList.remove('active');
+        }
+      }
     }
     this.colorPicks.append(this.customColorPick);
 
@@ -47,6 +68,11 @@ export class ShortColorPicker extends ColorPicker {
     this.boxAndInputs.append(this.elements.box, inputs)
  
     this.container.append(this.colorPicks, this.elements.sliders, this.boxAndInputs)
+  
+    this.onChange = (color) => {
+      this.container.style.setProperty('--range-color-bleak', color.hex+'14');
+      onChange(color);
+    } 
   }
 
   protected hidePicker() {
@@ -58,33 +84,31 @@ export class ShortColorPicker extends ColorPicker {
     this.boxAndInputs.classList.add('active');
     this.elements.sliders.classList.add('active');
   }
-  
-  public clickCustomPick() {
-    const wasActive = this.colorPicks.querySelector('.active');
-    if (wasActive instanceof HTMLElement) {
-      if (wasActive === this.customColorPick) {
-        this.hidePicker();
-        this.colorPicks.children[0].classList.add('active');
-        this.setColor('#FFFFFF')
-        this.onChange(this.getCurrentColor());
-      } else {
 
-        this.setColor(wasActive.style.backgroundColor, true, true);
-        this.customColorPick.classList.add('active');
-        this.showPicker();
-        
-      }
-      wasActive.classList.remove('active');
+  public setColor(color: ColorHsla | string, updateHexInput = true, updateRgbInput = true) {
+
+    if (color === '') {
+      this.container.classList.add('disabled');
+      return;
     }
-  }
+    this.container.classList.remove('disabled');
 
-  public clickColorPick(colorPick: HTMLElement, color: string) {
-    this.colorPicks.querySelector('.active').classList.remove('active');
-    colorPick.classList.add('active')
-    this.hidePicker();
-    if (this.onChange) {
-      this.setColor(color);
-      this.onChange(this.getCurrentColor());
+    super.setColor(color, updateHexInput, updateRgbInput);
+
+    if (typeof color !== 'string') return;
+    
+    let prev = this.colorPicks.querySelectorAll('.active');
+    for (let i = 0; i < prev.length; i++) {
+      prev[i].classList.remove('active');
+    }
+
+    let id = this.predefinedColors.indexOf(color.toUpperCase());
+    if (id !== -1) {
+      this.hidePicker();
+      this.colorPicks.children[id].classList.add('active');
+    } else {
+      this.showPicker();
+      this.customColorPick.classList.add('active');
     }
   }
 }

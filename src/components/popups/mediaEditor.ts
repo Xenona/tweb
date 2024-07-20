@@ -45,11 +45,19 @@ export const FontsMap = {
   snellRoundhand: FontList[7],
 } as const;
 
+export enum Pens {
+  pen,
+  arrow,
+  mark,
+  neon,
+  blur,
+  eraser,
+}
 
 export interface ICanvaser {
   undo: () => void,
   redo: () => void,
-  
+
   // all the values are pulled out of design
   onEnhanceChange: (value: number) => void;
   onBrightnessChange: (value: number) => void;
@@ -99,16 +107,16 @@ export interface ICanvaser {
   setAspectRatio: (ratio: AspectRatios) => void;
 
   setTextSize: (size: number) => void;
-
   createFontElement: () => void;
-
   setFont: (font: string) => void;
-
   setFontColor: (hex: string) => void;
-
   setFontAlignment: (alignment: Aligns) => void;
-
   setFontStroke: (stroke: Strokes) => void;
+
+  setPenSize: (size: number) => void;
+  setPenColor: (hex: string) => void;
+  setPen: (pen: Pens) => void; 
+
 }
 
 class Canvaser implements ICanvaser {
@@ -225,6 +233,18 @@ class Canvaser implements ICanvaser {
   public createFontElement() {
     this.p('created font element');
   };
+
+  public setPenSize(size: number) {
+    this.p('setting pen size', size);
+  }
+
+  public setPenColor(hex: string) {
+    this.p('setting pen color to', hex);
+  }
+
+  public setPen(pen: Pens) {
+    this.p('settings pen', pen);
+  }
 }
 
 export default class PopupMediaEditor extends PopupElement {

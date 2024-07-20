@@ -66,23 +66,28 @@ export default class ColorPicker {
     this.container = document.createElement('div');
     this.container.classList.add(ColorPicker.BASE_CLASS);
 
+    // When using multiple instances of the Picker, 
+    // conflicts may arise, because multiple id (all the same).
+    // Thus - the key
+    const key = Math.random().toString(16);  
+
     const html = `
       <svg class="${ColorPicker.BASE_CLASS + '-box'}" viewBox="0 0 ${boxWidth} ${boxHeight}">
         <defs>
-          <linearGradient id="color-picker-saturation" x1="0%" y1="0%" x2="100%" y2="0%">
+          <linearGradient id="color-picker-saturation${key}" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stop-color="#fff"></stop>
             <stop offset="100%" stop-color="hsl(0,100%,50%)"></stop>
           </linearGradient>
-          <linearGradient id="color-picker-brightness" x1="0%" y1="0%" x2="0%" y2="100%">
+          <linearGradient id="color-picker-brightness${key}" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stop-color="rgba(0,0,0,0)"></stop>
             <stop offset="100%" stop-color="#000"></stop>
           </linearGradient>
-          <pattern id="color-picker-pattern" width="100%" height="100%">
-            <rect x="0" y="0" width="100%" height="100%" fill="url(#color-picker-saturation)"></rect>
-            <rect x="0" y="0" width="100%" height="100%" fill="url(#color-picker-brightness)"></rect>
+          <pattern id="color-picker-pattern${key}" width="100%" height="100%">
+            <rect x="0" y="0" width="100%" height="100%" fill="url(#color-picker-saturation${key})"></rect>
+            <rect x="0" y="0" width="100%" height="100%" fill="url(#color-picker-brightness${key})"></rect>
           </pattern>
         </defs>
-        <rect rx="10" ry="10" x="0" y="0" width="${boxWidth}" height="${boxHeight}" fill="url(#color-picker-pattern)"></rect>
+        <rect rx="10" ry="10" x="0" y="0" width="${boxWidth}" height="${boxHeight}" fill="url(#color-picker-pattern${key})"></rect>
         <svg class="${ColorPicker.BASE_CLASS + '-dragger'} ${ColorPicker.BASE_CLASS + '-box-dragger'}" x="0" y="0">
           <circle r="${circlesR}" fill="inherit" stroke="#fff" stroke-width="2"></circle>
         </svg>
@@ -90,7 +95,7 @@ export default class ColorPicker {
       <div class="${ColorPicker.BASE_CLASS + '-sliders'}">
         <svg class="${ColorPicker.BASE_CLASS + '-color-slider'}" viewBox="0 0 ${sliderW} ${sliderH+2*circlesR}">
           <defs>
-            <linearGradient id="hue" x1="100%" y1="0%" x2="0%" y2="0%">
+            <linearGradient id="hue${key}" x1="100%" y1="0%" x2="0%" y2="0%">
               <stop offset="0%" stop-color="#f00"></stop>
               <stop offset="16.666%" stop-color="#f0f"></stop>
               <stop offset="33.333%" stop-color="#00f"></stop>
@@ -100,7 +105,7 @@ export default class ColorPicker {
               <stop offset="100%" stop-color="#f00"></stop>
             </linearGradient>
           </defs>
-          <rect rx="${sliderRX}" ry="${sliderRY}" x="0" y="9" width="${sliderW}" height="${sliderH}" fill="url(#hue)"></rect>
+          <rect rx="${sliderRX}" ry="${sliderRY}" x="0" y="9" width="${sliderW}" height="${sliderH}" fill="url(#hue${key})"></rect>
           <svg class="${ColorPicker.BASE_CLASS + '-dragger'} ${ColorPicker.BASE_CLASS + '-color-slider-dragger'}" x="0" y="${2*circlesR-1}">
             <circle r="${circlesR}" fill="inherit" stroke="#fff" stroke-width="2"></circle>
           </svg>
