@@ -1,11 +1,11 @@
 import type { Canvaser } from "./Canvaser";
 import { Mat3 } from "./Mat";
 import { MouseEv, MouseMoveEv } from "./Mouse";
-import { Rect, RenderCtx } from "./Renderer";
-import { IMouseResizable, Resizer } from "./Resizer";
+import { DrawableRect } from "./Rect";
+import { RenderCtx } from "./Renderer";
 import { BaseTool } from "./Tool";
 
-export class Cropper implements IMouseResizable {
+export class Cropper  {
   constructor(canvaser: Canvaser) {
     this.canvaser = canvaser;
 
@@ -169,10 +169,10 @@ export class Cropper implements IMouseResizable {
   private curInv: Mat3;
 }
 
-class CropRect extends Rect {
+class CropRect extends DrawableRect {
   protected renderBase(ctx: RenderCtx) {
-    const w = this.w;
-    const h = this.h;
+    const w = this.o.w;
+    const h = this.o.h;
     const hw = w / 2;
     const hh = h / 2;
 
@@ -216,11 +216,18 @@ class CropRect extends Rect {
   }
 }
 
+type RatioResizeState = {
+  aspect: number;
+  closerLeft: boolean;
+  closerTop: boolean;
+};
+
 export class CropTool extends BaseTool {
   constructor(canvaser: Canvaser) {
     super(canvaser);
 
-    this.resizer = new Resizer(canvaser.crop);
+    this.crop = this.canvaser.crop;
+    this.rendRect = new CropRect();
   }
 
   public render(ctx: RenderCtx): void {
@@ -230,19 +237,14 @@ export class CropTool extends BaseTool {
       this.canvaser.rootImage.render(ctx);
     });
 
-    const r = new CropRect();
-    r.setPoints(...this.canvaser.crop.getRect());
-    ctx.draw(r);
-  }
-
-  public mouseMove(ev: MouseMoveEv): void {
-    this.resizer.mouseMove(ev);
+    this.rendRect.setPoints(...this.crop.getRect());
+    this.rendRect.render(ctx);
   }
 
   public mouseUpDown(ev: MouseEv): void {
     if (!ev.pressed) {
       this.canvaser.crop.finishRectEdit();
-    } else if (this.resizer.checkLim(ev.x, ev.y, 16 * ev.iFactor)) {
+    } else if (this.checkLim(ev.x, ev.y, 16 * ev.iFactor)) {
       const crop = this.canvaser.crop;
       const rect = crop.getRect();
 
@@ -251,9 +253,139 @@ export class CropTool extends BaseTool {
     }
   }
 
-  public setForcedRatio(ratio: number | undefined) {
-    this.resizer.setForcedRatio(ratio);
+  checkLim(px: number, py: number, lim: number) {
+    const rect = this.crop.getRect();
+
+    if (px < Math.min(rect[0], rect[2]) - lim) return false;
+    if (px > Math.max(rect[0], rect[2]) + lim) return false;
+    if (py < Math.min(rect[1], rect[3]) - lim) return false;
+    if (py > Math.max(rect[1], rect[3]) + lim) return false;
+
+    return true;
   }
 
-  private resizer: Resizer;
+  mouseMove(ev: MouseMoveEv) {
+    if (!ev.pressed) {
+      this.ratioSource = undefined;
+      return;
+    }
+
+    const ratioMode = this.forcedRatio || ev.shift;
+    if (!ratioMode) this.ratioSource = undefined;
+
+    if (this.ratioSource) return this.ratioResize(ev);
+
+    const rect = this.crop.getRect();
+    const px = ev.x - ev.dx;
+    const py = ev.y - ev.dy;
+    const lim = 16 * ev.iFactor;
+
+    if (!this.checkLim(px, py, lim)) return;
+
+    if (this.checkLim(px, py, -lim)) {
+      return this.handleMove(ev);
+    }
+
+    if (ratioMode) return this.ratioResize(ev);
+
+    const opSide = [2, 3, 0, 1];
+    const pSide = [px, py, px, py];
+    const eSide = [ev.x, ev.y, ev.x, ev.y];
+
+    for (let i = 0; i < 4; i++) {
+      const p = pSide[i];
+      const di = Math.abs(p - rect[i]);
+
+      if (di > lim) continue; // Move not touching border
+      const opdi = Math.abs(p - rect[opSide[i]]);
+      if (di > opdi) continue; // Move closer to opposite border
+      if (di == opdi && i < opSide[i]) continue; // Handle right in the middle situation
+
+      const e = eSide[i];
+      if (ev.ctrl) {
+        this.crop.updateRect(opSide[i], rect[i] + rect[opSide[i]] - e);
+      }
+      this.crop.updateRect(i, e);
+    }
+  }
+
+  private handleMove(ev: MouseMoveEv) {
+    this.crop.moveRect(ev.dx, ev.dy);
+    if (this.forcedRatio) {
+      this.updateAspected(this.forcedRatio);
+    }
+  }
+
+  private ratioResize(ev: MouseMoveEv) {
+    const px = ev.x - ev.dx;
+    const py = ev.y - ev.dy;
+    const lim = 16 * ev.iFactor;
+
+    if (!this.ratioSource && this.checkLim(px, py, -lim))
+      return this.handleMove(ev);
+
+    const rect = this.crop.getRect();
+
+    if (!this.ratioSource) {
+      this.ratioSource = {
+        aspect:
+          this.forcedRatio ??
+          Math.abs(rect[0] - rect[2]) / Math.abs(rect[3] - rect[1]),
+        closerLeft: Math.abs(rect[0] - px) < Math.abs(rect[2] - px),
+        closerTop: Math.abs(rect[1] - py) < Math.abs(rect[3] - py),
+      };
+    }
+
+    const { aspect, closerLeft, closerTop } = this.ratioSource;
+
+    const ah = aspect * (closerLeft !== closerTop ? -1 : 1);
+
+    const dw = ev.dx;
+    const dh = ev.dy * ah;
+
+    const d = Math.abs(dw) > Math.abs(dh) ? dw : dh;
+    const da = d / ah;
+
+    this.crop.updateRect(closerLeft ? 0 : 2, rect[closerLeft ? 0 : 2] + d);
+    this.crop.updateRect(closerTop ? 1 : 3, rect[closerTop ? 1 : 3] + da);
+
+    if (ev.ctrl) {
+      this.crop.updateRect(closerLeft ? 2 : 0, rect[closerLeft ? 2 : 0] - d);
+      this.crop.updateRect(closerTop ? 3 : 1, rect[closerTop ? 3 : 1] - da);
+    }
+
+    this.updateAspected(aspect);
+  }
+
+  private updateAspected(ratio: number) {
+    const rect = this.crop.getRect();
+
+    const w = Math.abs(rect[2] - rect[0]);
+    const h = Math.abs(rect[3] - rect[1]);
+    const cx = (rect[0] + rect[2]) / 2;
+    const cy = (rect[1] + rect[3]) / 2;
+
+    const newSide = Math.min(w, h * ratio);
+
+    if (Math.abs(w / h - ratio) < 0.0001) return;
+
+    const nhs = newSide / 2;
+
+    this.crop.updateRect(0, cx - nhs);
+    this.crop.updateRect(1, cy - nhs / ratio);
+    this.crop.updateRect(2, cx + nhs);
+    this.crop.updateRect(3, cy + nhs / ratio);
+  }
+
+  public setForcedRatio(ratio: number | undefined) {
+    this.forcedRatio = ratio;
+    if (ratio) {
+      this.updateAspected(ratio);
+    }
+  }
+
+  private crop: Cropper;
+  private rendRect: DrawableRect;
+  private ratioSource: RatioResizeState | undefined;
+  private forcedRatio: number | undefined;
 }
