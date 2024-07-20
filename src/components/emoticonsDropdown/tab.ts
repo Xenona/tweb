@@ -30,6 +30,7 @@ import wrapStickerSetThumb from '../wrappers/stickerSetThumb';
 import wrapEmojiText from '../../lib/richTextProcessor/wrapEmojiText';
 import type {MyDocument} from '../../lib/appManagers/appDocsManager';
 import SuperStickerRenderer from './tabs/SuperStickerRenderer';
+import LazyLoadQueue from '../lazyLoadQueue';
 
 export default class EmoticonsTabC<Category extends StickersTabCategory<any, any>, T = any> implements EmoticonsTab {
   public content: HTMLElement;
@@ -38,6 +39,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
   public menuWrapper: HTMLElement;
   public menu: HTMLElement;
   public emoticonsDropdown: EmoticonsDropdown;
+  public attachedLazyLoadQueue?: LazyLoadQueue
 
   protected categories: {[id: string]: Category};
   protected categoriesMap: Map<HTMLElement, Category>;
@@ -442,17 +444,19 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
     const type: IgnoreMouseOutType = 'menu';
     createStickersContextMenu({
       listenTo: this.content,
-      chatInput: this.emoticonsDropdown.chatInput,
+      chatInput: this.emoticonsDropdown?.chatInput,
       verifyRecent,
       isEmojis: !!getTextColor,
       isGif,
       canHaveEmojiTimer,
       canViewPack: true,
       onOpen: () => {
-        this.emoticonsDropdown.setIgnoreMouseOut(type, true);
+        if(this.emoticonsDropdown)
+          this.emoticonsDropdown.setIgnoreMouseOut(type, true);
       },
       onClose: () => {
-        this.emoticonsDropdown.setIgnoreMouseOut(type, false);
+        if(this.emoticonsDropdown)
+          this.emoticonsDropdown.setIgnoreMouseOut(type, false);
       }
     });
   }
@@ -469,7 +473,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
       set,
       container: menuTabPadding,
       group: EMOTICONSSTICKERGROUP,
-      lazyLoadQueue: this.emoticonsDropdown?.lazyLoadQueue,
+      lazyLoadQueue: this.lazyLoadQueue,
       width: 32,
       height: 32,
       autoplay: false,
@@ -480,19 +484,31 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
 
   public createStickerRenderer() {
     const superStickerRenderer = new SuperStickerRenderer({
-      regularLazyLoadQueue: this.emoticonsDropdown.lazyLoadQueue,
+      regularLazyLoadQueue: this.lazyLoadQueue,
       group: EMOTICONSSTICKERGROUP,
       managers: this.managers,
-      intersectionObserverInit: this.emoticonsDropdown.intersectionOptions
+      intersectionObserverInit: this.intersectionOptions
     });
 
     const rendererLazyLoadQueue = superStickerRenderer.lazyLoadQueue;
-    this.emoticonsDropdown.addLazyLoadQueueRepeat(
-      rendererLazyLoadQueue,
-      superStickerRenderer.processInvisible,
-      this.middlewareHelper.get()
-    );
+    if(this.emoticonsDropdown) {
+      this.emoticonsDropdown.addLazyLoadQueueRepeat(
+        rendererLazyLoadQueue,
+        superStickerRenderer.processInvisible,
+        this.middlewareHelper.get()
+      );
+    }
 
     return superStickerRenderer;
+  }
+
+  get intersectionOptions(): IntersectionObserverInit {
+    return this.emoticonsDropdown?.intersectionOptions ?? {
+      root: this.container
+    }
+  }
+
+  get lazyLoadQueue(): LazyLoadQueue {
+    return this.attachedLazyLoadQueue ?? this.emoticonsDropdown?.lazyLoadQueue;
   }
 }

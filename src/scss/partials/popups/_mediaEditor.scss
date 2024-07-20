@@ -239,6 +239,39 @@
       }
     }
 
+    &.emoji {
+      height: 100%;
+
+      & .menu-wrapper {
+        border-bottom: none;
+      }
+      
+      & .menu-horizontal-div {
+        padding: 1.1rem;
+        border-bottom: none;
+      }
+
+      & .emoticons-search-container {
+        padding: 0.1rem;
+        border-radius: 2rem;
+      }
+      
+      & .emoticons-categories-container {
+      
+        padding: 1.7rem;
+      
+
+        & .category-title {
+          text-align: left;
+          padding-left: 0;
+        }
+      }
+
+      & .super-stickers {
+        row-gap: 10px;
+      }
+    }
+
     & .row {
       width: 100%;
 

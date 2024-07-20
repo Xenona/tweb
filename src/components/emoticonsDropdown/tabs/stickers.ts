@@ -135,7 +135,7 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
       }
     }); */
 
-    const intersectionOptions = this.emoticonsDropdown.intersectionOptions;
+    const intersectionOptions = this.intersectionOptions;
     this.categoriesIntersector = new VisibilityIntersector(this.onCategoryVisibility, intersectionOptions);
 
     this.scrollable.container.addEventListener('click', (e) => {
@@ -377,6 +377,8 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
   }
 
   public setTyping = (cancel = false) => {
+    if(!this.emoticonsDropdown) return;
+    
     if(!cancel && (!this.emoticonsDropdown.isActive() || this.emoticonsDropdown.tab !== this)) {
       return;
     }

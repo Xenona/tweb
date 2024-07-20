@@ -1,22 +1,21 @@
 import IS_TOUCH_SUPPORTED from "../../../environment/touchSupport";
-import { attachClickEvent } from "../../../helpers/dom/clickEvent";
 import findUpClassName from "../../../helpers/dom/findUpClassName";
 import handleTabSwipe from "../../../helpers/dom/handleTabSwipe";
 import lockTouchScroll from "../../../helpers/dom/lockTouchScroll";
 import ListenerSetter from "../../../helpers/listenerSetter";
-import liteMode from "../../../helpers/liteMode";
+import { AppManagers } from "../../../lib/appManagers/managers";
 import { i18n, LangPackKey } from "../../../lib/langPack";
-import AppSearchSuper from "../../appSearchSuper.";
+import rootScope from "../../../lib/rootScope";
 import Button from "../../button";
 import ButtonIcon from "../../buttonIcon";
-import ColorPicker from "../../colorPicker";
+import StickersTab from "../../emoticonsDropdown/tabs/stickers";
 import { horizontalMenu } from "../../horizontalMenu";
 import Icon from "../../icon";
+import LazyLoadQueue from "../../lazyLoadQueue";
 import { AspectRatios as AspectRatios,  FontList,  FontsMap, ICanvaser, Pens } from "../../popups/mediaEditor";
 import ripple from "../../ripple";
-import Row, { createManyRows } from "../../row";
+import { createManyRows } from "../../row";
 import { ScrollableX } from "../../scrollable";
-import SettingSection from "../../settingSection";
 import { ShortColorPicker } from "../../shortColorPicker";
 import { RangeSettingSelector } from "../../sidebarLeft/tabs/generalSettings";
 import SliderSuperTab from "../../sliderTab";
@@ -51,7 +50,6 @@ export default class AppMediaEditorTab extends SliderSuperTab {
   mediaTabsMap: Map<ScrollableMenuTabType, ScrollableMenuTab> = new Map();
   private swipeHandler: SwipeHandler;
   private prevTabId = -1;
-  private skipScroll: boolean;
   mediaTabs: ScrollableMenuTab[];
   mediaTab: ScrollableMenuTab;
   listenerSetter = new ListenerSetter();
@@ -62,7 +60,7 @@ export default class AppMediaEditorTab extends SliderSuperTab {
   cropTab: CropTab;
   textTab: TextTab;
   brushTab: BrushTab;
-
+  emojiTab: ElmojiTab;
 
   public async init({onClose, canvaser}: IAppMediaEditorTabParams) {
     this.init = null;
@@ -106,11 +104,13 @@ export default class AppMediaEditorTab extends SliderSuperTab {
     this.cropTab = new CropTab(this.canvaser);
     this.textTab = new TextTab(this.canvaser);
     this.brushTab = new BrushTab(this.canvaser);
+    this.emojiTab = new ElmojiTab(this.canvaser);
 
     this.tabs['filter'].append(this.filterTab.container);
     this.tabs['crop'].append(this.cropTab.container);
     this.tabs['text'].append(this.textTab.container);
     this.tabs['brush'].append(this.brushTab.container);
+    this.tabs['emoji'].append(this.emojiTab.container);
   }
 
   private createToolMenu() {
@@ -230,31 +230,29 @@ export default class AppMediaEditorTab extends SliderSuperTab {
         this.onTransitionStart();
       }
 
-      {
-        const offsetTop = this.container.offsetTop;
-        let scrollTop = this.scrollable.scrollPosition;
-        if(scrollTop < offsetTop) {
-          this.scrollToStart();
-          scrollTop = offsetTop;
+      const offsetTop = this.container.offsetTop;
+      let scrollTop = this.scrollable.scrollPosition;
+      if(scrollTop < offsetTop) {
+        this.scrollToStart();
+        scrollTop = offsetTop;
+      }
+
+      fromMediaTab.scroll = {scrollTop: scrollTop, scrollHeight: this.scrollable.scrollSize};
+
+      if(newMediaTab.scroll === undefined) {
+        const rect = this.container.getBoundingClientRect();
+        const rect2 = this.container.parentElement.getBoundingClientRect();
+        const diff = rect.y - rect2.y;
+
+        if(scrollTop > diff) {
+          newMediaTab.scroll = {scrollTop: diff, scrollHeight: 0};
         }
+      }
 
-        fromMediaTab.scroll = {scrollTop: scrollTop, scrollHeight: this.scrollable.scrollSize};
-
-        if(newMediaTab.scroll === undefined) {
-          const rect = this.container.getBoundingClientRect();
-          const rect2 = this.container.parentElement.getBoundingClientRect();
-          const diff = rect.y - rect2.y;
-
-          if(scrollTop > diff) {
-            newMediaTab.scroll = {scrollTop: diff, scrollHeight: 0};
-          }
-        }
-
-        if(newMediaTab.scroll) {
-          const diff = fromMediaTab.scroll.scrollTop - newMediaTab.scroll.scrollTop;
-          if(diff) {
-            newMediaTab.contentTab.style.transform = `translateY(${diff}px)`;
-          }
+      if(newMediaTab.scroll) {
+        const diff = fromMediaTab.scroll.scrollTop - newMediaTab.scroll.scrollTop;
+        if(diff) {
+          newMediaTab.contentTab.style.transform = `translateY(${diff}px)`;
         }
       }
 
@@ -283,7 +281,8 @@ export default class AppMediaEditorTab extends SliderSuperTab {
     }, undefined, scrollableX, this.listenerSetter)
  
     this.mediaTab = this.mediaTabs[0];
-    (this.menuList.children[3] as HTMLElement).click();
+    // XENA TODO hacky hack
+    (this.menuList.children[0] as HTMLElement).click();
   }
 
   private onTransitionStart = () => {
@@ -1436,4 +1435,37 @@ export class BrushTab {
   }
 
 
+}
+
+export class ElmojiTab {
+  
+  canvaser: ICanvaser;
+  container: HTMLElement;
+  stickersTab: StickersTab;
+  managers: AppManagers;
+
+
+
+  constructor(canvaser: ICanvaser) {
+    this.canvaser = canvaser;
+    this.managers = rootScope.managers;
+    this.container = document.createElement('div');
+    this.container.classList.add('editor-tab', 'emoji')
+    
+    const lazyLoadQueue = new LazyLoadQueue();
+
+    const t = new StickersTab(this.managers)
+      // t.container = this.container
+    t.attachedLazyLoadQueue = lazyLoadQueue
+    t.getContainerSize = () => {
+      const b  = this.container.getBoundingClientRect()
+      return {
+        width: b.width,
+        height: b.height
+      }
+    }
+    t.container.classList.add('active')
+    this.container.append(t.container)
+    t.init();
+  }
 }
