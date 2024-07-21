@@ -8,7 +8,18 @@ export type Transformation = {
   x?: number;
   y?: number;
   rotate?: number;
+  scale?: number;
 };
+
+export type DrawableImages = HTMLImageElement | OffscreenCanvas | ImageBitmap;
+
+export function getDrawableImageSize(i: DrawableImages): [number, number] {
+  if (i instanceof HTMLImageElement) {
+    return [i.naturalWidth, i.naturalHeight];
+  } else {
+    return [i.width, i.height];
+  }
+}
 
 export class SavedFrame {
   constructor(b: ImageBitmap) {
@@ -33,9 +44,9 @@ export class RenderCtx {
     this.filterStack = [];
 
     this.curTransform = Mat3.identity();
-    this.transformStack = []
+    this.transformStack = [];
 
-    this.copyHelper = new OffscreenCanvas(100, 100)
+    this.copyHelper = new OffscreenCanvas(100, 100);
     this.copyHelperCtx = this.copyHelper.getContext("2d");
   }
 
@@ -47,7 +58,7 @@ export class RenderCtx {
 
     this.transformStack = [];
     this.curTransform = Mat3.identity().translate(w / 2, h / 2);
-    this.ctx.setTransform(...this.curTransform.toCanvas())
+    this.ctx.setTransform(...this.curTransform.toCanvas());
 
     this.updateIFactor();
   }
@@ -65,12 +76,13 @@ export class RenderCtx {
 
   public pushTransform(t: Transformation | Mat3) {
     this.transformStack.push(this.curTransform);
-    if(t instanceof Mat3) {
+    if (t instanceof Mat3) {
       this.curTransform = this.curTransform.multiply(t);
     } else {
       this.curTransform = this.curTransform.translate(t.x ?? 0, t.y ?? 0);
 
       if (t.rotate) this.curTransform = this.curTransform.rotate(t.rotate);
+      if (t.scale) this.curTransform = this.curTransform.scale(t.scale, t.scale);
     }
 
     this.ctx.setTransform(...this.curTransform.toCanvas());
@@ -91,22 +103,10 @@ export class RenderCtx {
     drawable.render(this);
   }
 
-  public drawImage(image: HTMLImageElement | OffscreenCanvas) {
-    let w: number, h: number;
+  public drawImage(image: DrawableImages) {
+    const [w, h] = getDrawableImageSize(image);
 
-    if (image instanceof HTMLImageElement) {
-      w = image.naturalWidth;
-      h = image.naturalHeight;
-    } else {
-      w = image.width;
-      h = image.height;
-    }
-
-    this.ctx.drawImage(
-      image,
-      -w / 2,
-      -h / 2
-    );
+    this.ctx.drawImage(image, -w / 2, -h / 2);
   }
 
   public copyLast(): SavedFrame {
@@ -115,19 +115,19 @@ export class RenderCtx {
   }
 
   public saveFrame(name: string) {
-    if(this.savedFrames[name]) this.savedFrames[name].dispose();
+    if (this.savedFrames[name]) this.savedFrames[name].dispose();
     this.savedFrames[name] = this.copyLast();
   }
 
   public cleanup() {
-    Object.values(this.savedFrames).forEach(frame => frame.dispose());
+    Object.values(this.savedFrames).forEach((frame) => frame.dispose());
     this.savedFrames = {};
   }
 
   public putFrame(src: string | SavedFrame) {
     this.ctx.save();
     this.ctx.resetTransform();
-    if(typeof src == "string") {
+    if (typeof src == "string") {
       this.ctx.drawImage(this.savedFrames[src].getInternal(), 0, 0);
     } else {
       this.ctx.drawImage(src.getInternal(), 0, 0);
@@ -143,7 +143,8 @@ export class RenderCtx {
 
   public updateIFactor(): boolean {
     const prevIFactor = this.iFactor;
-    this.iFactor = this.canvas.width / this.canvas.getBoundingClientRect().width;
+    this.iFactor =
+      this.canvas.width / this.canvas.getBoundingClientRect().width;
 
     return prevIFactor != this.iFactor;
   }
@@ -160,6 +161,6 @@ export class RenderCtx {
 
   private curTransform: Mat3 = Mat3.identity();
   private transformStack: Mat3[] = [];
-  
+
   private savedFrames: { [key: string]: SavedFrame } = {};
 }

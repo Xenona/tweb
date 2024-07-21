@@ -157,6 +157,13 @@ export class Cropper  {
     return this.curInv.applyPoint(x, y);
   }
 
+  public toImgVelocity(dx: number, dy: number): [number, number] {
+    return [
+      dx * Math.cos(-this.angle) - dy * Math.sin(-this.angle),
+      dx * Math.sin(-this.angle) + dy * Math.cos(-this.angle),
+    ]
+  }
+
   private angle: number;
   private rect: [number, number, number, number];
 

@@ -1,5 +1,5 @@
 import { Cropper } from "./Crop";
-import { Layer } from "./Layer";
+import { Layer, LayerPriority } from "./Layer";
 import { MouseEv } from "./Mouse";
 import { RenderCtx } from "./Renderer";
 import { RootEffects } from "./RootEffects";
@@ -21,6 +21,7 @@ export class Canvaser {
     this.crop = new Cropper(this);
     this.rootEffects = new RootEffects(this);
     this.layers = [];
+    this.focusedLayer = null;
 
     this.tool = new NoneTool(this);
 
@@ -37,6 +38,17 @@ export class Canvaser {
     this.canvas.removeEventListener("mousemove", this.mouseMove);
     this.canvas.removeEventListener("mouseup", this.mouseUpDown);
     this.canvas.removeEventListener("mousedown", this.mouseUpDown);
+  }
+
+  public getLayersOrdered() {
+    const priorities: Layer[][] = []
+    for(const l of this.layers) {
+      const p = l.priority;
+      while(priorities.length <= p) priorities.push([]);
+      priorities[p].push(l) 
+    }
+    
+    return priorities.flat()
   }
 
   public emitUpdate() {
@@ -61,9 +73,9 @@ export class Canvaser {
     this.rootEffects.apply(ctx);
     this.rootImage.render(ctx);
     this.rootEffects.finish(ctx);
-    ctx.saveFrame('image');
+    ctx.saveFrame("image");
 
-    this.layers.forEach((l) => l.render(ctx));
+    this.getLayersOrdered().forEach((l) => l.render(ctx));
 
     this.crop.finish(ctx);
   }
@@ -103,7 +115,8 @@ export class Canvaser {
         this.layers.push(l);
         this.emitUpdate();
       },
-    })
+    });
+    this.focusedLayer = l;
     this.emitUpdate();
   }
 
@@ -111,9 +124,13 @@ export class Canvaser {
     const x = ev.offsetX * this.ctx.iFactor - this.canvas.width / 2;
     const y = ev.offsetY * this.ctx.iFactor - this.canvas.height / 2;
 
+    const [imX, imY] = this.crop.toImgCords(x, y);
+
     return {
-      x: x,
-      y: y,
+      x,
+      y,
+      imX,
+      imY,
       pressed: ev.buttons == 1,
       shift: ev.shiftKey,
       ctrl: ev.ctrlKey,
@@ -136,9 +153,21 @@ export class Canvaser {
     this.tool.mouseUpDown(ev);
   };
 
+  public tryFocusLayer(ev: MouseEv) {
+    this.focusedLayer =
+      this.getLayersOrdered()
+        .reverse()
+        .find((l) => l.shouldFocus(ev)) ?? null;
+    this.emitUpdate();
+  }
+
   private canvasActuallyResized = () => {
     if (this.ctx.updateIFactor()) this.emitUpdate();
   };
+
+  get iFactor() {
+    return this.ctx.iFactor;
+  }
 
   private canvas: HTMLCanvasElement;
   private ctx: RenderCtx;
@@ -150,6 +179,7 @@ export class Canvaser {
   public rootEffects: RootEffects;
 
   public layers: Layer[];
+  public focusedLayer: Layer | null;
 
   private undoStack: EditHistory[] = [];
   private redoStack: EditHistory[] = [];

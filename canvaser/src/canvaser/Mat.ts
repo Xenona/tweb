@@ -56,6 +56,10 @@ export class Mat3 {
     return this.multiply(new Mat3([c, -s, 0, s, c, 0, 0, 0, 1]));
   }
 
+  public scale(x: number, y: number): Mat3 {
+    return this.multiply(new Mat3([x, 0, 0, 0, y, 0, 0, 0, 1]));
+  }
+
   public toCanvas(): [number, number, number, number, number, number] {
     const [a, c, e, b, d, f, ..._] = this.mat;
     return [a, b, c, d, e, f];

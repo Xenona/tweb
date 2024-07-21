@@ -13,9 +13,15 @@ export class BaseTool {
 
   public update() {}
 
-  public mouseMove(ev: MouseMoveEv) {}
+  public mouseMove(ev: MouseMoveEv) {
+    this.canvaser.focusedLayer?.mouseMove(ev);
+  }
 
-  public mouseUpDown(ev: MouseEv) {}
+  public mouseUpDown(ev: MouseEv) {
+    if(ev.pressed)
+      this.canvaser.tryFocusLayer(ev);
+    this.canvaser.focusedLayer?.mouseUpDown(ev);
+  }
 
   protected canvaser: Canvaser
 }

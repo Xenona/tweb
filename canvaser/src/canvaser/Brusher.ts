@@ -1,5 +1,5 @@
 import type { Canvaser } from "./Canvaser";
-import { Layer } from "./Layer";
+import { Layer, LayerPriority } from "./Layer";
 import { MouseEv, MouseMoveEv } from "./Mouse";
 import { RenderCtx } from "./Renderer";
 import { BaseTool } from "./Tool";
@@ -95,6 +95,27 @@ export class BrusherLayer extends Layer {
     this.points.push({ type: "end" });
 
     this.canvaser.emitUpdate();
+  }
+  
+  public get priority(): LayerPriority {
+    return LayerPriority.Drawing  
+  }
+
+  public mouseMove(ev: MouseMoveEv) {
+    if (ev.pressed) {
+      this.addPoint(ev.imX, ev.imY);
+    }
+  }
+
+  public mouseUpDown(ev: MouseEv) {
+    if(ev.pressed) {
+      this.beginSegment();
+      this.addPoint(ev.imX, ev.imY);
+    } else {
+      this.endSegment();
+      this.canvaser.focusedLayer = null;
+      this.canvaser.emitUpdate();
+    }
   }
 
   protected points: BrushPoint[];
@@ -238,7 +259,7 @@ export class BlurBrush extends BrusherLayer {
 export class BrusherTool extends BaseTool {
   constructor(canvaser: Canvaser) {
     super(canvaser);
-    this.curLayer = null;
+    this.lastLayer = null;
     this.curBrush = BrusherLayer;
 
     this.size = 10;
@@ -246,35 +267,28 @@ export class BrusherTool extends BaseTool {
   }
 
   mouseUpDown(ev: MouseEv): void {
-    const [x, y] = this.canvaser.crop.toImgCords(ev.x, ev.y);
-
-    if (ev.pressed) {
-      if (
-        !this.curLayer ||
-        !this.curLayer.combinable ||
-        !(this.curLayer instanceof this.curBrush)
-      ) {
-        this.curLayer = new this.curBrush(this.canvaser, {
-          size: this.size,
-          color: this.color,
-        });
-        this.canvaser.addLayer(this.curLayer);
+    if(ev.pressed) {
+      this.canvaser.tryFocusLayer(ev);
+    
+      if(!this.canvaser.focusedLayer) {
+        if (
+          !this.lastLayer ||
+          !this.lastLayer.combinable ||
+          !(this.lastLayer instanceof this.curBrush)
+        ) {
+          this.lastLayer = new this.curBrush(this.canvaser, {
+            size: this.size,
+            color: this.color,
+          });
+          this.canvaser.addLayer(this.lastLayer);
+        }
+        this.canvaser.focusedLayer = this.lastLayer;
+        this.canvaser.emitUpdate();
       }
-
-      this.curLayer.beginSegment();
-      this.curLayer.addPoint(x, y);
-    } else {
-      if (this.curLayer) this.curLayer.endSegment();
     }
-  }
 
-  mouseMove(ev: MouseMoveEv): void {
-    if (!this.curLayer) return;
-
-    const [x, y] = this.canvaser.crop.toImgCords(ev.x, ev.y);
-
-    if (ev.pressed) {
-      this.curLayer.addPoint(x, y);
+    if(this.canvaser.focusedLayer) {
+      this.canvaser.focusedLayer.mouseUpDown(ev);
     }
   }
 
@@ -290,7 +304,7 @@ export class BrusherTool extends BaseTool {
     this.curBrush = b;
   }
 
-  private curLayer: BrusherLayer | null;
+  private lastLayer: BrusherLayer | null;
   private curBrush: typeof BrusherLayer;
   private size: number;
   private color: string;

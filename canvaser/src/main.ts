@@ -4,6 +4,7 @@ import { Controls, ControlsGroup } from './controls'
 import { BaseTool, NoneTool } from './canvaser/Tool'
 import { CropTool } from './canvaser/Crop'
 import { ArrowBrush, BlurBrush, BrusherTool, EraserBrush, MarkerBrush, NeonBrush, PenBrush } from './canvaser/Brusher'
+import { StickerLayer } from './canvaser/Sticker'
 
 const appEl = document.querySelector<HTMLDivElement>('#app')
 
@@ -159,3 +160,19 @@ createMode('Brush', () => {
 .btn('Blur brush', () => {
   curBrushTool.setBrush(BlurBrush)
 })
+
+function addSticker(url: string) {
+  const img = new Image()
+  img.addEventListener('load', () => {
+    canvaser.addLayer(new StickerLayer(canvaser, img))
+  })
+  img.src = url
+}
+
+createMode('Stickers', () => new NoneTool(canvaser))
+.btn('Sticker balloon', () => {
+  addSticker('/stick1.jpg')
+})
+.btn('Sticker duck', () => {
+  addSticker('/stick2.jpg')
+})              
