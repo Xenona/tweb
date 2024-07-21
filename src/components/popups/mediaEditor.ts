@@ -1,9 +1,8 @@
 import PopupElement from '.';
 import Button from '../button';
 import confirmationPopup from '../confirmationPopup';
-import AppActiveSessionsTab from '../sidebarLeft/tabs/activeSessions';
-import AppMediaEditorTab, { Aligns, Strokes } from '../sidebarRight/tabs/mediaEditor';
-import AppSharedMediaTab from '../sidebarRight/tabs/sharedMedia';
+import AppMediaEditorTab from '../sidebarRight/tabs/mediaEditor';
+import { Aligns, Strokes } from '../sidebarRight/tabs/text';
 import SidebarSlider from '../slider';
 
 
