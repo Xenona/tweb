@@ -75,7 +75,7 @@ export class StickerLayer extends Layer implements IMouseResizable {
     } 
   }
 
-  public shouldFocus(ev: MouseEv) {
+  public shouldFocus(ev: MouseEv): boolean {
     return this.resizer.isInside(ev, this.canvaser.focusedLayer == this);
   }
 

@@ -47,6 +47,7 @@ export class RenderCtx {
     this.transformStack = [];
 
     this.copyHelper = new OffscreenCanvas(100, 100);
+    // @ts-ignore
     this.copyHelperCtx = this.copyHelper.getContext("2d");
   }
 
