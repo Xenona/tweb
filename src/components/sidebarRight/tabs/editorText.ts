@@ -95,10 +95,11 @@ export class EditorTextTab {
 
     const input = document.createElement('textarea');
     input.addEventListener('input', (ev: any) => {
-
       this.canvaser.onTextChange(ev.target.value);
     }, false);
     input.classList.add('input-field-input');
+    input.style.minWidth = '100%';
+    input.style.maxHeight = '300px';
     const inputWrap = document.createElement('div');
     inputWrap.classList.add('input-field');
     inputWrap.append(input);
