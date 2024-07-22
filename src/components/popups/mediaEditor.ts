@@ -116,7 +116,11 @@ export interface ICanvaser {
   setPenColor: (hex: string) => void;
   setPen: (pen: Pens) => void; 
 
+  addSticker: (img: ImageBitmap) => void;
+
 }
+
+
 
 class Canvaser implements ICanvaser {
   public ENHANCE_MIN = 0;
@@ -244,6 +248,10 @@ class Canvaser implements ICanvaser {
   public setPen(pen: Pens) {
     this.p('settings pen', pen);
   }
+
+  public addSticker(img: ImageBitmap) {
+    this.p('adding sticker', img)
+  };
 }
 
 export default class PopupMediaEditor extends PopupElement {

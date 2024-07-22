@@ -34,6 +34,7 @@ import SuperStickerRenderer from './SuperStickerRenderer';
 type StickersTabItem = {element: HTMLElement, document: Document.document};
 export default class StickersTab extends EmoticonsTabC<StickersTabCategory<StickersTabItem>, Document.document[]> {
   private stickerRenderer: SuperStickerRenderer;
+  public customClick: (e: MouseEvent) => void; 
 
   constructor(managers: AppManagers) {
     super({
@@ -151,7 +152,11 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
         return;
       }
 
-      this.emoticonsDropdown.onMediaClick(e);
+      if (!this.emoticonsDropdown) {
+        this.customClick?.(e);
+      } else {
+        this.emoticonsDropdown.onMediaClick(e);
+      }
     });
 
     this.menuOnClickResult = EmoticonsDropdown.menuOnClick(this, this.menu, this.scrollable, this.menuScroll);
