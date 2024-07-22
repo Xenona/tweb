@@ -361,9 +361,6 @@ export class AppSidebarLeft extends SidebarSlider {
 
         btnMenu.style.top = `${this.toolsBtn.offsetWidth + 7}px`;
         btnMenu.style.left = `${this.backBtn.getBoundingClientRect().x}px`
-
-        // XENA TODO REMOVE THIS (TESTING PURPOSES)
-        PopupElement.createPopup(PopupMediaEditor).show();
       },
       noIcon: true
     });
@@ -389,7 +386,11 @@ export class AppSidebarLeft extends SidebarSlider {
         text: 'NewPrivateChat',
         onClick: onContactsClick
       }],
-      noIcon: true
+      noIcon: true,
+      onOpen: () => {
+          // XENA TODO REMOVE THIS (TESTING PURPOSES)
+          PopupElement.createPopup(PopupMediaEditor).show();
+      }
     });
     this.newBtnMenu.className = 'btn-circle rp btn-corner z-depth-1 btn-menu-toggle animated-button-icon';
     this.newBtnMenu.tabIndex = -1;
