@@ -278,7 +278,8 @@ export default class PopupMediaEditor extends PopupElement {
       overlayClosable: true,
       isConfirmationNeededOnClose: () => {
         
-        if (!this.gracefullyExiting && !this.canvaser.isHistoryEmpty()) return confirmationPopup({
+        if (this.canvaser.isHistoryEmpty()) this.gracefullyExiting = true;
+        if (!this.gracefullyExiting) return confirmationPopup({
           
           // XENA TODO deal with i18n
           // @ts-ignore
