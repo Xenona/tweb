@@ -356,7 +356,8 @@ export default class PopupNewMedia extends PopupElement {
         // @ts-ignore
         text: '',
         onClick: () => {
-          // XENA TODO
+          // XENA TODO the heck is this context menu
+          PopupElement.createPopup(PopupMediaEditor, item.file).show();
         },
         verify: () => isMedia
 
@@ -914,8 +915,7 @@ export default class PopupNewMedia extends PopupElement {
         {
           icon: 'enhancebars',
           onClick: () => {
-            // XENA TODO
-            // need to think what i should do with updated file
+            // XENA TODO need to think what i should do with updated file
             PopupElement.createPopup(PopupMediaEditor, params.file).show();
           }
         },

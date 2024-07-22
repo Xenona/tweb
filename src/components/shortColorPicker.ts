@@ -93,7 +93,7 @@ export class ShortColorPicker extends ColorPicker {
     }
     this.container.classList.remove('disabled');
 
-    super.setColor(color, updateHexInput, updateRgbInput);
+    setTimeout(() => super.setColor(color, updateHexInput, updateRgbInput), 0);
 
     if (typeof color !== 'string') return;
     

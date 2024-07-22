@@ -144,7 +144,7 @@ export class AppSidebarLeft extends SidebarSlider {
 
     const menuButtons: ButtonMenuVerifiable[] = [{
       icon: 'plus',
-      // XENA TODO should deal with the i18n
+      // XENA TODO deal with the i18n
       // @ts-ignore
       text: 'Add Account',
       onClick: () => {
@@ -188,7 +188,7 @@ export class AppSidebarLeft extends SidebarSlider {
     },
     {
       icon: 'more',
-      // XENA TODO should deal with the i18n
+      // XENA TODO deal with the i18n
       // @ts-ignore
       text: 'More',
       className: 'more-button',

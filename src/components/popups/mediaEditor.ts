@@ -2,7 +2,7 @@ import PopupElement from '.';
 import Button from '../button';
 import confirmationPopup from '../confirmationPopup';
 import AppMediaEditorTab from '../sidebarRight/tabs/mediaEditor';
-import { Aligns, Strokes } from '../sidebarRight/tabs/text';
+import { Aligns, Strokes } from '../sidebarRight/tabs/editorText';
 import SidebarSlider from '../slider';
 
 

@@ -17,7 +17,7 @@ import { EditorBrushTab } from "./editorBrush";
 import { EditorCropTab } from "./editorCrop";
 import { EditorElmojiTab } from "./editorEmoji";
 import { EditorFilterTab } from "./editorFilter";
-import { EditorTextTab } from "./text";
+import { EditorTextTab } from "./editorText";
 
 export interface IAppMediaEditorTabParams {
   onClose: () => void,
