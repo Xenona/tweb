@@ -1,3 +1,4 @@
+import { data } from "autoprefixer";
 import ButtonIcon from "../../buttonIcon";
 import { FontList, FontsMap, ICanvaser } from "../../popups/mediaEditor";
 import { createManyRows } from "../../row";
@@ -17,6 +18,7 @@ export class EditorTextTab {
   sizeRange: RangeSettingSelector;
   colorPicker: ShortColorPicker;
   fontSection: HTMLElement;
+  textEntered: string;
 
   constructor(canvaser: ICanvaser) {
 
@@ -90,6 +92,22 @@ export class EditorTextTab {
     toolContainer.classList.add('tools-container');
     toolContainer.append(this.alignmentContainer, this.strokeContainer);
     this.container.append(toolContainer)
+
+    const input = document.createElement('textarea');
+    input.addEventListener('input', (ev: any) => {
+
+      this.canvaser.onTextChange(ev.target.value);
+    }, false);
+    input.classList.add('input-field-input');
+    const inputWrap = document.createElement('div');
+    inputWrap.classList.add('input-field');
+    inputWrap.append(input);
+    
+    // XENA TODO deal with i18n
+    // @ts-ignore
+    const textSection = createNamedSection('Text')
+    textSection.append(inputWrap);
+    this.container.append(textSection);
 
     // XENA TODO deal with i18n
     // @ts-ignore

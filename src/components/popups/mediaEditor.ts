@@ -111,6 +111,7 @@ export interface ICanvaser {
   setFontColor: (hex: string) => void;
   setFontAlignment: (alignment: Aligns) => void;
   setFontStroke: (stroke: Strokes) => void;
+  onTextChange: (text: string) => void;
 
   setPenSize: (size: number) => void;
   setPenColor: (hex: string) => void;
@@ -235,6 +236,10 @@ class Canvaser implements ICanvaser {
 
   public createFontElement() {
     this.p('created font element');
+  };
+
+  public onTextChange(text: string) {
+    this.p('new text', text);
   };
 
   public setPenSize(size: number) {
