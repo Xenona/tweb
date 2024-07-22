@@ -57,6 +57,9 @@ export interface ICanvaser {
   undo: () => void,
   redo: () => void,
 
+  // to close the popup without confirmation
+  isHistoryEmpty: () => boolean;
+
   // all the values are pulled out of design
   onEnhanceChange: (value: number) => void;
   onBrightnessChange: (value: number) => void;
@@ -257,11 +260,16 @@ class Canvaser implements ICanvaser {
   public addSticker(img: ImageBitmap) {
     this.p('adding sticker', img)
   };
+
+  public isHistoryEmpty() {
+    return true;
+  };
 }
 
 export default class PopupMediaEditor extends PopupElement {
 
   acceptBtn: HTMLButtonElement;
+  canvaser: ICanvaser;
   gracefullyExiting: boolean = false;
 
   // XENA TODO deal with the file
@@ -270,7 +278,7 @@ export default class PopupMediaEditor extends PopupElement {
       overlayClosable: true,
       isConfirmationNeededOnClose: () => {
         
-        if (!this.gracefullyExiting) return confirmationPopup({
+        if (!this.gracefullyExiting && !this.canvaser.isHistoryEmpty()) return confirmationPopup({
           
           // XENA TODO deal with i18n
           // @ts-ignore
@@ -285,6 +293,7 @@ export default class PopupMediaEditor extends PopupElement {
         });
       }
     })
+    this.canvaser = new Canvaser()
 
     const imageContainer = document.createElement('div');
     imageContainer.classList.add('image-container')
@@ -310,10 +319,9 @@ export default class PopupMediaEditor extends PopupElement {
       canHideFirst: false
     }); 
 
- 
     sidebar
       .createTab(AppMediaEditorTab)
-      .open({ canvaser: new Canvaser(), onClose: () => this.hide() });
+      .open({ canvaser: this.canvaser, onClose: () => this.hide() });
   }
 
   private saveEditedAndMoveBack() {
