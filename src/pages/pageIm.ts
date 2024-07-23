@@ -33,9 +33,10 @@ const onFirstMount = () => {
     'requestVideoFrameCallback' in HTMLVideoElement.prototype ? Promise.resolve() : import('../helpers/dom/requestVideoFrameCallbackPolyfill')
   ]).then(([appDialogsManager]) => {
     appDialogsManager.default.start();
-    setTimeout(() => {
-      document.getElementById('auth-pages').remove();
-    }, 1e3);
+    // XENA TODO this removes the auth page needed for multiple logins
+    // setTimeout(() => {
+    //   document.getElementById('auth-pages').remove();
+    // }, 1e3);
   });
 };
 

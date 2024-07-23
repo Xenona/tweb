@@ -8,7 +8,7 @@ import pagesManager from './pagesManager';
 
 export default class Page {
   public pageEl: HTMLDivElement;
-  private installed = false;
+  private _installed = false;
 
   constructor(
     className: string,
@@ -18,19 +18,24 @@ export default class Page {
     public onShown?: () => void
   ) {
     this.pageEl = document.body.querySelector('.' + className) as HTMLDivElement;
+    console.log("XE PAGE PAGEEL", this.pageEl, className)
+  }
+
+  get installed() {
+    return this._installed;
   }
 
   public async mount(...args: any[]) {
     // this.pageEl.style.display = '';
-
+    
     if(this.onMount) {
       const res = this.onMount(...args);
       if(res instanceof Promise) {
         await res;
       }
     }
-
-    if(!this.installed) {
+    
+    if(!this._installed) {
       if(this.onFirstMount) {
         try {
           const res = this.onFirstMount(...args);
@@ -42,9 +47,9 @@ export default class Page {
         }
       }
 
-      this.installed = true;
+      this._installed = true;
     }
-
+    
     pagesManager.setPage(this);
   }
 }

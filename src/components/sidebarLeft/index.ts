@@ -20,7 +20,7 @@ import AppNewChannelTab from './tabs/newChannel';
 import AppContactsTab from './tabs/contacts';
 import AppArchivedTab from './tabs/archivedTab';
 import AppAddMembersTab from './tabs/addMembers';
-import I18n, {i18n} from '../../lib/langPack';
+import I18n, {i18n, LangPackKey} from '../../lib/langPack';
 import AppPeopleNearbyTab from './tabs/peopleNearby';
 import {ButtonMenuItemOptions} from '../buttonMenu';
 import {IS_MOBILE_SAFARI} from '../../environment/userAgent';
@@ -74,6 +74,11 @@ import ReactionElement from '../chat/reaction';
 import setBlankToAnchor from '../../lib/richTextProcessor/setBlankToAnchor';
 import PopupElement from '../popups';
 import PopupLimitReached from '../popups/limitReached';
+import PopupMediaEditor from '../popups/mediaEditor';
+import IS_TOUCH_SUPPORTED from '../../environment/touchSupport';
+import pause from '../../helpers/schedulers/pause';
+import multipleAuthManager from '../../lib/mtproto/multipleAuthManager';
+import { AppUsersManager } from '../../lib/appManagers/appUsersManager';
 
 export const LEFT_COLUMN_ACTIVE_CLASSNAME = 'is-left-column-shown';
 
@@ -102,7 +107,7 @@ export class AppSidebarLeft extends SidebarSlider {
     });
   }
 
-  construct(managers: AppManagers) {
+  async construct(managers: AppManagers) {
     this.managers = managers;
     // this._selectTab(0); // make first tab as default
 
@@ -141,13 +146,88 @@ export class AppSidebarLeft extends SidebarSlider {
       }
     };
 
-    const menuButtons: ButtonMenuVerifiable[] = [{
-      icon: 'plus',
-      // XENA TODO deal with the i18n
-      // @ts-ignore
-      text: 'Add Account',
-      onClick: () => {
-        PopupElement.createPopup(PopupLimitReached).show();
+    let profileButtons: ButtonMenuVerifiable[] = [];
+    const users = await this.managers.appUsersManager.getUsers();
+    const userIds = Object.keys(users);
+    for (let id of userIds) {
+      console.log("XE, user"  , users[id])
+      // XENA TODO
+      // this condition requires a thorough considering
+      if (!users[id].pFlags.bot && !users[id].pFlags.verified) {
+
+        profileButtons.push({
+          onClick: () => {
+            this.managers.apiManager.setUser(users[id])
+          },
+          // @ts-ignore
+          text: users[id].first_name,
+        })
+      }
+    }
+    console.log("XE, users", users)
+    console.log("XE ARRRAY", profileButtons)
+    
+    const menuButtons: ButtonMenuVerifiable[] = [
+      {
+        icon: 'plus',
+        // XENA TODO deal with the i18n
+        // @ts-ignore
+        text: 'Add Account',
+        onClick: async () => {
+          
+          console.log("XE", 1)
+          multipleAuthManager.isLoggingAgain = true;
+          console.log("XE SELF USER", rootScope.managers.appUsersManager.getSelf());
+          const page = (await import('../../pages/pageSignQR')).default
+          console.log("XE PAGE  STATUS", page.installed)
+          
+          
+        const el = document.getElementById('auth-pages');
+    
+        el.querySelector('.active').classList.remove('active');
+        el.querySelector('.page-signQR').classList.add('active');
+        
+        
+        if (el.style.display === 'none') {
+          el.style.display = 'block';
+        }
+        let scrollable: HTMLElement;
+        
+        if(el) {
+          scrollable = el.querySelector('.scrollable') as HTMLElement;
+          if((!IS_TOUCH_SUPPORTED || IS_MOBILE_SAFARI)) {
+            scrollable.classList.add('no-scrollbar');
+          }
+          
+          const placeholder = document.createElement('div');
+          placeholder.classList.add('auth-placeholder');
+          
+          scrollable.prepend(placeholder);
+          scrollable.append(placeholder.cloneNode());
+        }
+        
+        page.mount();
+
+        el.tabIndex = 0
+        el.style.outline = 'none'
+        el.focus()
+        const keyHandler = (ev: KeyboardEvent) => {
+          if (ev.key === 'Tab') {
+            ev.preventDefault();
+          }
+        }
+
+        el.addEventListener('keydown', keyHandler)
+    
+        appNavigationController.pushItem({
+          type: 'popup',
+          onPop: () => {
+            el.removeEventListener('keydown', keyHandler);
+            (import('../../pages/pageIm')).then((p) => p.default.mount());
+          }
+        })
+    
+        // PopupElement.createPopup(PopupLimitReached).show();
       },
       separatorDown: true
     }, {
@@ -322,6 +402,9 @@ export class AppSidebarLeft extends SidebarSlider {
     }
     ];
 
+    for (let i = 0; i < profileButtons.length; i++) {
+      menuButtons.unshift(profileButtons[i]);
+    }
 
     const filteredButtons = menuButtons.filter(Boolean);
     const filteredButtonsSliced = filteredButtons.slice();
@@ -352,8 +435,13 @@ export class AppSidebarLeft extends SidebarSlider {
           return button;
         });
 
-        buttons.splice(3, 0, ...attachMenuBotsButtons);
-        filteredButtons.splice(0, filteredButtons.length, ...buttons);
+        for (let i = 0; i < filteredButtons.length; i++) {
+          if (filteredButtons[i].icon === 'plus') {
+            buttons.splice(i+1, 0, ...attachMenuBotsButtons);
+            break
+          }
+        }
+        
       },
       onOpen: (e, btnMenu) => {
         btnMenu.classList.add('floating-menu-over');
