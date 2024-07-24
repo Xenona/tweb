@@ -11,8 +11,10 @@ import {ignoreRestrictionReasons} from '../../helpers/restrictions';
 import {Config, DataJSON, HelpAppConfig, HelpPeerColors, MethodDeclMap, User} from '../../layer';
 import {InvokeApiOptions} from '../../types';
 import {AppManager} from '../appManagers/manager';
+import rootScope from '../rootScope';
 import {MTAppConfig} from './appConfig';
 import {UserAuth} from './mtproto_config';
+import { MultipleAuthManager } from './multipleAuthManager';
 import {MTMessage} from './networker';
 
 type HashResult = {
@@ -58,10 +60,13 @@ export default abstract class ApiManagerMethods extends AppManager {
   protected requestedAppConfig: boolean;
 
   protected themeParams: DataJSON;
+  // protected multipleAuthManagers: MultipleAuthManager = await rootScope.managers.muiltipleAuthManager;
 
   constructor() {
     super();
     this.afterMessageIdTemp = 0;
+
+    
   }
 
   protected after() {
@@ -81,6 +86,9 @@ export default abstract class ApiManagerMethods extends AppManager {
 
   public setUser(user: User) {
     this.appUsersManager.saveApiUser(user);
+    // this.multipleAuthManagers.safelyPushUser(user);
+    console.log("XE AUTH AUTH", user )  
+    console.trace();  
     return this.setUserAuth(user.id);
   }
 

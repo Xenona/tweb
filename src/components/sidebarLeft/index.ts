@@ -77,7 +77,6 @@ import PopupLimitReached from '../popups/limitReached';
 import PopupMediaEditor from '../popups/mediaEditor';
 import IS_TOUCH_SUPPORTED from '../../environment/touchSupport';
 import pause from '../../helpers/schedulers/pause';
-import multipleAuthManager from '../../lib/mtproto/multipleAuthManager';
 import { AppUsersManager } from '../../lib/appManagers/appUsersManager';
 
 export const LEFT_COLUMN_ACTIVE_CLASSNAME = 'is-left-column-shown';
@@ -166,6 +165,22 @@ export class AppSidebarLeft extends SidebarSlider {
     }
     console.log("XE, users", users)
     console.log("XE ARRRAY", profileButtons)
+
+    // XENA TODO move this to better place where it can fire once 
+    function clear() {
+      const el = document.getElementById('auth-pages');
+      const innerStuff = el.querySelector('.page-signQR .container.center-align') as HTMLElement;
+      console.log(innerStuff.children)
+      innerStuff.innerHTML = '';
+
+      const authImg = document.createElement('div');
+      authImg.classList.add('auth-image');
+      innerStuff.append(authImg);
+      
+      el.querySelector('.active')?.classList.remove('active');
+      el.querySelector('.page-signQR')?.classList.add('active');
+    }
+    clear()
     
     const menuButtons: ButtonMenuVerifiable[] = [
       {
@@ -176,7 +191,7 @@ export class AppSidebarLeft extends SidebarSlider {
         onClick: async () => {
           
           console.log("XE", 1)
-          multipleAuthManager.isLoggingAgain = true;
+          this.managers.muiltipleAuthManager.isLoggingAgain = true;
           console.log("XE SELF USER", rootScope.managers.appUsersManager.getSelf());
           const page = (await import('../../pages/pageSignQR')).default
           console.log("XE PAGE  STATUS", page.installed)

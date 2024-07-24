@@ -21,19 +21,6 @@ import textToSvgURL from '../helpers/textToSvgURL';
 
 const FETCH_INTERVAL = 3;
 
-function clear() {
-  const el = document.getElementById('auth-pages');
-  const innerStuff = el.querySelector('.page-signQR .container.center-align') as HTMLElement;
-  console.log(innerStuff.children)
-  innerStuff.innerHTML = '';
-  const authImg = document.createElement('div');
-  authImg.classList.add('auth-image');
-  innerStuff.append(authImg);
-  
-  el.querySelector('.active').classList.remove('active');
-  el.querySelector('.page-signQR').classList.add('active');
-}
-
 const onFirstMount = async() => {
   const pageElement = page.pageEl;
   const imageDiv = pageElement.querySelector('.auth-image') as HTMLDivElement;
@@ -66,7 +53,6 @@ const onFirstMount = async() => {
   btnBack.addEventListener('click', () => {
     import('./pageSignIn').then((m) => {
       m.default.mount()
-      clear();
     }
     );
     stop = true;
@@ -110,7 +96,6 @@ const onFirstMount = async() => {
         const authorization = loginToken.authorization as any as AuthAuthorization.authAuthorization;
         await rootScope.managers.apiManager.setUser(authorization.user);
         import('./pageIm').then((m) => m.default.mount());
-        clear();
         return true;
       }
 
@@ -212,7 +197,6 @@ const onFirstMount = async() => {
         case 'SESSION_PASSWORD_NEEDED':
           (err as ApiError).handled = true;
           import('./pagePassword').then((m) => m.default.mount());
-          clear();
           stop = true;
           cachedPromise = null;
           break;

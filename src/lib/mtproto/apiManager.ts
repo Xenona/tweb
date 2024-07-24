@@ -289,6 +289,10 @@ export class ApiManager extends ApiManagerMethods {
       return;
     }
 
+    console.trace("XE LOGINOUT OUT OUT ")
+    // return;
+    
+    
     this.loggingOut = true;
     const storageKeys: Array<DcAuthKey> = [];
 
@@ -542,6 +546,8 @@ export class ApiManager extends ApiManagerMethods {
         error = {message: error};
       }
 
+      console.log('XE ERROR AFTER CUSTOM AUTH ', error)
+
       if((error.code === 401 && error.type === 'SESSION_REVOKED') ||
         (error.code === 406 && error.type === 'AUTH_KEY_DUPLICATED')) {
         this.logOut();
@@ -562,7 +568,7 @@ export class ApiManager extends ApiManagerMethods {
           if(!error.handled) {
             if(error.code === 401) {
               this.logOut();
-            } else {
+            } else {  
               // ErrorService.show({error: error}); // WARNING
             }
 
@@ -586,6 +592,7 @@ export class ApiManager extends ApiManagerMethods {
         }
       }
 
+      // console.log("XE WRAP API CALL PARAMS", {method, params, options})
       const promise = cachedNetworker.wrapApiCall(method, params, options);
 
       if(prepareTempMessageId) {

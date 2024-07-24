@@ -24,6 +24,3 @@ export class MultipleAuthManager {
     } 
   }
 }
-
-const multipleAuthManager = new MultipleAuthManager();
-export default multipleAuthManager;

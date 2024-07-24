@@ -69,6 +69,8 @@ IMAGE_MIME_TYPES_SUPPORTED_PROMISE.then((mimeTypes) => {
     }
   } catch(err) {}
 
+  console.log("XE page document", document.body.querySelector('#auth-pages'), document.body.querySelector('#auth-pages').isConnected);
+
   toggleAttributePolyfill();
 
   // polyfill for replaceChildren
@@ -358,6 +360,7 @@ IMAGE_MIME_TYPES_SUPPORTED_PROMISE.then((mimeTypes) => {
   }
 
   let authState = stateResult.state.authState;
+  console.log("XEX           E EE E E E E E EE E E E E E E E E EE E E E E E E E E E E E ", authState)
 
   const hash = location.hash;
   const splitted = hash.split('?');
@@ -491,4 +494,6 @@ IMAGE_MIME_TYPES_SUPPORTED_PROMISE.then((mimeTypes) => {
     fadeInWhenFontsReady(document.getElementById('main-columns'), loadFonts());
     (await import('./pages/pageIm')).default.mount();
   }
+
+
 });
