@@ -31,7 +31,7 @@ type ResizerEvent = {
   shift: boolean;
 };
 
-export class Resizer {
+export class  Resizer {
   constructor(target: IMouseResizable) {
     this.target = target;
     this.rendRect = new DrawableRect();
@@ -155,7 +155,6 @@ export class Resizer {
 
   public isInside(ev: MouseEv, includeResize: boolean = false) {
     const rev = this.parseEvent(ev);
-    console.log(rev)
     return rev.inside || (includeResize && rev.atVertex);
   }
 

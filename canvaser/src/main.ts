@@ -5,6 +5,7 @@ import { BaseTool, NoneTool } from './canvaser/Tool'
 import { CropTool } from './canvaser/Crop'
 import { ArrowBrush, BlurBrush, BrusherTool, EraserBrush, MarkerBrush, NeonBrush, PenBrush } from './canvaser/Brusher'
 import { StickerLayer } from './canvaser/Sticker'
+import { TextLayer, TextOptions } from './canvaser/Text'
 
 const appEl = document.querySelector<HTMLDivElement>('#app')
 
@@ -176,3 +177,51 @@ createMode('Stickers', () => new NoneTool(canvaser))
 .btn('Sticker duck', () => {
   addSticker('/stick2.jpg')
 })              
+
+
+function setTextInfo(o: Partial<TextOptions>) {
+  if(canvaser.focusedLayer instanceof TextLayer) {
+    canvaser.focusedLayer.updateText(o)
+  }
+}
+
+const fonts = [
+  "Source Code Pro",
+  "Kanit",
+  "Playwrite BE VLG",
+  "Edu AU VIC WA NT Hand",
+  "Roboto",
+]
+
+createMode('Text', () => new NoneTool(canvaser))
+.btn('Add text', () => {
+  canvaser.addLayer(new TextLayer(canvaser, 'Hello, World!\nWormey\nThis is a text!'))
+})
+.btn('Set text', () => {
+  setTextInfo({ text: prompt('Enter text') ?? ' ' })
+})
+.slider(
+  'Size',
+  [10, 48, 200],
+  (val) => setTextInfo({ size: val })
+)
+.slider(
+  'Color',
+  [0, 0, 180],
+  (val) => {
+    setTextInfo({ color: `hsl(${val}, 100%, 50%)`})
+  }
+)
+.slider(
+  'Font',
+  [0, 0, 4],
+  (val) => {
+    setTextInfo({ font: fonts[val] })
+  }
+)
+.btn('Left', () => setTextInfo({ align: 'left' }))
+.btn('Center', () => setTextInfo({ align: 'center' }))
+.btn('Right', () => setTextInfo({ align: 'right' }))    
+.btn('Normal', () => setTextInfo({ mode: 'normal' }))
+.btn('Stroke', () => setTextInfo({ mode: 'stroke' }))
+.btn('Shield', () => setTextInfo({ mode: 'shield' }))    

@@ -79,6 +79,8 @@ export class StickerLayer extends Layer implements IMouseResizable {
     return this.resizer.isInside(ev, this.canvaser.focusedLayer == this);
   }
 
+  // TODO: HISTORY
+
   protected src: DrawableImages;
   protected r: Rect;
   protected resizer: Resizer;
