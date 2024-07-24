@@ -22,6 +22,7 @@ import { EditorTextTab } from "./editorText";
 export interface IAppMediaEditorTabParams {
   onClose: () => void,
   canvaser: ICanvaser,
+  imageContainer: HTMLElement,
 }
  
 export type ScrollableMenuTabType = 'filter' | 'crop' | 'text' | 'brush' | 'emoji';
@@ -60,9 +61,12 @@ export default class AppMediaEditorTab extends SliderSuperTab {
   brushTab: EditorBrushTab;
   emojiTab: EditorElmojiTab;
 
-  public async init({onClose, canvaser}: IAppMediaEditorTabParams) {
+  imageContainer: HTMLElement;
+
+  public async init({onClose, canvaser, imageContainer}: IAppMediaEditorTabParams) {
     this.init = null;
     this.canvaser = canvaser;
+    this.imageContainer = imageContainer;
 
     this.container.classList.add('media-editor-tab');
 
@@ -260,9 +264,19 @@ export default class AppMediaEditorTab extends SliderSuperTab {
       // this allows start creating text right when the tab is opened
       // also the element should be removed if unchanged and tab was
       // chanded
-      if (id === 2) {
+      if (id === 2) { // font tab
         this.canvaser.createFontElement();
       }
+      
+      if (this.cropTab) {
+        if (id === 1) { // crop tab
+          this.imageContainer.appendChild(this.cropTab.cropRuler)
+        } else {
+          if (this.cropTab.cropRuler.isConnected) 
+            this.imageContainer.removeChild(this.cropTab.cropRuler);
+        }
+      }
+        
     }, () => {
       this.scrollable.onScroll();
       if(this.mediaTab.scroll !== undefined) {

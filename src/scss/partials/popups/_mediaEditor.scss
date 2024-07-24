@@ -17,6 +17,88 @@
       background-color: var(--media-editor-bg-color);
       display: flex;
       flex-direction: row;
+
+      & .image-container {
+        flex: 1;
+
+        .crop-ruler {
+
+          display: flex;
+          flex-direction: row;
+          position: relative;
+          width: 80%;
+          margin: 0 auto;
+          align-items: center;
+
+          & .rotateBtn, & .flipBtn {
+            font-size: 24px;
+            color: #444444;
+            height: fit-content;
+          }
+        }
+
+        .rotation-container {
+          position: relative;
+          width: 100%;
+          flex: 1;
+          height: 100px;
+        }
+        
+        .slider-wrapper {
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 100%; 
+          overflow: visible;
+          height: 100px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          mask-image: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1), rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+        }
+        
+        .rotation-slider {
+          position: relative;
+          width: 200%; 
+          height: 58px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        
+        .rotation-handle {
+          position: absolute;
+          top: 52px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 12px;
+          height: 8px;
+          background-color: white;
+          clip-path: polygon(4% 85%, 3% 94%, 11% 98%, 84% 98%, 93% 94%, 92% 83%, 59% 26%, 51% 22%, 41% 26%);
+        }
+        
+        .rotation-dot {
+          position: absolute;
+          top: 51px; 
+          width: 1px;
+          height: 1px;
+          background-color: rgb(112, 112, 112);
+        }
+        
+        .rotation-label {
+          position: absolute;
+          top: 0; 
+          font-size: 12px;
+          transform: translateX(-50%);
+          color: rgb(112, 112, 112);
+
+          &.active {
+            font-size: 16px ;
+            color: white;
+          }
+        }
+
+      }
     }
   }
 
@@ -68,6 +150,13 @@
           width: 50%;
         }
       }
+
+
+      
+
+
+
+
     }
 
     &.text {
@@ -318,7 +407,4 @@
     padding: 0 0 0.5rem 1.2rem;
   }
 }
-
-.image-container {
-  flex: 1;
-}
+ 

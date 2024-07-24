@@ -107,6 +107,8 @@ export interface ICanvaser {
   SHARPEN_MAX: number; // 100
 
   setAspectRatio: (ratio: AspectRatios) => void;
+  setAngle: (angle: number) => void;
+  flip: () => void;
 
   setTextSize: (size: number) => void;
   createFontElement: () => void;
@@ -217,6 +219,14 @@ class Canvaser implements ICanvaser {
     this.p("setting ratio", ratio);
   } 
 
+  public setAngle(angle: number) {
+    this.p("setting angle", angle)
+  }
+
+  public flip() {
+    this.p('flipped')
+  }
+
   public setTextSize(size: number) {
     this.p('setting text size', size);
   }
@@ -271,6 +281,7 @@ export default class PopupMediaEditor extends PopupElement {
   acceptBtn: HTMLButtonElement;
   canvaser: ICanvaser;
   gracefullyExiting: boolean = false;
+  imageContainer: HTMLElement;
 
   // XENA TODO deal with the file
   constructor(image?: File) {
@@ -296,9 +307,9 @@ export default class PopupMediaEditor extends PopupElement {
     })
     this.canvaser = new Canvaser()
 
-    const imageContainer = document.createElement('div');
-    imageContainer.classList.add('image-container')
-    this.container.prepend(imageContainer)
+    this.imageContainer = document.createElement('div');
+    this.imageContainer.classList.add('image-container')
+    this.container.prepend(this.imageContainer)
 
     const toolbarWrap = document.createElement('div');
     toolbarWrap.classList.add('sidebar-slider', 'tabs-container', 'toolbar-wrap')
@@ -322,7 +333,7 @@ export default class PopupMediaEditor extends PopupElement {
 
     sidebar
       .createTab(AppMediaEditorTab)
-      .open({ canvaser: this.canvaser, onClose: () => this.hide() });
+      .open({ canvaser: this.canvaser, onClose: () => this.hide(), imageContainer: this.imageContainer });
   }
 
   private saveEditedAndMoveBack() {
