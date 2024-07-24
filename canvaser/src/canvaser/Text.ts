@@ -1,4 +1,5 @@
 import type { Canvaser } from "./Canvaser";
+import { HistoryValueHelper } from "./History";
 import { Layer, LayerPriority } from "./Layer";
 import { MouseEv, MouseMoveEv } from "./Mouse";
 import { Rect } from "./Rect";
@@ -20,7 +21,7 @@ export type TextOptions = {
   size: number;
   font: string;
   align: "left" | "center" | "right";
-  mode: "normal" | "stroke" | "shield"
+  mode: "normal" | "stroke" | "shield";
 };
 
 const alignComputers = {
@@ -30,8 +31,8 @@ const alignComputers = {
 };
 
 function drawShield(c: CanvasRenderingContext2D, t: TextResult) {
-  const w = t.linesW.map(e=>e + 16);
-  const x = t.linesX.map(e=>e - 8);
+  const w = t.linesW.map((e) => e + 16);
+  const x = t.linesX.map((e) => e - 8);
   const xw = x.map((e, i) => e + w[i]);
   const hh = t.totalH / 2;
   const lh = t.lineH;
@@ -95,6 +96,21 @@ export class TextLayer extends Layer implements IMouseResizable {
       (this.resizer = new Resizer(this));
     this.resizer.setForcedRatio(1);
     this.resizer.setRendRect(new ResizerRect());
+
+    this.hist = new HistoryValueHelper(
+      canvaser,
+      () => ({
+        pos: this.pos,
+        angle: this.angle,
+        opts: this.opts,
+      }),
+      (v) => {
+        this.pos = v.pos;
+        this.angle = v.angle;
+        this.opts = v.opts;
+        this.canvaser.emitUpdate();
+      }
+    );
   }
 
   public render(ctx: RenderCtx) {
@@ -103,15 +119,15 @@ export class TextLayer extends Layer implements IMouseResizable {
       () =>
         ctx.with2D((c) => {
           this.textRes = this.computeText(c);
-          
-          if(this.opts.mode === "normal") {
+
+          if (this.opts.mode === "normal") {
             c.fillStyle = this.opts.color;
-          } else if(this.opts.mode === "stroke") {
+          } else if (this.opts.mode === "stroke") {
             c.fillStyle = "white";
             c.strokeStyle = this.opts.color;
             c.lineJoin = "bevel";
             c.lineWidth = this.opts.size / 24;
-          } else if(this.opts.mode === "shield") {
+          } else if (this.opts.mode === "shield") {
             c.fillStyle = this.opts.color;
             drawShield(c, this.textRes);
             c.fill();
@@ -122,10 +138,10 @@ export class TextLayer extends Layer implements IMouseResizable {
             const ops: [string, number, number] = [
               this.textRes.lines[i],
               this.textRes.linesX[i],
-              -this.textRes.totalH / 2 + (i + 1) * this.textRes.lineH
-            ]
+              -this.textRes.totalH / 2 + (i + 1) * this.textRes.lineH,
+            ];
             c.fillText(...ops);
-            if(this.opts.mode === "stroke") c.strokeText(...ops);
+            if (this.opts.mode === "stroke") c.strokeText(...ops);
           }
         })
     );
@@ -141,13 +157,23 @@ export class TextLayer extends Layer implements IMouseResizable {
       .split("\n")
       .map((e) => e.trim())
       .filter((e) => e.length > 0);
-    if(lines.length == 0) return { totalH: 0, totalW: 0, lineH: 0, linesW: [], linesX: [], lines: [] };
+    if (lines.length == 0)
+      return {
+        totalH: 0,
+        totalW: 0,
+        lineH: 0,
+        linesW: [],
+        linesX: [],
+        lines: [],
+      };
     const linesMetrics = lines.map((l) => c.measureText(l));
     const lineH =
       linesMetrics[0].fontBoundingBoxAscent -
       linesMetrics[0].fontBoundingBoxDescent;
     const totalH = lineH * lines.length;
-    const linesW = linesMetrics.map((m) => m.actualBoundingBoxRight - m.actualBoundingBoxLeft);
+    const linesW = linesMetrics.map(
+      (m) => m.actualBoundingBoxRight - m.actualBoundingBoxLeft
+    );
     const totalW = Math.max(...linesW);
     const linesX = linesW.map((w) =>
       alignComputers[this.opts.align](w, totalW)
@@ -194,7 +220,7 @@ export class TextLayer extends Layer implements IMouseResizable {
       this.canvaser.focusedLayer = null;
       this.canvaser.tryFocusLayer(ev);
       return;
-    }
+    } else if (!ev.pressed) this.hist.emitHistory();
   }
 
   public shouldFocus(ev: MouseEv): boolean {
@@ -206,6 +232,10 @@ export class TextLayer extends Layer implements IMouseResizable {
     this.canvaser.emitUpdate();
   }
 
+  public emitHistory() {
+    this.hist.emitHistory();
+  }
+
   public getText(): TextOptions {
     return this.opts;
   }
@@ -215,4 +245,10 @@ export class TextLayer extends Layer implements IMouseResizable {
   protected angle: number;
   protected resizer: Resizer;
   protected textRes: TextResult;
+
+  protected hist: HistoryValueHelper<{
+    pos: [number, number];
+    angle: number;
+    opts: TextOptions;
+  }>;
 }

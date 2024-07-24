@@ -185,6 +185,19 @@ function setTextInfo(o: Partial<TextOptions>) {
   }
 }
 
+function emitTextHist() {
+  if(canvaser.focusedLayer instanceof TextLayer) {
+    canvaser.focusedLayer.emitHistory();
+  }
+}
+
+function setTextInfoHist(o: Partial<TextOptions>) {
+  if(canvaser.focusedLayer instanceof TextLayer) {
+    canvaser.focusedLayer.updateText(o)
+    canvaser.focusedLayer.emitHistory();
+  }
+}
+
 const fonts = [
   "Source Code Pro",
   "Kanit",
@@ -198,30 +211,33 @@ createMode('Text', () => new NoneTool(canvaser))
   canvaser.addLayer(new TextLayer(canvaser, 'Hello, World!\nWormey\nThis is a text!'))
 })
 .btn('Set text', () => {
-  setTextInfo({ text: prompt('Enter text') ?? ' ' })
+  setTextInfoHist({ text: prompt('Enter text') ?? ' ' })
 })
 .slider(
   'Size',
   [10, 48, 200],
-  (val) => setTextInfo({ size: val })
+  (val) => setTextInfo({ size: val }),
+  emitTextHist
 )
 .slider(
   'Color',
   [0, 0, 180],
   (val) => {
     setTextInfo({ color: `hsl(${val}, 100%, 50%)`})
-  }
+  },
+  emitTextHist
 )
 .slider(
   'Font',
   [0, 0, 4],
   (val) => {
     setTextInfo({ font: fonts[val] })
-  }
+  },
+  emitTextHist
 )
-.btn('Left', () => setTextInfo({ align: 'left' }))
-.btn('Center', () => setTextInfo({ align: 'center' }))
-.btn('Right', () => setTextInfo({ align: 'right' }))    
-.btn('Normal', () => setTextInfo({ mode: 'normal' }))
-.btn('Stroke', () => setTextInfo({ mode: 'stroke' }))
-.btn('Shield', () => setTextInfo({ mode: 'shield' }))    
+.btn('Left', () => setTextInfoHist    ({ align: 'left' }))
+.btn('Center', () => setTextInfoHist    ({ align: 'center' }))
+.btn('Right', () => setTextInfoHist   ({ align: 'right' }))    
+.btn('Normal', () => setTextInfoHist    ({ mode: 'normal' }))
+.btn('Stroke', () => setTextInfoHist    ({ mode: 'stroke' }))
+.btn('Shield', () => setTextInfoHist    ({ mode: 'shield' }))    

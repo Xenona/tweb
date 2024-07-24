@@ -1,4 +1,5 @@
 import type { Canvaser } from "./Canvaser";
+import { HistoryValueHelper } from "./History";
 import { RenderCtx } from "./Renderer";
 
 export type EffectInfo = {
@@ -9,11 +10,11 @@ export type EffectInfo = {
 };
 
 class RootScalarEffect {
-  constructor(effects: RootEffects, info: Omit<EffectInfo, 'type'>) {
+  constructor(effects: RootEffects, info: Omit<EffectInfo, "type">) {
     this.effects = effects;
     this.effectInfo = {
       type: "scalar",
-      ...info
+      ...info,
     };
   }
 
@@ -72,25 +73,29 @@ export class RootEffects {
     this.blur = new FilterEffect(this, (v) => `blur(${v}px)`, {
       min: 0,
       max: 20,
-      default: 0
+      default: 0,
     });
     this.brightness = new FilterEffect(this, (v) => `brightness(${v + 100}%)`, {
       min: -100,
       max: 100,
-      default: 0
+      default: 0,
     });
     this.contrast = new FilterEffect(this, (v) => `contrast(${v + 100}%)`, {
       min: -100,
       max: 100,
-      default: 0
+      default: 0,
     });
     this.grayscale = new FilterEffect(this, (v) => `grayscale(${v}%)`, {
       min: 0,
       max: 100,
-      default: 0
+      default: 0,
     });
 
-    this.lastState = this.getStates();
+    this.hist = new HistoryValueHelper(
+      canvaser,
+      () => this.getEffects().map((e) => e.getState()),
+      (s) => this.getEffects().map((e, i) => e.setState(s[i]))
+    );
   }
 
   public apply(ctx: RenderCtx) {
@@ -118,30 +123,13 @@ export class RootEffects {
     return [this.blur, this.brightness, this.contrast, this.grayscale];
   }
 
-  private getStates(): any[] {
-    return this.getEffects().map((e) => e.getState());
-  }
-
-  private setStates(states: any[]) {
-    this.getEffects().map((e, i) => e.setState(states[i]));
-    this.lastState = states;
-  }
-
   public finishEdit() {
-    const prevState = this.lastState;
-    const newState = this.getStates();
-
-    this.canvaser.emitHistory({
-      undo: () => this.setStates(prevState),
-      redo: () => this.setStates(newState),
-    });
-
-    this.lastState = newState;
+    this.hist.emitHistory();
   }
 
   private canvaser: Canvaser;
 
-  private lastState: any[];
+  private hist: HistoryValueHelper<any[]>;
 
   public contrast: RootScalarEffect;
   public brightness: RootScalarEffect;

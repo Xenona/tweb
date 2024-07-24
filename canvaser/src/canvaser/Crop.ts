@@ -1,23 +1,35 @@
 import type { Canvaser } from "./Canvaser";
+import { HistoryValueHelper } from "./History";
 import { Mat3 } from "./Mat";
 import { MouseEv, MouseMoveEv } from "./Mouse";
 import { DrawableRect } from "./Rect";
 import { RenderCtx } from "./Renderer";
 import { BaseTool } from "./Tool";
 
-export class Cropper  {
+export class Cropper {
   constructor(canvaser: Canvaser) {
     this.canvaser = canvaser;
 
     this.rect = [-Infinity, -Infinity, Infinity, Infinity];
     this.angle = 0;
 
-    this.prevRect = [-Infinity, -Infinity, Infinity, Infinity];
-    this.prevAngle = 0;
-
     this.curInv = Mat3.identity();
     this.curTranform = Mat3.identity();
     this.updateTransform();
+
+    this.hist = new HistoryValueHelper(
+      canvaser,
+      () => ({ rect: this.rect, angle: this.angle }),
+      (val) => {
+        console.log(val);
+        this.rect = val.rect.map((e, i) => {
+          if(e !== null) return e;
+          return i < 2 ? -Infinity : Infinity;
+        }) as [number, number, number, number];
+        this.angle = val.angle;
+        this.updateTransform();
+      }
+    );
   }
 
   public getRotatedImageWH(): [number, number] {
@@ -113,44 +125,11 @@ export class Cropper  {
   }
 
   public finishRectEdit() {
-    const prevRect: [number, number, number, number] = [...this.prevRect];
-    const newRect: [number, number, number, number] = [...this.rect];
-
-    if (
-      Math.abs(prevRect[0] - newRect[0]) < 1 &&
-      Math.abs(prevRect[1] - newRect[1]) < 1 &&
-      Math.abs(prevRect[2] - newRect[2]) < 1 &&
-      Math.abs(prevRect[3] - newRect[3]) < 1
-    )
-      return;
-
-    this.canvaser.emitHistory({
-      undo: () => {
-        this.rect = [...prevRect];
-        this.prevRect = [...prevRect];
-        this.updateTransform();
-      },
-
-      redo: () => {
-        this.rect = [...newRect];
-        this.prevRect = [...newRect];
-        this.updateTransform();
-      },
-    });
-
-    this.prevRect = [...newRect];
+    this.hist.emitHistory();
   }
 
   public finishAngleEdit() {
-    const prevAngle = this.prevAngle;
-    const newAngle = this.angle;
-
-    this.canvaser.emitHistory({
-      undo: () => this.setAngle(prevAngle),
-      redo: () => this.setAngle(newAngle),
-    });
-
-    this.prevAngle = newAngle;
+    this.hist.emitHistory();
   }
 
   public toImgCords(x: number, y: number): [number, number] {
@@ -161,14 +140,16 @@ export class Cropper  {
     return [
       dx * Math.cos(-this.angle) - dy * Math.sin(-this.angle),
       dx * Math.sin(-this.angle) + dy * Math.cos(-this.angle),
-    ]
+    ];
   }
 
   private angle: number;
   private rect: [number, number, number, number];
 
-  private prevRect: [number, number, number, number];
-  private prevAngle: number;
+  private hist: HistoryValueHelper<{
+    angle: number;
+    rect: [number, number, number, number];
+  }>;
 
   private canvaser: Canvaser;
 
