@@ -132,6 +132,7 @@ class LocalStorage<Storage extends Record<string, any>> {
       keys.push(`dc${i}_hash`); // only for WebA
     }
 
+    // debugger
     for(const key of keys) {
       this.delete(key, true);
     }
@@ -183,7 +184,8 @@ export default class LocalStorageController<Storage extends Record<string, any>>
   private async proxy<T>(type: LocalStorageProxyTask['payload']['type'], ...args: LocalStorageProxyTask['payload']['args']): Promise<T> {
     if(IS_WORKER) {
       const port = MTProtoMessagePort.getInstance<false>();
-      return port.invoke('localStorageProxy', {type, args});
+      if (port)
+        return port.invoke('localStorageProxy', {type, args});
     }
 
     args = Array.prototype.slice.call(args);

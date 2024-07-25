@@ -79,6 +79,7 @@ import IS_TOUCH_SUPPORTED from '../../environment/touchSupport';
 import pause from '../../helpers/schedulers/pause';
 import { AppUsersManager } from '../../lib/appManagers/appUsersManager';
 import appRuntimeManager from '../../lib/appManagers/appRuntimeManager';
+import PopupLimitReached, { MAX_ACCOUNTS_WITHOUT_PREMIUM } from '../popups/limitReached';
 
 export const LEFT_COLUMN_ACTIVE_CLASSNAME = 'is-left-column-shown';
 
@@ -147,45 +148,46 @@ export class AppSidebarLeft extends SidebarSlider {
     };
 
     let profileButtons: ButtonMenuVerifiable[] = [];
-    const users = await this.managers.appUsersManager.getUsers();
+    const users = await sessionStorage.get('all_users');
     const userIds = Object.keys(users);
-    for (let id of userIds) {
-      console.log("XE, user"  , users[id])
+    for (let idstr of userIds) {
+      let id = parseInt(idstr);
       // XENA TODO
       // this condition requires a thorough considering
-      if (!users[id].pFlags.bot && !users[id].pFlags.verified) {
+      // if (!users[id].pFlags.bot && !users[id].pFlags.verified) {
 
         profileButtons.push({
           onClick: () => {
-            this.managers.apiManager.setUser(users[id])
-            sessionStorage.swapUsers(parseInt(id));
+            // this.managers.apiManager.setUser(users[id])
+            sessionStorage.swapUsers((id));
+            sessionStorage.set({
+              'next_user': id.toString()
+            })
             appRuntimeManager.reload();         
           },
           // @ts-ignore
-          text: users[id].first_name,
+          text: id.toString(),
         })
-      }
+      // }
     }
-    console.log("XE, users", users)
-    console.log("XE ARRRAY", profileButtons)
 
-    // XENA TODO move this to better place where it can fire once 
-    function clear() {
-      const el = document.getElementById('auth-pages');
-      const innerStuff = el.querySelector('.page-signQR .container.center-align') as HTMLElement;
-      console.log(innerStuff.children)
-      innerStuff.innerHTML = '';
+    // // XENA TODO move this to better place where it can fire once 
+    // function clear() {
+    //   const el = document.getElementById('auth-pages');
+    //   const innerStuff = el.querySelector('.page-signQR .container.center-align') as HTMLElement;
+    //   console.log(innerStuff.children)
+    //   innerStuff.innerHTML = '';
 
-      const authImg = document.createElement('div');
-      authImg.classList.add('auth-image');
-      innerStuff.append(authImg);
+    //   const authImg = document.createElement('div');
+    //   authImg.classList.add('auth-image');
+    //   innerStuff.append(authImg);
       
-      el.querySelector('.active')?.classList.remove('active');
-      el.querySelector('.page-signQR')?.classList.add('active');
+    //   el.querySelector('.active')?.classList.remove('active');
+    //   el.querySelector('.page-signQR')?.classList.add('active');
 
 
-    }
-    clear()
+    // }
+    // clear()
     
     const menuButtons: ButtonMenuVerifiable[] = [
       {
@@ -201,36 +203,43 @@ export class AppSidebarLeft extends SidebarSlider {
           // console.log("XE PAGE  STATUS", page.installed)
           
           
-        const el = document.getElementById('auth-pages');
+        // const el = document.getElementById('auth-pages');
     
-        el.querySelector('.active').classList.remove('active');
-        el.querySelector('.page-signQR').classList.add('active');
+        // el.querySelector('.active').classList.remove('active');
+        // el.querySelector('.page-signQR').classList.add('active');
         
         
-        if (el.style.display === 'none') {
-          el.style.display = 'block';
-        }
-        let scrollable: HTMLElement;
+        // if (el.style.display === 'none') {
+        //   el.style.display = 'block';
+        // }
+        // let scrollable: HTMLElement;
         
-        if(el) {
-          scrollable = el.querySelector('.scrollable') as HTMLElement;
-          if((!IS_TOUCH_SUPPORTED || IS_MOBILE_SAFARI)) {
-            scrollable.classList.add('no-scrollbar');
-          }
+        // if(el) {
+        //   scrollable = el.querySelector('.scrollable') as HTMLElement;
+        //   if((!IS_TOUCH_SUPPORTED || IS_MOBILE_SAFARI)) {
+        //     scrollable.classList.add('no-scrollbar');
+        //   }
           
-          const placeholder = document.createElement('div');
-          placeholder.classList.add('auth-placeholder');
+        //   const placeholder = document.createElement('div');
+        //   placeholder.classList.add('auth-placeholder');
           
-          scrollable.prepend(placeholder);
-          scrollable.append(placeholder.cloneNode());
-        }
+        //   scrollable.prepend(placeholder);
+        //   scrollable.append(placeholder.cloneNode());
+        // }
         
         // page.mount();
+        
+        const users = (await sessionStorage.get('all_users'));
+        if (Object.keys(users).length >= MAX_ACCOUNTS_WITHOUT_PREMIUM) {
+          PopupElement.createPopup(PopupLimitReached).show();
 
-        sessionStorage.set({
-          next_user: 'none'
-        });
-        location.reload();
+        } else {
+          sessionStorage.set({
+            next_user: 'none'
+          });
+
+          location.reload();
+        }
 
         // el.tabIndex = 0
         // el.style.outline = 'none'
@@ -251,7 +260,6 @@ export class AppSidebarLeft extends SidebarSlider {
         //   }
         // })
     
-        // PopupElement.createPopup(PopupLimitReached).show();
       },
       separatorDown: true
     }, {

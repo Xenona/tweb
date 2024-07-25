@@ -288,7 +288,6 @@ export class ApiManager extends ApiManagerMethods {
     if(this.loggingOut) {
       return;
     }
-    debugger;
     console.trace("XE LOGINOUT OUT OUT ")
 
     
@@ -321,7 +320,23 @@ export class ApiManager extends ApiManagerMethods {
     setTimeout(clear, 1e3);
 
     // return;
+    const currentUser = await sessionStorage.get('user_auth');
+    if (currentUser) {
 
+      sessionStorage.deleteUser(parseInt(currentUser.id.toString()));
+      const users = Object.keys(await sessionStorage.get('all_users')).filter((u) => parseInt(u) != currentUser.id)
+      if (users.length) {
+        
+        sessionStorage.set( {
+          'next_user': users[0]
+        })
+      } else {
+        sessionStorage.set( {
+          'next_user': 'none'
+        })
+      }
+    }
+      
     return Promise.all(logoutPromises).catch((error) => {
       error.handled = true;
     }).finally(clear)/* .then(() => {

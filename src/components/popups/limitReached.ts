@@ -2,6 +2,8 @@ import PopupElement from '.';
 import appImManager from '../../lib/appManagers/appImManager';
 import LimitLine from '../limit';
 
+export const MAX_ACCOUNTS_WITHOUT_PREMIUM = 3;
+
 export default class PopupLimitReached extends PopupElement {
   constructor() {
     super('popup-limit-reached', {
@@ -23,10 +25,10 @@ export default class PopupLimitReached extends PopupElement {
     })
 
     const limitStuff = new LimitLine({
-      limitPremium: 4,
+      limitPremium: MAX_ACCOUNTS_WITHOUT_PREMIUM+1,
       hint: {
         icon: 'newprivate_filled',
-        content: '3'
+        content: `${MAX_ACCOUNTS_WITHOUT_PREMIUM}`
       }
     })
     limitStuff.setProgress(0.5);

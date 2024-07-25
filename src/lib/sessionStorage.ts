@@ -58,7 +58,7 @@ type StorageType = {
   dc5_server_salt: string,
   auth_key_fingerprint: string,
   server_time_offset: number,
-  all_users: string,
+  all_users: AllUsers,
   next_user: string,
   xt_instance: AppInstance,
   kz_version: 'K' | 'Z',
@@ -71,43 +71,59 @@ type StorageType = {
                                 
 export class SessionStorage extends LocalStorageController<StorageType> {
 
-  currentUserId: number;
   users: AllUsers = {}
   cache: {partObj: any, onlyLocal: boolean}[];
   
   constructor() {
     super();
 
-    this.get('user_auth').then((userAuth) => {
+    console.error("XE CREATING MANAGERERERERERERER")
 
-      if (userAuth) {
-        this.currentUserId = userAuth.id;
-        
-        this.copyUserFromStorage(); 
-      }
-        
+    
+    // this.get('all_users').then(users => {
+
+    //   if (users) {
+    //     this.users = (users);
+    //   }
+    // });
+  }
+
+  public async deleteUser(id: number) {
+    const prevUsers = await sessionStorage.get('all_users');
+    delete prevUsers[parseInt(id.toString())];
+    await this.set({
+      'all_users': prevUsers
     })
   }
 
   public async copyUserFromStorage() {
     // @ts-ignore
-    this.users[this.currentUserId] = {};
+    const newUser: AllUsers[number] = {};
 
-    (this.users[this.currentUserId] as AllUsers[number]).user_auth = await this.get('user_auth');
-    (this.users[this.currentUserId] as AllUsers[number]).state_id = await this.get('state_id');
-    (this.users[this.currentUserId] as AllUsers[number]).dc1_auth_key = await this.get('dc1_auth_key');
-    (this.users[this.currentUserId] as AllUsers[number]).dc2_auth_key = await this.get('dc2_auth_key');
-    (this.users[this.currentUserId] as AllUsers[number]).dc3_auth_key = await this.get('dc3_auth_key');
-    (this.users[this.currentUserId] as AllUsers[number]).dc4_auth_key = await this.get('dc4_auth_key');
-    (this.users[this.currentUserId] as AllUsers[number]).dc5_auth_key = await this.get('dc5_auth_key');
-    (this.users[this.currentUserId] as AllUsers[number]).dc1_server_salt = await this.get('dc1_server_salt');
-    (this.users[this.currentUserId] as AllUsers[number]).dc2_server_salt = await this.get('dc2_server_salt');
-    (this.users[this.currentUserId] as AllUsers[number]).dc3_server_salt = await this.get('dc3_server_salt');
-    (this.users[this.currentUserId] as AllUsers[number]).dc4_server_salt = await this.get('dc4_server_salt');
-    (this.users[this.currentUserId] as AllUsers[number]).dc5_server_salt = await this.get('dc5_server_salt');
-    (this.users[this.currentUserId] as AllUsers[number]).auth_key_fingerprint = await this.get('auth_key_fingerprint');
+    newUser.user_auth = await this.get('user_auth');
+    newUser.state_id = await this.get('state_id');
+    newUser.dc1_auth_key = await this.get('dc1_auth_key');
+    newUser.dc2_auth_key = await this.get('dc2_auth_key');
+    newUser.dc3_auth_key = await this.get('dc3_auth_key');
+    newUser.dc4_auth_key = await this.get('dc4_auth_key');
+    newUser.dc5_auth_key = await this.get('dc5_auth_key');
+    newUser.dc1_server_salt = await this.get('dc1_server_salt');
+    newUser.dc2_server_salt = await this.get('dc2_server_salt');
+    newUser.dc3_server_salt = await this.get('dc3_server_salt');
+    newUser.dc4_server_salt = await this.get('dc4_server_salt');
+    newUser.dc5_server_salt = await this.get('dc5_server_salt');
+    newUser.auth_key_fingerprint = await this.get('auth_key_fingerprint');
 
-    super.set({all_users: JSON.stringify(this.users)});
+    let currUsers = await this.get('all_users');
+    console.log("XE USER COPY FROM STORAGE BEFORE", currUsers)
+
+    if (!currUsers) {
+      currUsers = {};
+    }
+    currUsers[newUser.user_auth.id] = newUser;
+
+    super.set({all_users: currUsers});
+    console.log("XE USER COPY FROM STORAGE AND SET", currUsers)
 
   }
 
@@ -124,12 +140,10 @@ export class SessionStorage extends LocalStorageController<StorageType> {
       this.delete('auth_key_fingerprint')
       this.delete('state_id')
     }
-    const user: AllUsers[number] = JSON.parse(await this.get('all_users'))[newId];
-
+    const user: AllUsers[number] = (await this.get('all_users'))[newId];
+    console.log("XE USER SWAP", user)
     
     this.set(user);
-
-    this.currentUserId = user.user_auth.id;
 
   }
 
@@ -148,13 +162,19 @@ export class SessionStorage extends LocalStorageController<StorageType> {
     let userAuth = obj['user_auth'];
 
     if (userAuth) {
-      this.currentUserId = userAuth.id;
       await this.copyUserFromStorage() 
     }
 
     console.log("XE STORAGE SET USERS   ", this.users, obj  )
     return Promise.resolve();
   }
+
+  // public async clear(): Promise<void> {
+    
+  //   // debugger;
+    
+  //   super.clear();
+  // }
 }
 
 const sessionStorage = new SessionStorage();

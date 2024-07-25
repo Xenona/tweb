@@ -40,15 +40,17 @@ const REFRESH_KEYS: Array<keyof State> = [
 // const REFRESH_KEYS_WEEK = ['dialogs', 'allDialogsLoaded', 'updates', 'pinnedOrders'] as any as Array<keyof State>;
 
 async function loadStateInner() {
-  debugger;
+  // debugger;  
 
   const nextUser = await sessionStorage.get('next_user', false);
-  if(nextUser == 'none') {
-    sessionStorage.clear();
-    stateStorage.delete("authState");
-  } else {
-
-    // sessionStorage.swapUsers
+  if(nextUser) {
+    if(nextUser == 'none') {
+      sessionStorage.clear();
+      stateStorage.delete("authState");
+    } else {
+      let userId = parseInt(nextUser);
+      sessionStorage.swapUsers(userId);
+    }
   }
 
   let id = (await sessionStorage.get('user_auth'))?.id.toString();
