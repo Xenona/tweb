@@ -17,6 +17,7 @@ import {IS_WORKER} from '../helpers/context';
 import throttle from '../helpers/schedulers/throttle';
 // import { WorkerTaskTemplate } from "../types";
 import IDBStorage from './files/idb';
+import multiUserTracker from './multiUserTracker';
 
 function noop() {}
 
@@ -45,7 +46,7 @@ export default class AppStorage<
   T extends Database<any>
 > {
   private static STORAGES: AppStorage<any, Database<any>>[] = [];
-  private storage: IDBStorage<T>;// new CacheStorageController('session');
+  private storage: Promise<IDBStorage<T>>;// new CacheStorageController('session');
 
   // private cache: Partial<{[key: string]: Storage[typeof key]}> = {};
   private cache: Partial<Storage> = {};
@@ -64,7 +65,15 @@ export default class AppStorage<
   private deleteDeferred = deferredPromise<void>();
 
   constructor(private db: T, private storeName: typeof db['stores'][number]['name']) {
-    this.storage = new IDBStorage<T>(db, storeName);
+    
+    this.storage = multiUserTracker.getUsers().then((users) => {
+      const newDb = {
+        ...db,
+        name: `${db.name}_${users}`
+      }
+
+      return new IDBStorage<T>(newDb, storeName)
+    })
 
     if(AppStorage.STORAGES.length) {
       this.useStorage = AppStorage.STORAGES[0].useStorage;
@@ -102,7 +111,7 @@ export default class AppStorage<
             } as LocalStorageProxySetTask);
           } */
 
-          await this.storage.save(keys, values);
+          await (await this.storage).save(keys, values);
           // console.log('setItem: have set', key/* , value */);
         } catch(e) {
           // this.useCS = false;
@@ -137,7 +146,7 @@ export default class AppStorage<
             } as LocalStorageProxyDeleteTask);
           } */
 
-          await this.storage.delete(keys);
+          await (await this.storage).delete(keys);
         } catch(e) {
           console.error('[AS]: delete error:', e, keys);
         }
@@ -154,7 +163,7 @@ export default class AppStorage<
       const keys = Array.from(this.getPromises.keys());
 
       // const perf = performance.now();
-      this.storage.get(keys as string[]).then((values) => {
+      (await this.storage).get(keys as string[]).then((values) => {
         for(let i = 0, length = keys.length; i < length; ++i) {
           const key = keys[i];
           const deferred = this.getPromises.get(key);
@@ -224,8 +233,8 @@ export default class AppStorage<
     } */
   }
 
-  public getAll() {
-    return this.storage.getAll().catch(() => []);
+  public async getAll() {
+    return (await this.storage).getAll().catch(() => []);
   }
 
   public set(obj: Partial<Storage>, onlyLocal = false) {
@@ -283,14 +292,14 @@ export default class AppStorage<
     return this.useStorage ? this.deleteDeferred : Promise.resolve();
   }
 
-  public clear(saveLocal = false) {
+  public async clear(saveLocal = false) {
     if(!saveLocal) {
       for(const i in this.cache) {
         delete this.cache[i];
       }
     }
 
-    return this.storage.clear().catch(noop);
+    return (await this.storage).clear().catch(noop);
   }
 
   public static toggleStorage(enabled: boolean, clearWrite: boolean) {

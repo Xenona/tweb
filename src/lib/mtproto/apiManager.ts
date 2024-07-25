@@ -288,7 +288,7 @@ export class ApiManager extends ApiManagerMethods {
     if(this.loggingOut) {
       return;
     }
-
+    debugger;
     console.trace("XE LOGINOUT OUT OUT ")
 
     

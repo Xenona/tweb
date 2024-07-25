@@ -195,10 +195,10 @@ export class AppSidebarLeft extends SidebarSlider {
         text: 'Add Account',
         onClick: async () => {
           
-          this.managers.muiltipleAuthManager.isLoggingAgain = true;
-          console.log("XE SELF USER", rootScope.managers.appUsersManager.getSelf());
-          const page = (await import('../../pages/pageSignQR')).default
-          console.log("XE PAGE  STATUS", page.installed)
+          // this.managers.muiltipleAuthManager.isLoggingAgain = true;
+          // console.log("XE SELF USER", rootScope.managers.appUsersManager.getSelf());
+          // const page = (await import('../../pages/pageSignQR')).default
+          // console.log("XE PAGE  STATUS", page.installed)
           
           
         const el = document.getElementById('auth-pages');
@@ -225,31 +225,31 @@ export class AppSidebarLeft extends SidebarSlider {
           scrollable.append(placeholder.cloneNode());
         }
         
-        page.mount();
+        // page.mount();
 
         sessionStorage.set({
           next_user: 'none'
         });
         location.reload();
 
-        el.tabIndex = 0
-        el.style.outline = 'none'
-        el.focus()
-        const keyHandler = (ev: KeyboardEvent) => {
-          if (ev.key === 'Tab') {
-            ev.preventDefault();
-          }
-        }
+        // el.tabIndex = 0
+        // el.style.outline = 'none'
+        // el.focus()
+        // const keyHandler = (ev: KeyboardEvent) => {
+        //   if (ev.key === 'Tab') {
+        //     ev.preventDefault();
+        //   }
+        // }
 
-        el.addEventListener('keydown', keyHandler)
+        // el.addEventListener('keydown', keyHandler)
     
-        appNavigationController.pushItem({
-          type: 'popup',
-          onPop: () => {
-            el.removeEventListener('keydown', keyHandler);
-            (import('../../pages/pageIm')).then((p) => p.default.mount());
-          }
-        })
+        // appNavigationController.pushItem({
+        //   type: 'popup',
+        //   onPop: () => {
+        //     el.removeEventListener('keydown', keyHandler);
+        //     (import('../../pages/pageIm')).then((p) => p.default.mount());
+        //   }
+        // })
     
         // PopupElement.createPopup(PopupLimitReached).show();
       },

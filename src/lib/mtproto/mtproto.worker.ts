@@ -22,6 +22,7 @@ import toggleStorages from '../../helpers/toggleStorages';
 import appTabsManager from '../appManagers/appTabsManager';
 import callbackify from '../../helpers/callbackify';
 import Modes from '../../config/modes';
+import multiUserTracker from '../multiUserTracker';
 
 const log = logger('MTPROTO');
 // let haveState = false;
@@ -48,6 +49,7 @@ port.addMultipleEventsListeners({
     log('got state', state, pushedKeys);
 
     appStateManager.userId = userId;
+    multiUserTracker.resolveUser((userId ?? '').toString())
     appStateManager.newVersion = newVersion;
     appStateManager.oldVersion = oldVersion;
 

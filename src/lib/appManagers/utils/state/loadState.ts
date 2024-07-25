@@ -19,6 +19,7 @@ import {recordPromiseBound} from '../../../../helpers/recordPromise';
 import {StoragesResults} from '../storages/loadStorages';
 import {LogTypes, logger} from '../../../logger';
 import {WallPaper} from '../../../../layer';
+import multiUserTracker from '../../../multiUserTracker';
 
 const REFRESH_EVERY = 24 * 60 * 60 * 1000; // 1 day
 // const REFRESH_EVERY = 1e3;
@@ -44,8 +45,15 @@ async function loadStateInner() {
   const nextUser = await sessionStorage.get('next_user', false);
   if(nextUser == 'none') {
     sessionStorage.clear();
+    stateStorage.delete("authState");
+  } else {
+
+    // sessionStorage.swapUsers
   }
 
+  let id = (await sessionStorage.get('user_auth'))?.id.toString();
+  if (!id) id = '' 
+  multiUserTracker.resolveUser(id)
 
   const log = logger('STATE-LOADER', LogTypes.Error);
 
@@ -129,6 +137,11 @@ async function loadStateInner() {
     } else {
       pushToState(key, copy(STATE_INIT[key]));
     }
+  }
+
+  if(nextUser == 'none') {
+    sessionStorage.clear();
+    state = copy(STATE_INIT);
   }
 
   arr.splice(0, ALL_KEYS.length);
