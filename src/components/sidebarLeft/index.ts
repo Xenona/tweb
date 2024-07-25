@@ -82,6 +82,7 @@ import PopupLimitReached, { MAX_ACCOUNTS_WITHOUT_PREMIUM } from '../popups/limit
 import { avatarNew } from '../avatarNew';
 import PeerTitle from '../peerTitle';
 import getPeerId from '../../lib/appManagers/utils/peers/getPeerId';
+import wrapPeerTitle from '../wrappers/peerTitle';
 
 export const LEFT_COLUMN_ACTIVE_CLASSNAME = 'is-left-column-shown';
 
@@ -164,11 +165,19 @@ export class AppSidebarLeft extends SidebarSlider {
         wrapOptions: {customEmojiSize: makeMediaSize(32, 32)},
       });
 
-      const peerTitle = new PeerTitle({
-        peerId: getPeerId(id)
-      });
+      // const peerTitle = new PeerTitle({
+      //   peerId: id.toPeerId()
+      // });
 
-      div.append(newAvatar.node, peerTitle.element, badge)
+      const peerTitle = await wrapPeerTitle({
+        peerId: id.toPeerId() as PeerId,
+        dialog: false,
+        onlyFirstName: false,
+        plainText: false
+      })
+
+
+      div.append(newAvatar.node, peerTitle, badge)
 
       profileButtons.push({
         onClick: () => {
@@ -183,23 +192,7 @@ export class AppSidebarLeft extends SidebarSlider {
       // }
     }
 
-    // // XENA TODO move this to better place where it can fire once 
-    // function clear() {
-    //   const el = document.getElementById('auth-pages');
-    //   const innerStuff = el.querySelector('.page-signQR .container.center-align') as HTMLElement;
-    //   console.log(innerStuff.children)
-    //   innerStuff.innerHTML = '';
-
-    //   const authImg = document.createElement('div');
-    //   authImg.classList.add('auth-image');
-    //   innerStuff.append(authImg);
-      
-    //   el.querySelector('.active')?.classList.remove('active');
-    //   el.querySelector('.page-signQR')?.classList.add('active');
-
-
-    // }
-    // clear()
+  
     
     const menuButtons: ButtonMenuVerifiable[] = [
       {
@@ -209,38 +202,7 @@ export class AppSidebarLeft extends SidebarSlider {
         text: 'Add Account',
         onClick: async () => {
           
-          // this.managers.muiltipleAuthManager.isLoggingAgain = true;
-          // console.log("XE SELF USER", rootScope.managers.appUsersManager.getSelf());
-          // const page = (await import('../../pages/pageSignQR')).default
-          // console.log("XE PAGE  STATUS", page.installed)
-          
-          
-        // const el = document.getElementById('auth-pages');
-    
-        // el.querySelector('.active').classList.remove('active');
-        // el.querySelector('.page-signQR').classList.add('active');
-        
-        
-        // if (el.style.display === 'none') {
-        //   el.style.display = 'block';
-        // }
-        // let scrollable: HTMLElement;
-        
-        // if(el) {
-        //   scrollable = el.querySelector('.scrollable') as HTMLElement;
-        //   if((!IS_TOUCH_SUPPORTED || IS_MOBILE_SAFARI)) {
-        //     scrollable.classList.add('no-scrollbar');
-        //   }
-          
-        //   const placeholder = document.createElement('div');
-        //   placeholder.classList.add('auth-placeholder');
-          
-        //   scrollable.prepend(placeholder);
-        //   scrollable.append(placeholder.cloneNode());
-        // }
-        
-        // page.mount();
-        
+         
         const users = (await sessionStorage.get('all_users'));
         if (Object.keys(users).length >= MAX_ACCOUNTS_WITHOUT_PREMIUM) {
           PopupElement.createPopup(PopupLimitReached).show();
@@ -253,24 +215,7 @@ export class AppSidebarLeft extends SidebarSlider {
           location.reload();
         }
 
-        // el.tabIndex = 0
-        // el.style.outline = 'none'
-        // el.focus()
-        // const keyHandler = (ev: KeyboardEvent) => {
-        //   if (ev.key === 'Tab') {
-        //     ev.preventDefault();
-        //   }
-        // }
-
-        // el.addEventListener('keydown', keyHandler)
-    
-        // appNavigationController.pushItem({
-        //   type: 'popup',
-        //   onPop: () => {
-        //     el.removeEventListener('keydown', keyHandler);
-        //     (import('../../pages/pageIm')).then((p) => p.default.mount());
-        //   }
-        // })
+        
     
       },
       separatorDown: true
