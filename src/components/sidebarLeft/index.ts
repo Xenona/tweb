@@ -67,19 +67,21 @@ import {EmoticonsDropdown} from '../emoticonsDropdown';
 import cloneDOMRect from '../../helpers/dom/cloneDOMRect';
 import {AccountEmojiStatuses, Document, EmojiStatus} from '../../layer';
 import filterUnique from '../../helpers/array/filterUnique';
-import {Middleware, MiddlewareHelper} from '../../helpers/middleware';
+import {getMiddleware, Middleware, MiddlewareHelper} from '../../helpers/middleware';
 import wrapEmojiStatus from '../wrappers/emojiStatus';
 import {makeMediaSize} from '../../helpers/mediaSize';
 import ReactionElement from '../chat/reaction';
 import setBlankToAnchor from '../../lib/richTextProcessor/setBlankToAnchor';
 import PopupElement from '../popups';
-import PopupLimitReached from '../popups/limitReached';
 import PopupMediaEditor from '../popups/mediaEditor';
 import IS_TOUCH_SUPPORTED from '../../environment/touchSupport';
 import pause from '../../helpers/schedulers/pause';
 import { AppUsersManager } from '../../lib/appManagers/appUsersManager';
 import appRuntimeManager from '../../lib/appManagers/appRuntimeManager';
 import PopupLimitReached, { MAX_ACCOUNTS_WITHOUT_PREMIUM } from '../popups/limitReached';
+import { avatarNew } from '../avatarNew';
+import PeerTitle from '../peerTitle';
+import getPeerId from '../../lib/appManagers/utils/peers/getPeerId';
 
 export const LEFT_COLUMN_ACTIVE_CLASSNAME = 'is-left-column-shown';
 
@@ -150,24 +152,34 @@ export class AppSidebarLeft extends SidebarSlider {
     let profileButtons: ButtonMenuVerifiable[] = [];
     const users = await sessionStorage.get('all_users');
     const userIds = Object.keys(users);
-    for (let idstr of userIds) {
-      let id = parseInt(idstr);
-      // XENA TODO
-      // this condition requires a thorough considering
-      // if (!users[id].pFlags.bot && !users[id].pFlags.verified) {
+    for (let stringId of userIds) {
+      const id = parseInt(stringId);
+      const div = document.createElement('div');
+      const badge = createBadge('span', 24, 'primary');
+      div.classList.add('account-btn')
+      const newAvatar = avatarNew({
+        middleware: (getMiddleware()).get(),
+        size: 24,
+        peerId: id.toPeerId(),
+        wrapOptions: {customEmojiSize: makeMediaSize(32, 32)},
+      });
 
-        profileButtons.push({
-          onClick: () => {
-            // this.managers.apiManager.setUser(users[id])
-            sessionStorage.swapUsers((id));
-            sessionStorage.set({
-              'next_user': id.toString()
-            })
-            appRuntimeManager.reload();         
-          },
-          // @ts-ignore
-          text: id.toString(),
-        })
+      const peerTitle = new PeerTitle({
+        peerId: getPeerId(id)
+      });
+
+      div.append(newAvatar.node, peerTitle.element, badge)
+
+      profileButtons.push({
+        onClick: () => {
+          sessionStorage.swapUsers((id));
+          sessionStorage.set({
+            'next_user': id.toString()
+          })
+          appRuntimeManager.reload();         
+        },
+        textElement: div 
+      })
       // }
     }
 

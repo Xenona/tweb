@@ -182,6 +182,7 @@ $btn-menu-z-index: 4;
       margin: 0;
       font-weight: 400;
       transform: none !important;
+     
 
       &-icon {
         color: var(--secondary-text-color);
@@ -202,6 +203,27 @@ $btn-menu-z-index: 4;
       background-color: var(--background-color);
     }
   }
+
+  .btn-menu-item {
+  
+      max-width: 220px;;
+
+      & span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      &-text {
+        max-width: 100%;
+      }
+
+
+      & .avatar {
+        min-width: 24px;
+      }
+  }
+
 
   &.active {
     &,
@@ -299,6 +321,15 @@ $btn-menu-z-index: 4;
     margin-inline: .3125rem;
     font-weight: 500;
     transform: scale(1);
+    text-overflow: ellipsis;
+
+    .account-btn {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 18px;
+
+    }
 
     &.a {
       .btn-menu-item-icon {
