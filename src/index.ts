@@ -69,8 +69,6 @@ IMAGE_MIME_TYPES_SUPPORTED_PROMISE.then((mimeTypes) => {
     }
   } catch(err) {}
 
-  console.log("XE page document", document.body.querySelector('#auth-pages'), document.body.querySelector('#auth-pages').isConnected);
-
   toggleAttributePolyfill();
 
   // polyfill for replaceChildren

@@ -78,6 +78,7 @@ import PopupMediaEditor from '../popups/mediaEditor';
 import IS_TOUCH_SUPPORTED from '../../environment/touchSupport';
 import pause from '../../helpers/schedulers/pause';
 import { AppUsersManager } from '../../lib/appManagers/appUsersManager';
+import appRuntimeManager from '../../lib/appManagers/appRuntimeManager';
 
 export const LEFT_COLUMN_ACTIVE_CLASSNAME = 'is-left-column-shown';
 
@@ -157,6 +158,8 @@ export class AppSidebarLeft extends SidebarSlider {
         profileButtons.push({
           onClick: () => {
             this.managers.apiManager.setUser(users[id])
+            sessionStorage.swapUsers(parseInt(id));
+            appRuntimeManager.reload();         
           },
           // @ts-ignore
           text: users[id].first_name,
@@ -179,6 +182,8 @@ export class AppSidebarLeft extends SidebarSlider {
       
       el.querySelector('.active')?.classList.remove('active');
       el.querySelector('.page-signQR')?.classList.add('active');
+
+
     }
     clear()
     
@@ -190,7 +195,6 @@ export class AppSidebarLeft extends SidebarSlider {
         text: 'Add Account',
         onClick: async () => {
           
-          console.log("XE", 1)
           this.managers.muiltipleAuthManager.isLoggingAgain = true;
           console.log("XE SELF USER", rootScope.managers.appUsersManager.getSelf());
           const page = (await import('../../pages/pageSignQR')).default
@@ -222,6 +226,11 @@ export class AppSidebarLeft extends SidebarSlider {
         }
         
         page.mount();
+
+        sessionStorage.set({
+          next_user: 'none'
+        });
+        location.reload();
 
         el.tabIndex = 0
         el.style.outline = 'none'

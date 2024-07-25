@@ -290,8 +290,7 @@ export class ApiManager extends ApiManagerMethods {
     }
 
     console.trace("XE LOGINOUT OUT OUT ")
-    // return;
-    
+
     
     this.loggingOut = true;
     const storageKeys: Array<DcAuthKey> = [];
@@ -337,6 +336,7 @@ export class ApiManager extends ApiManagerMethods {
   public getNetworker(dcId: DcId, options: InvokeApiOptions = {}): Promise<MTPNetworker> {
     const connectionType: ConnectionType = options.fileDownload ? 'download' : (options.fileUpload ? 'upload' : 'client');
     // const connectionType: ConnectionType = 'client';
+    console.log("XE 1")
 
     const transportType = this.getTransportType(connectionType);
     if(!this.cachedNetworkers[transportType]) {
