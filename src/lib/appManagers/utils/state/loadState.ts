@@ -54,7 +54,7 @@ async function loadStateInner() {
   }
 
   let id = (await sessionStorage.get('user_auth'))?.id.toString();
-  if (!id) id = '' 
+  if (!id) id = '';
   multiUserTracker.resolveUser(id)
 
   const log = logger('STATE-LOADER', LogTypes.Error);

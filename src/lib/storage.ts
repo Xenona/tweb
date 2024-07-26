@@ -72,6 +72,8 @@ export default class AppStorage<
         name: `${db.name}_${users}`
       }
 
+      console.log("XE SHOULD OPEN DB with name", users)
+
       return new IDBStorage<T>(newDb, storeName)
     })
 

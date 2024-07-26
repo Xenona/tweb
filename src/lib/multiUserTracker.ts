@@ -8,7 +8,7 @@ export class MultiUserTracker {
   constructor() {
     this.deferredUsers = deferredPromise<string>();
 
-    
+
   }
 
   public async getUsers(): Promise<string> {
@@ -16,7 +16,7 @@ export class MultiUserTracker {
   }
 
   public resolveUser(user: string) {
-    console.error("XE AAAAAA TIS SHOULD BE CALLED INCEONCEONCE");
+    console.trace("XE USER RESOLVED", user);
      
     return this.deferredUsers.resolve(user)
   }
