@@ -4,6 +4,7 @@
  * https://github.com/morethanwords/tweb/blob/master/LICENSE
  */
 
+import { CancellablePromise } from '../../helpers/cancellablePromise';
 import {logger} from '../logger';
 import {AppManager} from './manager';
 import createStorages from './utils/storages/createStorages';
@@ -22,6 +23,10 @@ export class AppStoragesManager extends AppManager {
     this.log = logger('STORAGES');
     this.storages = createStorages();
     // this.loadPromise = deferredPromise();
+  }
+
+  public updateStorages(dbPostfix?: string) {
+    this.storages = createStorages(dbPostfix)
   }
 
   public loadStorages() {

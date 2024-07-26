@@ -18,6 +18,7 @@ import throttle from '../helpers/schedulers/throttle';
 // import { WorkerTaskTemplate } from "../types";
 import IDBStorage from './files/idb';
 import multiUserTracker from './multiUserTracker';
+import sessionStorage from './sessionStorage';
 
 function noop() {}
 
@@ -64,18 +65,25 @@ export default class AppStorage<
   private deleteThrottled: () => void;
   private deleteDeferred = deferredPromise<void>();
 
-  constructor(private db: T, private storeName: typeof db['stores'][number]['name']) {
+  constructor(private db: T, private storeName: typeof db['stores'][number]['name'], dbPostfix?: string) {
     
-    this.storage = multiUserTracker.getUsers().then((users) => {
+    if (!dbPostfix) {
+      this.storage = multiUserTracker.getUsers().then((user) => {
+        const newDb = {
+          ...db,
+          name: `${db.name}_${user}`
+        }
+        
+        return new IDBStorage<T>(newDb, storeName)
+      })
+    } else {
       const newDb = {
         ...db,
-        name: `${db.name}_${users}`
+        name: `${db.name}_${dbPostfix}`
       }
-
-      console.log("XE SHOULD OPEN DB with name", users)
-
-      return new IDBStorage<T>(newDb, storeName)
-    })
+      
+      this.storage=Promise.resolve(new IDBStorage<T>(newDb, storeName))
+    }
 
     if(AppStorage.STORAGES.length) {
       this.useStorage = AppStorage.STORAGES[0].useStorage;

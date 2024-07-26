@@ -47,6 +47,7 @@ async function loadStateInner() {
     if(nextUser == 'none') {
       sessionStorage.clear();
       stateStorage.delete("authState");
+      sessionStorage.delete('next_user')
     } else {
       let userId = parseInt(nextUser);
       sessionStorage.swapUsers(userId);
@@ -55,6 +56,8 @@ async function loadStateInner() {
 
   let id = (await sessionStorage.get('user_auth'))?.id.toString();
   if (!id) id = '';
+  console.error("XE MOUNTING loadstate ")
+
   multiUserTracker.resolveUser(id)
 
   const log = logger('STATE-LOADER', LogTypes.Error);

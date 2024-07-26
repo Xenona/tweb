@@ -8,11 +8,7 @@ export class MultipleAuthManager {
   isLoggingAgain: boolean = false;
 
   constructor() {
-    // super()
-    setInterval(() => {
-      console.log("XE accounts", {users: this.loginedUsers, logAgain: this.isLoggingAgain }  )
-    }, 10000)
-    // rootScope.managers.apiManager.logOut()
+    
   }
 
 

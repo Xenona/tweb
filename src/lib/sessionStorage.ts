@@ -165,7 +165,6 @@ export class SessionStorage extends LocalStorageController<StorageType> {
       await this.copyUserFromStorage() 
     }
 
-    console.log("XE STORAGE SET USERS   ", this.users, obj  )
     return Promise.resolve();
   }
 

@@ -23,7 +23,7 @@ const setAppStateSilent = (key: any, value?: any) => {
 };
 
 const useAppState = () => [appState, setAppState] as const;
-
+  
 export {
   appState,
   useAppState,

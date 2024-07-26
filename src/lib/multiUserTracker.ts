@@ -16,9 +16,8 @@ export class MultiUserTracker {
   }
 
   public resolveUser(user: string) {
-    console.trace("XE USER RESOLVED", user);
-     
-    return this.deferredUsers.resolve(user)
+    this.deferredUsers.resolve(user)
+    
   }
 
 }

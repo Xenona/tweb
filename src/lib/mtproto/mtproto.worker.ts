@@ -48,6 +48,7 @@ port.addMultipleEventsListeners({
 
     log('got state', state, pushedKeys);
 
+
     appStateManager.userId = userId;
     multiUserTracker.resolveUser((userId ?? '').toString())
     appStateManager.newVersion = newVersion;

@@ -8,6 +8,7 @@ import blurActiveElement from '../helpers/dom/blurActiveElement';
 import loadFonts from '../helpers/dom/loadFonts';
 import I18n from '../lib/langPack';
 import rootScope from '../lib/rootScope';
+import sessionStorage from '../lib/sessionStorage';
 import Page from './page';
 
 const onFirstMount = () => {
@@ -15,6 +16,10 @@ const onFirstMount = () => {
   // ! TOO SLOW
   /* appStateManager.saveState(); */
 
+  sessionStorage.get('user_auth').then((user) => {
+    rootScope.managers.appStoragesManager.updateStorages(user.id.toString());
+  })
+  
   if(!I18n.requestedServerLanguage) {
     I18n.getCacheLangPack().then((langPack) => {
       if(langPack.local) {
