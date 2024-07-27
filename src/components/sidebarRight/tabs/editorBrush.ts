@@ -1,10 +1,10 @@
-import { ArrowBrush, BlurBrush, BrusherLayer, BrusherTool, EraserBrush, MarkerBrush, NeonBrush, PenBrush } from "../../canvaser/Brusher";
-import { Canvaser } from "../../canvaser/Canvaser";
-import { Pens } from "../../popups/mediaEditor";
-import { createManyRows } from "../../row";
-import { ShortColorPicker } from "../../shortColorPicker";
-import { RangeSettingSelector } from "../../sidebarLeft/tabs/generalSettings";
-import { createNamedSection, setToolActive } from "./mediaEditor";
+import {ArrowBrush, BlurBrush, BrusherLayer, BrusherTool, EraserBrush, MarkerBrush, NeonBrush, PenBrush} from '../../canvaser/Brusher';
+import {Canvaser} from '../../canvaser/Canvaser';
+import {Pens} from '../../popups/mediaEditor';
+import {createManyRows} from '../../row';
+import {ShortColorPicker} from '../../shortColorPicker';
+import {RangeSettingSelector} from '../../sidebarLeft/tabs/generalSettings';
+import {createNamedSection, setToolActive} from './mediaEditor';
 
 export type PenColorsCSS =  '--pen-color' | '--arrow-color' | '--mark-color' | '--neon-color' | ''
 export class EditorBrushTab {
@@ -16,11 +16,11 @@ export class EditorBrushTab {
   svgns: string = 'http://www.w3.org/2000/svg';
   currChangingPen: PenColorsCSS = '--pen-color'
   savedColors = {
-    '--pen-color': "#FE4438",
-    '--arrow-color': "#FFD60A",
-    '--mark-color': "#FF8901",
-    '--neon-color': "#62E5E0",
-    '': '',
+    '--pen-color': '#FE4438',
+    '--arrow-color': '#FFD60A',
+    '--mark-color': '#FF8901',
+    '--neon-color': '#62E5E0',
+    '': ''
   }
   curBrushTool: BrusherTool;
 
@@ -40,7 +40,7 @@ export class EditorBrushTab {
         this.container.style.setProperty('--range-color', color.hex);
         this.container.style.setProperty(this.currChangingPen, color.hex);
         this.savedColors[this.currChangingPen] = color.hex;
-      } 
+      }
     );
 
     // XENA TODO deal with i18n
@@ -48,70 +48,70 @@ export class EditorBrushTab {
     this.toolSection = createNamedSection('Tool')
     // XENA TODO deal with i18n
     // @ts-ignore
-    this.sizeRange = new RangeSettingSelector("Size",
+    this.sizeRange = new RangeSettingSelector('Size',
       1,
       15,
       1,
-      30,
+      30
     )
     this.sizeRange.onChange = (value) => {
       this.curBrushTool.setSize(value);
-    } 
+    }
     // this.sizeRange.onChangeRelease = () => this.curBrushTool.
 
     const [
-      pen, 
+      pen,
       arrow,
       mark,
       neon,
-      blur, 
+      blur,
       eraser
     ] = createManyRows([
       {
-        title: "Pen",
+        title: 'Pen',
         // XENA TODO deal with i18n
         // @ts-ignore
-        titleLangArgs: "Pen",
+        titleLangArgs: 'Pen',
         className: 'brush-row',
         clickable: () => {
           this.onPenSelect(PenBrush, '--pen-color', pen.container);
         }
       },
       {
-        title: "Arrow",
+        title: 'Arrow',
         // XENA TODO deal with i18n
         // @ts-ignore
-        titleLangArgs: "Arrow",
+        titleLangArgs: 'Arrow',
         className: 'brush-row',
         clickable: () => {
           this.onPenSelect(ArrowBrush, '--arrow-color', arrow.container);
         }
       },
       {
-        title: "Brush",
+        title: 'Brush',
         // XENA TODO deal with i18n
         // @ts-ignore
-        titleLangArgs: "Brush",
+        titleLangArgs: 'Brush',
         className: 'brush-row',
         clickable: () => {
           this.onPenSelect(MarkerBrush, '--mark-color', mark.container);
         }
       },
       {
-        title: "Neon",
+        title: 'Neon',
         // XENA TODO deal with i18n
         // @ts-ignore
-        titleLangArgs: "Neon",
+        titleLangArgs: 'Neon',
         className: 'brush-row',
         clickable: () => {
           this.onPenSelect(NeonBrush, '--neon-color', neon.container);
         }
       },
       {
-        title: "Blur",
+        title: 'Blur',
         // XENA TODO deal with i18n
         // @ts-ignore
-        titleLangArgs: "Blur",
+        titleLangArgs: 'Blur',
         className: 'brush-row',
         clickable: () => {
           this.onPenSelect(BlurBrush, '', blur.container);
@@ -119,10 +119,10 @@ export class EditorBrushTab {
         }
       },
       {
-        title: "Eraser",
+        title: 'Eraser',
         // XENA TODO deal with i18n
         // @ts-ignore
-        titleLangArgs: "Eraser",
+        titleLangArgs: 'Eraser',
         className: 'brush-row',
         clickable: () => {
           this.onPenSelect(EraserBrush, '', eraser.container);
@@ -144,17 +144,15 @@ export class EditorBrushTab {
       mark.container,
       neon.container,
       blur.container,
-      eraser.container,
+      eraser.container
     );
 
     setToolActive(this.toolSection, pen.container, 'tool-selected');
     this.colorPicker.setColor(this.colorPicker.predefinedColors[1])
     this.container.append(this.colorPicker.container, this.sizeRange.container, this.toolSection)
-    
   }
 
   private onPenSelect(pen: typeof BrusherLayer, variable: PenColorsCSS, container: HTMLElement) {
-    
     this.curBrushTool.setBrush(pen);
     setToolActive(this.toolSection, container, 'tool-selected');
     this.currChangingPen = variable
@@ -549,6 +547,4 @@ export class EditorBrushTab {
     `
     return eraser;
   }
-
-
 }

@@ -1,10 +1,9 @@
-import { LangPackKey } from "../../../lib/langPack";
-import { Canvaser } from "../../canvaser/Canvaser";
-import { NoneTool } from "../../canvaser/Tool";
-import { RangeSettingSelector } from "../../sidebarLeft/tabs/generalSettings";
+import {LangPackKey} from '../../../lib/langPack';
+import {Canvaser} from '../../canvaser/Canvaser';
+import {NoneTool} from '../../canvaser/Tool';
+import {RangeSettingSelector} from '../../sidebarLeft/tabs/generalSettings';
 
 export class EditorFilterTab {
-  
   canvaser: Canvaser;
   container: HTMLElement;
   brightness: RangeSettingSelector;
@@ -31,7 +30,7 @@ export class EditorFilterTab {
       shadows,
       vignette,
       grain,
-      sharpen,
+      sharpen
     ] = createFilterRangeSelectors([
       // {
       //   // XENA TODO deal with i18n
@@ -45,21 +44,21 @@ export class EditorFilterTab {
       {
         // XENA TODO deal with i18n
         // @ts-ignore
-        name: "Brightness",
+        name: 'Brightness',
         min: this.canvaser.rootEffects.brightness.getInfo().min,
         max: this.canvaser.rootEffects.brightness.getInfo().max,
         onChangeCb: (val: number) => this.canvaser.rootEffects.brightness.setValue(val),
-        onFinish: () => this.canvaser.rootEffects.finishEdit(),
+        onFinish: () => this.canvaser.rootEffects.finishEdit()
       },
       {
         // XENA TODO deal with i18n
         // @ts-ignore
-        name: "Contrast",
+        name: 'Contrast',
         min: this.canvaser.rootEffects.contrast.getInfo().min,
         max: this.canvaser.rootEffects.contrast.getInfo().max,
         onChangeCb: (val: number) => this.canvaser.rootEffects.contrast.setValue(val),
-        onFinish: () => this.canvaser.rootEffects.finishEdit(),
-      },
+        onFinish: () => this.canvaser.rootEffects.finishEdit()
+      }
       // {
       //   // XENA TODO deal with i18n
       //   // @ts-ignore
@@ -125,14 +124,14 @@ export class EditorFilterTab {
       //   onChangeCb: this.canvaser.onSharpenChange.bind(this.canvaser),
       // },
     ]);
-    
+
     this.brightness = brightness;
     this.contrast = contrast;
 
     this.container.append(
       // enhance.container,
       brightness.container,
-      contrast.container,
+      contrast.container
       // saturation.container,
       // warmth.container,
       // fade.container,
@@ -142,7 +141,6 @@ export class EditorFilterTab {
       // grain.container,
       // sharpen.container,
     );
-  
   }
 
   public onUpdate(canvaser: Canvaser) {
@@ -152,18 +150,18 @@ export class EditorFilterTab {
 }
 
 function createFilterRangeSelectors(params: {name: LangPackKey, min: number, max: number, onChangeCb: (value: number) => void, onFinish: () => void, }[]): RangeSettingSelector[] {
-  let res: RangeSettingSelector[] = [];
+  const res: RangeSettingSelector[] = [];
 
   params.map((e) => {
-    let range = new RangeSettingSelector(
-      e.name, 
+    const range = new RangeSettingSelector(
+      e.name,
       1,
       0.01,
       e.min,
-      e.max,
+      e.max
     )
     range.onChange = (value) => {
-      if (value != 0) {
+      if(value != 0) {
         range.valueContainer.classList.add('non-zero')
       } else {
         range.valueContainer.classList.remove('non-zero')
@@ -175,9 +173,7 @@ function createFilterRangeSelectors(params: {name: LangPackKey, min: number, max
     range.onChangeRelease = () => {
       e.onFinish()
     }
-
-      
-  }) 
+  })
 
   return res;
 }

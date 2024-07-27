@@ -55,7 +55,7 @@ export type PopupOptions = Partial<{
   title: boolean | LangPackKey | DocumentFragment | HTMLElement,
   floatingHeader: boolean,
   withFooterConfirm: boolean,
-  specialNavigationType: NavigationItem["type"]
+  specialNavigationType: NavigationItem['type']
 }>;
 
 export interface PopupElementConstructable<T extends PopupElement = any> {
@@ -95,7 +95,7 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
   protected isConfirmationNeededOnClose: PopupOptions['isConfirmationNeededOnClose'];
 
   protected navigationItem: NavigationItem;
-  protected specialNavigationType: NavigationItem["type"];
+  protected specialNavigationType: NavigationItem['type'];
 
   protected listenerSetter: ListenerSetter;
 

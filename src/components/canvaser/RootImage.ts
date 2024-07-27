@@ -1,5 +1,5 @@
-import type { Canvaser } from "./Canvaser"
-import { RenderCtx } from "./Renderer"
+import type {Canvaser} from './Canvaser'
+import {RenderCtx} from './Renderer'
 
 export class RootImage {
   constructor(canvaser: Canvaser, image: HTMLImageElement) {

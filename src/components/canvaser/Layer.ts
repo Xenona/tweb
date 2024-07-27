@@ -1,6 +1,6 @@
-import type { Canvaser } from "./Canvaser";
-import { MouseEv, MouseMoveEv } from "./Mouse";
-import { IDrawable, RenderCtx } from "./Renderer";
+import type {Canvaser} from './Canvaser';
+import {MouseEv, MouseMoveEv} from './Mouse';
+import {IDrawable, RenderCtx} from './Renderer';
 
 export enum LayerPriority {
   Background = 0,

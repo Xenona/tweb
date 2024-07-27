@@ -443,14 +443,14 @@ export function createManyRows(params: {
   titleLangArgs?: any[],
   className?: string,
 }[]): Row[] {
-  let res: Row[] = [];
+  const res: Row[] = [];
 
   params.map(e => {
-    let {className, ...options } = e;
-    let row = new Row({
-      ...options,
+    const {className, ...options} = e;
+    const row = new Row({
+      ...options
     })
-    if (className) {
+    if(className) {
       row.container.classList.add(className);
     }
     res.push(row);

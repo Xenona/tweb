@@ -192,9 +192,9 @@ function ButtonMenuItem(options: ButtonMenuItemOptions) {
       const innerMenu = await ButtonMenu({...options, buttons: filteredButtons});
 
       innerMenu.classList.add('bottom-right', 'inner-backdrop')
-      
+
       el.addEventListener('click', () => {
-        if (innerMenu.classList.contains('active')) {
+        if(innerMenu.classList.contains('active')) {
           el.classList.remove('is-visible')
           innerMenu.classList.remove('active')
         } else {
@@ -203,10 +203,10 @@ function ButtonMenuItem(options: ButtonMenuItemOptions) {
         }
       })
 
-      let menuTopLeftY: number = -el.offsetHeight/2+2;
+      const menuTopLeftY: number = -el.offsetHeight/2+2;
       let menuTopLeftX: number = el.offsetLeft + el.offsetWidth/2;
 
-      if (!IS_TOUCH_SUPPORTED) {
+      if(!IS_TOUCH_SUPPORTED) {
         menuTopLeftX = el.offsetLeft + el.offsetWidth - 10;
         innerMenu.style.left = `${menuTopLeftX}px`;
 
@@ -225,7 +225,7 @@ function ButtonMenuItem(options: ButtonMenuItemOptions) {
       innerMenu.style.left = `${menuTopLeftX}px`;
       innerMenu.style.top = `${menuTopLeftY}px`;
       innerMenu.style.zIndex = '4';
-      
+
       el.append(innerMenu);
       (el as any).inner = innerMenu;
     })()

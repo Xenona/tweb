@@ -1,17 +1,17 @@
-import type { Canvaser } from "./Canvaser";
-import { Layer, LayerPriority } from "./Layer";
-import { MouseEv, MouseMoveEv } from "./Mouse";
-import { RenderCtx } from "./Renderer";
-import { BaseTool } from "./Tool";
+import type {Canvaser} from './Canvaser';
+import {Layer, LayerPriority} from './Layer';
+import {MouseEv, MouseMoveEv} from './Mouse';
+import {RenderCtx} from './Renderer';
+import {BaseTool} from './Tool';
 
 type BrushPoint =
   | {
-      type: "point";
+      type: 'point';
       x: number;
       y: number;
     }
   | {
-      type: "begin" | "end";
+      type: 'begin' | 'end';
     };
 
 type BrushOptions = {
@@ -29,10 +29,10 @@ export class BrusherLayer extends Layer {
   render(ctx: RenderCtx) {
     ctx.with2D((c) => {
       c.beginPath();
-      c.strokeStyle = "red";
-      c.lineCap = "round";
-      c.lineJoin = "round";
-      c.shadowColor = "orange";
+      c.strokeStyle = 'red';
+      c.lineCap = 'round';
+      c.lineJoin = 'round';
+      c.shadowColor = 'orange';
       c.shadowBlur = 40;
       c.lineWidth = 10;
 
@@ -43,11 +43,11 @@ export class BrusherLayer extends Layer {
 
   protected movePoints(c: CanvasRenderingContext2D, points = this.points) {
     let begin = false;
-    for (const p of points) {
-      if (p.type == "begin") {
+    for(const p of points) {
+      if(p.type == 'begin') {
         begin = true;
-      } else if (p.type == "point") {
-        if (begin) {
+      } else if(p.type == 'point') {
+        if(begin) {
           c.moveTo(p.x, p.y);
           begin = false;
         }
@@ -61,27 +61,27 @@ export class BrusherLayer extends Layer {
   }
 
   public addPoint(x: number, y: number) {
-    this.points.push({ type: "point", x, y });
+    this.points.push({type: 'point', x, y});
     this.canvaser.emitUpdate();
   }
 
   public beginSegment() {
-    this.points.push({ type: "begin" });
+    this.points.push({type: 'begin'});
     this.canvaser.emitUpdate();
   }
 
   public endSegment() {
-    this.points.push({ type: "end" });
+    this.points.push({type: 'end'});
 
     this.canvaser.emitUpdate();
   }
-  
+
   public get priority(): LayerPriority {
-    return LayerPriority.Drawing  
+    return LayerPriority.Drawing
   }
 
   public mouseMove(ev: MouseMoveEv) {
-    if (ev.pressed) {
+    if(ev.pressed) {
       this.addPoint(ev.imX, ev.imY);
     }
   }
@@ -98,7 +98,7 @@ export class BrusherLayer extends Layer {
   }
 
   public setOpts(o: BrushOptions) {
-    this.opts = o;    
+    this.opts = o;
   }
 
   protected points: BrushPoint[];
@@ -110,8 +110,8 @@ export class PenBrush extends BrusherLayer {
     ctx.with2D((c) => {
       c.beginPath();
       c.strokeStyle = this.opts.color;
-      c.lineCap = "round";
-      c.lineJoin = "round";
+      c.lineCap = 'round';
+      c.lineJoin = 'round';
       c.lineWidth = this.opts.size;
 
       this.movePoints(c);
@@ -125,20 +125,20 @@ export class ArrowBrush extends BrusherLayer {
     ctx.with2D((c) => {
       c.beginPath();
       c.strokeStyle = this.opts.color;
-      c.lineCap = "round";
-      c.lineJoin = "round";
+      c.lineCap = 'round';
+      c.lineJoin = 'round';
       c.lineWidth = this.opts.size;
 
       this.movePoints(c);
       c.stroke();
 
-      let lastPoints = [[0, 0]];
-      for (const p of this.points) {
-        if (p.type == "point") {
+      const lastPoints = [[0, 0]];
+      for(const p of this.points) {
+        if(p.type == 'point') {
           lastPoints.push([p.x, p.y]);
-          if (lastPoints.length > 10) lastPoints.shift();
-        } else if (p.type == "end") {
-          if (lastPoints.length < 10) continue;
+          if(lastPoints.length > 10) lastPoints.shift();
+        } else if(p.type == 'end') {
+          if(lastPoints.length < 10) continue;
 
           const dx = lastPoints[9][0] - lastPoints[0][0];
           const dy = lastPoints[9][1] - lastPoints[0][1];
@@ -159,8 +159,8 @@ export class MarkerBrush extends BrusherLayer {
     ctx.with2D((c) => {
       c.beginPath();
       c.strokeStyle = this.opts.color;
-      c.lineCap = "butt";
-      c.lineJoin = "round";
+      c.lineCap = 'butt';
+      c.lineJoin = 'round';
       c.globalAlpha = 0.25;
       c.lineWidth = 1.2 * this.opts.size;
 
@@ -175,9 +175,9 @@ export class NeonBrush extends BrusherLayer {
     ctx.with2D((c) => {
       c.beginPath();
 
-      c.strokeStyle = "white";
-      c.lineCap = "round";
-      c.lineJoin = "round";
+      c.strokeStyle = 'white';
+      c.lineCap = 'round';
+      c.lineJoin = 'round';
       c.shadowColor = this.opts.color;
       c.shadowBlur = this.opts.size;
       c.lineWidth = this.opts.size;
@@ -191,7 +191,7 @@ export class NeonBrush extends BrusherLayer {
 export class MultiBrusherLayer extends BrusherLayer {
   constructor(canvaser: Canvaser, opts: BrushOptions) {
     super(canvaser, opts);
-    this.multis = []    
+    this.multis = []
   }
 
   get combinable(): boolean {
@@ -200,7 +200,7 @@ export class MultiBrusherLayer extends BrusherLayer {
 
   public endSegment(): void {
     super.endSegment()
-    const multi = { opts: { ...this.opts }, points: this.points };
+    const multi = {opts: {...this.opts}, points: this.points};
     this.multis.push(multi);
     if(this.multis.length > 1) {
       this.canvaser.emitHistory({
@@ -212,12 +212,11 @@ export class MultiBrusherLayer extends BrusherLayer {
         redo: () => {
           this.multis.push(multi);
           this.canvaser.emitUpdate();
-        },
-      });    
+        }
+      });
     }
     this.points = []
   }
-
 
 
   protected multis: { opts: BrushOptions, points: BrushPoint[] }[]
@@ -226,11 +225,10 @@ export class MultiBrusherLayer extends BrusherLayer {
 export class EraserBrush extends MultiBrusherLayer {
   render(ctx: RenderCtx) {
     ctx.with2D((c) => {
-      
-      c.strokeStyle = "white";
-      c.lineCap = "round";
-      c.lineJoin = "round";
-      c.globalCompositeOperation = "destination-out";
+      c.strokeStyle = 'white';
+      c.lineCap = 'round';
+      c.lineJoin = 'round';
+      c.globalCompositeOperation = 'destination-out';
 
       this.multis.forEach(p => {
         c.beginPath();
@@ -242,12 +240,11 @@ export class EraserBrush extends MultiBrusherLayer {
       c.beginPath();
       this.movePoints(c);
       c.stroke();
-      
-      c.globalCompositeOperation = "destination-over";
-      ctx.putFrame("image");
+
+      c.globalCompositeOperation = 'destination-over';
+      ctx.putFrame('image');
     });
   }
-
 }
 
 export class BlurBrush extends MultiBrusherLayer {
@@ -256,11 +253,11 @@ export class BlurBrush extends MultiBrusherLayer {
     ctx.with2D((c) => {
       c.beginPath();
 
-      c.strokeStyle = "white";
-      c.lineCap = "round";
-      c.lineJoin = "round";
-      c.globalCompositeOperation = "destination-out";
-      
+      c.strokeStyle = 'white';
+      c.lineCap = 'round';
+      c.lineJoin = 'round';
+      c.globalCompositeOperation = 'destination-out';
+
       this.multis.forEach(p => {
         c.beginPath();
         c.lineWidth = 2 * p.opts.size;
@@ -273,8 +270,8 @@ export class BlurBrush extends MultiBrusherLayer {
       this.movePoints(c);
       c.stroke();
 
-      c.filter = "blur(10px)";
-      c.globalCompositeOperation = "destination-over";
+      c.filter = 'blur(10px)';
+      c.globalCompositeOperation = 'destination-over';
       ctx.putFrame(f);
     });
     f.dispose();
@@ -288,20 +285,20 @@ export class BrusherTool extends BaseTool {
     this.curBrush = BrusherLayer;
 
     this.size = 10;
-    this.color = "red";
+    this.color = 'red';
   }
 
   mouseUpDown(ev: MouseEv): void {
     if(ev.pressed) {
       this.canvaser.tryFocusLayer(ev);
-    
+
       if(!this.canvaser.focusedLayer) {
         const opts = {
           size: this.size * ev.iFactor,
-          color: this.color,
+          color: this.color
         };
 
-        if (
+        if(
           !this.lastLayer ||
           !this.lastLayer.combinable ||
           !(this.lastLayer instanceof this.curBrush)

@@ -1,10 +1,10 @@
-import type { Canvaser } from "./Canvaser";
-import { HistoryValueHelper } from "./History";
-import { Layer, LayerPriority } from "./Layer";
-import { MouseEv, MouseMoveEv } from "./Mouse";
-import { Rect } from "./Rect";
-import { DrawableImages, RenderCtx, getDrawableImageSize } from "./Renderer";
-import { IMouseResizable, Resizer, ResizerRect } from "./Resizer";
+import type {Canvaser} from './Canvaser';
+import {HistoryValueHelper} from './History';
+import {Layer, LayerPriority} from './Layer';
+import {MouseEv, MouseMoveEv} from './Mouse';
+import {Rect} from './Rect';
+import {DrawableImages, RenderCtx, getDrawableImageSize} from './Renderer';
+import {IMouseResizable, Resizer, ResizerRect} from './Resizer';
 
 export class StickerLayer extends Layer implements IMouseResizable {
   constructor(canvaser: Canvaser, src: DrawableImages) {
@@ -26,7 +26,7 @@ export class StickerLayer extends Layer implements IMouseResizable {
       cy,
       w: s,
       h: s / src.width * src.height,
-      angle: -canvaser.crop.getAngle() + 0,
+      angle: -canvaser.crop.getAngle() + 0
     };
 
     this.resizer = new Resizer(this);
@@ -45,13 +45,13 @@ export class StickerLayer extends Layer implements IMouseResizable {
     const scale = this.r.w / iniW;
 
     ctx.withTransform(
-      { x: this.r.cx, y: this.r.cy, rotate: this.r.angle, scale },
+      {x: this.r.cx, y: this.r.cy, rotate: this.r.angle, scale},
       () => {
         ctx.drawImage(this.src);
       }
     );
 
-    if (this.canvaser.focusedLayer == this) this.resizer.render(ctx);
+    if(this.canvaser.focusedLayer == this) this.resizer.render(ctx);
   }
 
   public getRect() {
@@ -59,14 +59,14 @@ export class StickerLayer extends Layer implements IMouseResizable {
   }
 
   public updateRect(r: Partial<Rect>): void {
-    this.r = { ...this.r, ...r };
+    this.r = {...this.r, ...r};
     this.canvaser.emitUpdate();
   }
 
   public mouseMove(ev: MouseMoveEv) {
     const [dx, dy] = this.canvaser.crop.toImgVelocity(ev.dx, ev.dy);
 
-    this.resizer.mouseMove({ ...ev, dx, dy });
+    this.resizer.mouseMove({...ev, dx, dy});
   }
 
   public get priority(): LayerPriority {
@@ -74,13 +74,12 @@ export class StickerLayer extends Layer implements IMouseResizable {
   }
 
   public mouseUpDown(ev: MouseEv): void {
-    
-    if (!this.resizer.isInside(ev, true)) {
+    if(!this.resizer.isInside(ev, true)) {
       this.canvaser.focusedLayer = null;
       this.canvaser.tryFocusLayer(ev);
       return;
     } else {
-      if (!ev.pressed) this.hist.emitHistory();
+      if(!ev.pressed) this.hist.emitHistory();
     }
   }
 

@@ -1,10 +1,10 @@
-import type { Canvaser } from "./Canvaser";
-import { HistoryValueHelper } from "./History";
-import { Mat3 } from "./Mat";
-import { MouseEv, MouseMoveEv } from "./Mouse";
-import { DrawableRect } from "./Rect";
-import { RenderCtx } from "./Renderer";
-import { BaseTool } from "./Tool";
+import type {Canvaser} from './Canvaser';
+import {HistoryValueHelper} from './History';
+import {Mat3} from './Mat';
+import {MouseEv, MouseMoveEv} from './Mouse';
+import {DrawableRect} from './Rect';
+import {RenderCtx} from './Renderer';
+import {BaseTool} from './Tool';
 
 export class Cropper {
   constructor(canvaser: Canvaser) {
@@ -19,7 +19,7 @@ export class Cropper {
 
     this.hist = new HistoryValueHelper(
       canvaser,
-      () => ({ rect: this.rect, angle: this.angle }),
+      () => ({rect: this.rect, angle: this.angle}),
       (val) => {
         this.rect = val.rect.map((e, i) => {
           if(e !== null) return e;
@@ -39,10 +39,10 @@ export class Cropper {
       [-ihw, -ihh],
       [ihw, -ihh],
       [ihw, ihh],
-      [-ihw, ihh],
+      [-ihw, ihh]
     ].map((p) => [
       p[0] * Math.cos(this.angle) - p[1] * Math.sin(this.angle),
-      p[0] * Math.sin(this.angle) + p[1] * Math.cos(this.angle),
+      p[0] * Math.sin(this.angle) + p[1] * Math.cos(this.angle)
     ]);
 
     const pointXs = points.map((p) => p[0]);
@@ -50,12 +50,12 @@ export class Cropper {
 
     return [
       Math.max(...pointXs) - Math.min(...pointXs),
-      Math.max(...pointYs) - Math.min(...pointYs),
+      Math.max(...pointYs) - Math.min(...pointYs)
     ];
   }
 
   public getRect(): [number, number, number, number] {
-    let [x1, y1, x2, y2] = this.rect;
+    const [x1, y1, x2, y2] = this.rect;
 
     const [iw, ih] = this.getRotatedImageWH();
     const ihw = iw / 2;
@@ -65,7 +65,7 @@ export class Cropper {
       Math.max(Math.min(x1, ihw), -ihw),
       Math.max(Math.min(y1, ihh), -ihh),
       Math.max(Math.min(x2, ihw), -ihw),
-      Math.max(Math.min(y2, ihh), -ihh),
+      Math.max(Math.min(y2, ihh), -ihh)
     ];
   }
 
@@ -87,8 +87,8 @@ export class Cropper {
   private updateTransform() {
     const rect = this.getRect();
     this.curTranform = Mat3.identity()
-      .translate(-(rect[0] + rect[2]) / 2, -(rect[1] + rect[3]) / 2)
-      .rotate(this.angle);
+    .translate(-(rect[0] + rect[2]) / 2, -(rect[1] + rect[3]) / 2)
+    .rotate(this.angle);
     this.curInv = this.curTranform.inverse();
     this.canvaser.emitUpdate();
   }
@@ -138,7 +138,7 @@ export class Cropper {
   public toImgVelocity(dx: number, dy: number): [number, number] {
     return [
       dx * Math.cos(-this.angle) - dy * Math.sin(-this.angle),
-      dx * Math.sin(-this.angle) + dy * Math.cos(-this.angle),
+      dx * Math.sin(-this.angle) + dy * Math.cos(-this.angle)
     ];
   }
 
@@ -164,7 +164,7 @@ class CropRect extends DrawableRect {
     const hh = h / 2;
 
     ctx.with2D((c) => {
-      c.strokeStyle = "rgba(255, 255, 255, 0.7)";
+      c.strokeStyle = 'rgba(255, 255, 255, 0.7)';
       c.lineWidth = 3 * ctx.iFactor;
       c.strokeRect(-hw, -hh, w, h);
 
@@ -191,7 +191,7 @@ class CropRect extends DrawableRect {
 
   protected renderAngle(ctx: RenderCtx) {
     ctx.with2D((c) => {
-      c.strokeStyle = "white";
+      c.strokeStyle = 'white';
       c.lineWidth = 6 * ctx.iFactor;
 
       c.beginPath();
@@ -220,7 +220,7 @@ export class CropTool extends BaseTool {
   public render(ctx: RenderCtx): void {
     ctx.setSize(...this.canvaser.crop.getRotatedImageWH());
 
-    ctx.withTransform({ rotate: this.canvaser.crop.getAngle() }, () => {
+    ctx.withTransform({rotate: this.canvaser.crop.getAngle()}, () => {
       this.canvaser.rootImage.render(ctx);
     });
 
@@ -229,67 +229,67 @@ export class CropTool extends BaseTool {
   }
 
   public mouseUpDown(ev: MouseEv): void {
-    if (!ev.pressed) {
+    if(!ev.pressed) {
       this.canvaser.crop.finishRectEdit();
-    } else if (this.checkLim(ev.x, ev.y, 16 * ev.iFactor)) {
+    } else if(this.checkLim(ev.x, ev.y, 16 * ev.iFactor)) {
       const crop = this.canvaser.crop;
       const rect = crop.getRect();
 
       // Make crop rect size a WYSIWG
-      for (let i = 0; i < 4; i++) crop.updateRect(i, rect[i]);
+      for(let i = 0; i < 4; i++) crop.updateRect(i, rect[i]);
     }
   }
 
   checkLim(px: number, py: number, lim: number) {
     const rect = this.crop.getRect();
 
-    if (px < Math.min(rect[0], rect[2]) - lim) return false;
-    if (px > Math.max(rect[0], rect[2]) + lim) return false;
-    if (py < Math.min(rect[1], rect[3]) - lim) return false;
-    if (py > Math.max(rect[1], rect[3]) + lim) return false;
+    if(px < Math.min(rect[0], rect[2]) - lim) return false;
+    if(px > Math.max(rect[0], rect[2]) + lim) return false;
+    if(py < Math.min(rect[1], rect[3]) - lim) return false;
+    if(py > Math.max(rect[1], rect[3]) + lim) return false;
 
     return true;
   }
 
   mouseMove(ev: MouseMoveEv) {
-    if (!ev.pressed) {
+    if(!ev.pressed) {
       this.ratioSource = undefined;
       return;
     }
 
     const ratioMode = this.forcedRatio || ev.shift;
-    if (!ratioMode) this.ratioSource = undefined;
+    if(!ratioMode) this.ratioSource = undefined;
 
-    if (this.ratioSource) return this.ratioResize(ev);
+    if(this.ratioSource) return this.ratioResize(ev);
 
     const rect = this.crop.getRect();
     const px = ev.x - ev.dx;
     const py = ev.y - ev.dy;
     const lim = 16 * ev.iFactor;
 
-    if (!this.checkLim(px, py, lim)) return;
+    if(!this.checkLim(px, py, lim)) return;
 
-    if (this.checkLim(px, py, -lim)) {
+    if(this.checkLim(px, py, -lim)) {
       return this.handleMove(ev);
     }
 
-    if (ratioMode) return this.ratioResize(ev);
+    if(ratioMode) return this.ratioResize(ev);
 
     const opSide = [2, 3, 0, 1];
     const pSide = [px, py, px, py];
     const eSide = [ev.x, ev.y, ev.x, ev.y];
 
-    for (let i = 0; i < 4; i++) {
+    for(let i = 0; i < 4; i++) {
       const p = pSide[i];
       const di = Math.abs(p - rect[i]);
 
-      if (di > lim) continue; // Move not touching border
+      if(di > lim) continue; // Move not touching border
       const opdi = Math.abs(p - rect[opSide[i]]);
-      if (di > opdi) continue; // Move closer to opposite border
-      if (di == opdi && i < opSide[i]) continue; // Handle right in the middle situation
+      if(di > opdi) continue; // Move closer to opposite border
+      if(di == opdi && i < opSide[i]) continue; // Handle right in the middle situation
 
       const e = eSide[i];
-      if (ev.ctrl) {
+      if(ev.ctrl) {
         this.crop.updateRect(opSide[i], rect[i] + rect[opSide[i]] - e);
       }
       this.crop.updateRect(i, e);
@@ -298,7 +298,7 @@ export class CropTool extends BaseTool {
 
   private handleMove(ev: MouseMoveEv) {
     this.crop.moveRect(ev.dx, ev.dy);
-    if (this.forcedRatio) {
+    if(this.forcedRatio) {
       this.updateAspected(this.forcedRatio);
     }
   }
@@ -308,22 +308,22 @@ export class CropTool extends BaseTool {
     const py = ev.y - ev.dy;
     const lim = 16 * ev.iFactor;
 
-    if (!this.ratioSource && this.checkLim(px, py, -lim))
+    if(!this.ratioSource && this.checkLim(px, py, -lim))
       return this.handleMove(ev);
 
     const rect = this.crop.getRect();
 
-    if (!this.ratioSource) {
+    if(!this.ratioSource) {
       this.ratioSource = {
         aspect:
           this.forcedRatio ??
           Math.abs(rect[0] - rect[2]) / Math.abs(rect[3] - rect[1]),
         closerLeft: Math.abs(rect[0] - px) < Math.abs(rect[2] - px),
-        closerTop: Math.abs(rect[1] - py) < Math.abs(rect[3] - py),
+        closerTop: Math.abs(rect[1] - py) < Math.abs(rect[3] - py)
       };
     }
 
-    const { aspect, closerLeft, closerTop } = this.ratioSource;
+    const {aspect, closerLeft, closerTop} = this.ratioSource;
 
     const ah = aspect * (closerLeft !== closerTop ? -1 : 1);
 
@@ -336,7 +336,7 @@ export class CropTool extends BaseTool {
     this.crop.updateRect(closerLeft ? 0 : 2, rect[closerLeft ? 0 : 2] + d);
     this.crop.updateRect(closerTop ? 1 : 3, rect[closerTop ? 1 : 3] + da);
 
-    if (ev.ctrl) {
+    if(ev.ctrl) {
       this.crop.updateRect(closerLeft ? 2 : 0, rect[closerLeft ? 2 : 0] - d);
       this.crop.updateRect(closerTop ? 3 : 1, rect[closerTop ? 3 : 1] - da);
     }
@@ -354,7 +354,7 @@ export class CropTool extends BaseTool {
 
     const newSide = Math.min(w, h * ratio);
 
-    if (Math.abs(w / h - ratio) < 0.0001) return;
+    if(Math.abs(w / h - ratio) < 0.0001) return;
 
     const nhs = newSide / 2;
 
@@ -366,7 +366,7 @@ export class CropTool extends BaseTool {
 
   public setForcedRatio(ratio: number | undefined) {
     this.forcedRatio = ratio;
-    if (ratio) {
+    if(ratio) {
       this.updateAspected(ratio);
     }
   }

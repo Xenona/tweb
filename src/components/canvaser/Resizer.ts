@@ -1,7 +1,7 @@
-import { Mat3 } from "./Mat";
-import { MouseEv, MouseMoveEv } from "./Mouse";
-import { DrawableRect, Rect } from "./Rect";
-import { type RenderCtx } from "./Renderer";
+import {Mat3} from './Mat';
+import {MouseEv, MouseMoveEv} from './Mouse';
+import {DrawableRect, Rect} from './Rect';
+import {type RenderCtx} from './Renderer';
 
 export interface IMouseResizable {
   getRect(): Rect;
@@ -45,21 +45,21 @@ export class  Resizer {
 
   public render(ctx: RenderCtx) {
     const rect = this.target.getRect();
-    this.rendRect.setRect({ ...rect });
+    this.rendRect.setRect({...rect});
     this.rendRect.render(ctx);
   }
 
   private parseEvent(ev: MouseMoveEv | MouseEv): ResizerEvent {
     const rect = this.target.getRect();
 
-    const idx = "dx" in ev ? ev.dx : 0;
-    const idy = "dy" in ev ? ev.dy : 0;
+    const idx = 'dx' in ev ? ev.dx : 0;
+    const idy = 'dy' in ev ? ev.dy : 0;
 
     const [px, py] = Mat3.identity()
-      .translate(rect.cx, rect.cy)
-      .rotate(rect.angle)
-      .inverse()
-      .applyPoint(ev.imX - idx, ev.imY - idy);
+    .translate(rect.cx, rect.cy)
+    .rotate(rect.angle)
+    .inverse()
+    .applyPoint(ev.imX - idx, ev.imY - idy);
 
     const inside = Math.abs(py) <= rect.h / 2 && Math.abs(px) <= rect.w / 2;
 
@@ -84,20 +84,20 @@ export class  Resizer {
       idx,
       idy,
       ctrl: ev.ctrl,
-      shift: ev.shift,
+      shift: ev.shift
     };
   }
 
   mouseMove(ev: MouseMoveEv): boolean {
-    if (!ev.pressed) {
+    if(!ev.pressed) {
       this.resizeState = null;
       return false;
     }
 
     const rev = this.parseEvent(ev);
 
-    if (rev.atVertex || this.resizeState) return this.handleResize(rev);
-    if (rev.inside) return this.handleMove(rev);
+    if(rev.atVertex || this.resizeState) return this.handleResize(rev);
+    if(rev.inside) return this.handleMove(rev);
 
     return false;
   }
@@ -105,7 +105,7 @@ export class  Resizer {
   private handleMove(ev: ResizerEvent) {
     this.target.updateRect({
       cx: ev.rect.cx + ev.idx,
-      cy: ev.rect.cy + ev.idy,
+      cy: ev.rect.cy + ev.idy
     });
     this.updateAspected();
 
@@ -113,22 +113,22 @@ export class  Resizer {
   }
 
   private handleResize(ev: ResizerEvent) {
-    const { rect, px, py } = ev;
+    const {rect, px, py} = ev;
     const angle = Math.atan2(py, px);
     const len = Math.sqrt(px * px + py * py);
-    if (!this.resizeState) {
+    if(!this.resizeState) {
       this.resizeState = {
         angle,
         len,
         startW: rect.w,
-        startH: rect.h,
+        startH: rect.h
       };
     }
 
     this.target.updateRect({
       angle: rect.angle - this.resizeState.angle + angle,
       w: (this.resizeState.startW / this.resizeState.len) * len,
-      h: (this.resizeState.startH / this.resizeState.len) * len,
+      h: (this.resizeState.startH / this.resizeState.len) * len
     });
     this.updateAspected();
 
@@ -136,15 +136,15 @@ export class  Resizer {
   }
 
   private updateAspected() {
-    const { w, h } = this.target.getRect();
+    const {w, h} = this.target.getRect();
 
     const newSide = Math.min(w, h * this.ratio);
 
-    if (Math.abs(w / h - this.ratio) < 0.0001) return;
+    if(Math.abs(w / h - this.ratio) < 0.0001) return;
 
     this.target.updateRect({
       w: newSide,
-      h: newSide / this.ratio,
+      h: newSide / this.ratio
     });
   }
 
@@ -167,7 +167,7 @@ export class  Resizer {
 export class ResizerRect extends DrawableRect {
   protected renderAngle(ctx: RenderCtx): void {
     ctx.with2D((c) => {
-      c.fillStyle = "white";
+      c.fillStyle = 'white';
       c.beginPath();
       c.arc(0, 0, 6 * ctx.iFactor, 0, 2 * Math.PI);
       c.fill();
@@ -176,7 +176,7 @@ export class ResizerRect extends DrawableRect {
 
   protected renderBase(ctx: RenderCtx): void {
     ctx.with2D((c) => {
-      c.strokeStyle = "rgba(255, 255, 255, 0.7)";
+      c.strokeStyle = 'rgba(255, 255, 255, 0.7)';
       c.lineWidth = 4 * ctx.iFactor;
       c.setLineDash([8 * ctx.iFactor, 8 * ctx.iFactor]);
       c.strokeRect(-this.o.w / 2, -this.o.h / 2, this.o.w, this.o.h);

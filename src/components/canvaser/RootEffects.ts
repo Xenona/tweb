@@ -1,20 +1,20 @@
-import type { Canvaser } from "./Canvaser";
-import { HistoryValueHelper } from "./History";
-import { RenderCtx } from "./Renderer";
+import type {Canvaser} from './Canvaser';
+import {HistoryValueHelper} from './History';
+import {RenderCtx} from './Renderer';
 
 export type EffectInfo = {
-  type: "scalar";
+  type: 'scalar';
   min: number;
   max: number;
   default: number;
 };
 
 class RootScalarEffect {
-  constructor(effects: RootEffects, info: Omit<EffectInfo, "type">) {
+  constructor(effects: RootEffects, info: Omit<EffectInfo, 'type'>) {
     this.effects = effects;
     this.effectInfo = {
-      type: "scalar",
-      ...info,
+      type: 'scalar',
+      ...info
     };
   }
 
@@ -27,7 +27,7 @@ class RootScalarEffect {
   public preEffect(ctx: RenderCtx) {}
   public postEffect(ctx: RenderCtx) {}
   public emitFilter(): string {
-    return "";
+    return '';
   }
 
   public getState(): any {
@@ -52,7 +52,7 @@ class FilterEffect extends RootScalarEffect {
   constructor(
     effects: RootEffects,
     filter: (v: number) => string,
-    info: Omit<EffectInfo, "type">
+    info: Omit<EffectInfo, 'type'>
   ) {
     super(effects, info);
 
@@ -73,22 +73,22 @@ export class RootEffects {
     this.blur = new FilterEffect(this, (v) => `blur(${v}px)`, {
       min: 0,
       max: 20,
-      default: 0,
+      default: 0
     });
     this.brightness = new FilterEffect(this, (v) => `brightness(${v + 100}%)`, {
       min: -100,
       max: 100,
-      default: 0,
+      default: 0
     });
     this.contrast = new FilterEffect(this, (v) => `contrast(${v + 100}%)`, {
       min: -100,
       max: 100,
-      default: 0,
+      default: 0
     });
     this.grayscale = new FilterEffect(this, (v) => `grayscale(${v}%)`, {
       min: 0,
       max: 100,
-      default: 0,
+      default: 0
     });
 
     this.hist = new HistoryValueHelper(
@@ -100,11 +100,11 @@ export class RootEffects {
 
   public apply(ctx: RenderCtx) {
     const filterStr = this.getEffects()
-      .map((e) => {
-        e.preEffect(ctx);
-        return e.emitFilter();
-      })
-      .join(" ");
+    .map((e) => {
+      e.preEffect(ctx);
+      return e.emitFilter();
+    })
+    .join(' ');
 
     ctx.pushFilters(filterStr);
   }

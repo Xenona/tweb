@@ -385,7 +385,7 @@ export class AppSidebarLeft extends SidebarSlider {
         text: 'NewPrivateChat',
         onClick: onContactsClick
       }],
-      noIcon: true,
+      noIcon: true
     });
     this.newBtnMenu.className = 'btn-circle rp btn-corner z-depth-1 btn-menu-toggle animated-button-icon';
     this.newBtnMenu.tabIndex = -1;

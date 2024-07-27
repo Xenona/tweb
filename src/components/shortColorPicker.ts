@@ -1,9 +1,8 @@
-import { ColorHsla } from "../helpers/color";
-import liteMode from "../helpers/liteMode";
-import ColorPicker, { ColorPickerColor } from "./colorPicker";
+import {ColorHsla} from '../helpers/color';
+import liteMode from '../helpers/liteMode';
+import ColorPicker, {ColorPickerColor} from './colorPicker';
 
 export class ShortColorPicker extends ColorPicker {
-
   boxAndInputs: HTMLElement;
   predefinedColors  = ['#FFFFFF', '#FE4438', '#FF8901', '#FFD60A', '#33C759', '#62E5E0', '#0A84FF', '#BD5CF3'];
   customColorPick: HTMLButtonElement;
@@ -11,7 +10,7 @@ export class ShortColorPicker extends ColorPicker {
 
   constructor(onChange: (color: ColorPickerColor) => void) {
     super({boxWidth: 200, boxHeight: 120, circlesR: 10, sliderH: 20, sliderW: 300, sliderRX: 10, sliderRY: 10});
-    
+
     this.colorPicks = document.createElement('div');
     this.colorPicks.classList.add('color-picks');
     this.predefinedColors.forEach((color) => {
@@ -22,7 +21,7 @@ export class ShortColorPicker extends ColorPicker {
         this.colorPicks.querySelector('.active').classList.remove('active');
         colorPick.classList.add('active')
         this.hidePicker();
-        if (this.onChange) {
+        if(this.onChange) {
           this.setColor(color);
           this.onChange(this.getCurrentColor());
         }
@@ -37,15 +36,15 @@ export class ShortColorPicker extends ColorPicker {
     this.customColorPick = document.createElement('button');
     this.customColorPick.classList.add('color-pick');
     this.boxAndInputs = document.createElement('div');
-    if (liteMode.isAvailable("animations")) {
+    if(liteMode.isAvailable('animations')) {
       this.boxAndInputs.style.transition = 'height 0.6s ease, padding 0.6s ease';
       this.elements.sliders.style.transition = 'transform 0.6s ease, opacity 0.5s ease';
     }
     this.customColorPick.onclick = () => {
       const wasActive = this.colorPicks.querySelector('.active');
-      if (wasActive instanceof HTMLElement) {
-        if (wasActive === this.customColorPick) {
-          if (this.boxAndInputs.classList.contains('active')) {
+      if(wasActive instanceof HTMLElement) {
+        if(wasActive === this.customColorPick) {
+          if(this.boxAndInputs.classList.contains('active')) {
             this.hidePicker();
           } else {
             this.showPicker();
@@ -66,13 +65,13 @@ export class ShortColorPicker extends ColorPicker {
 
     this.boxAndInputs.classList.add('box-and-inputs');
     this.boxAndInputs.append(this.elements.box, inputs)
- 
+
     this.container.append(this.colorPicks, this.elements.sliders, this.boxAndInputs)
-  
+
     this.onChange = (color) => {
       this.container.style.setProperty('--range-color-bleak', color.hex+'14');
       onChange(color);
-    } 
+    }
   }
 
   protected hidePicker() {
@@ -86,8 +85,7 @@ export class ShortColorPicker extends ColorPicker {
   }
 
   public setColor(color: ColorHsla | string, updateHexInput = true, updateRgbInput = true) {
-
-    if (color === '') {
+    if(color === '') {
       this.container.classList.add('disabled');
       return;
     }
@@ -95,15 +93,15 @@ export class ShortColorPicker extends ColorPicker {
 
     setTimeout(() => super.setColor(color, updateHexInput, updateRgbInput), 0);
 
-    if (typeof color !== 'string') return;
-    
-    let prev = this.colorPicks.querySelectorAll('.active');
-    for (let i = 0; i < prev.length; i++) {
+    if(typeof color !== 'string') return;
+
+    const prev = this.colorPicks.querySelectorAll('.active');
+    for(let i = 0; i < prev.length; i++) {
       prev[i].classList.remove('active');
     }
 
-    let id = this.predefinedColors.indexOf(color.toUpperCase());
-    if (id !== -1) {
+    const id = this.predefinedColors.indexOf(color.toUpperCase());
+    if(id !== -1) {
       this.hidePicker();
       this.colorPicks.children[id].classList.add('active');
     } else {

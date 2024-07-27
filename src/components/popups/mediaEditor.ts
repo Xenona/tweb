@@ -2,13 +2,13 @@ import PopupElement from '.';
 import Button from '../button';
 import confirmationPopup from '../confirmationPopup';
 import AppMediaEditorTab from '../sidebarRight/tabs/mediaEditor';
-import { Aligns, Strokes } from '../sidebarRight/tabs/editorText';
+import {Aligns, Strokes} from '../sidebarRight/tabs/editorText';
 import SidebarSlider from '../slider';
-import { Canvaser } from '../canvaser/Canvaser';
+import {Canvaser} from '../canvaser/Canvaser';
 
 
 export enum AspectRatios {
-  "free",
+  'free',
   'original',
   'square',
   'x3x2',
@@ -21,7 +21,7 @@ export enum AspectRatios {
   'x5x7',
   'x16x9',
   'x9x16',
-} 
+}
 
 export const FontList: string[] = [
   'Roboto',
@@ -31,7 +31,7 @@ export const FontList: string[] = [
   'Noteworthy',
   'Georgia',
   'Papyrus',
-  'Snell Roundhand',
+  'Snell Roundhand'
 ];
 
 export const FontsMap = {
@@ -42,7 +42,7 @@ export const FontsMap = {
   noteworthy: FontList[4],
   georgia: FontList[5],
   papyrus: FontList[6],
-  snellRoundhand: FontList[7],
+  snellRoundhand: FontList[7]
 } as const;
 
 export enum Pens {
@@ -53,9 +53,8 @@ export enum Pens {
   blur,
   eraser,
 }
- 
-export default class PopupMediaEditor extends PopupElement {
 
+export default class PopupMediaEditor extends PopupElement {
   acceptBtn: HTMLButtonElement;
   canvaser: Canvaser;
   gracefullyExiting: boolean = false;
@@ -69,10 +68,9 @@ export default class PopupMediaEditor extends PopupElement {
       specialNavigationType: 'media-editor',
       overlayClosable: true,
       isConfirmationNeededOnClose: () => {
-        
-        if (this.canvaser.isHistoryEmpty) this.gracefullyExiting = true;
-        if (!this.gracefullyExiting) return confirmationPopup({
-          
+        if(this.canvaser.isHistoryEmpty) this.gracefullyExiting = true;
+        if(!this.gracefullyExiting) return confirmationPopup({
+
           // XENA TODO deal with i18n
           // @ts-ignore
           titleLangKey: 'Discard edited image',
@@ -86,7 +84,7 @@ export default class PopupMediaEditor extends PopupElement {
         });
       }
     })
-    
+
     this.imageContainer = document.createElement('div');
     this.imageContainer.classList.add('image-container')
     this.container.prepend(this.imageContainer)
@@ -96,11 +94,11 @@ export default class PopupMediaEditor extends PopupElement {
     this.cropRulerContainer.classList.add('crop-ruler-container')
     this.imageContainer.append(this.canvasContainer, this.cropRulerContainer);
 
-    
+
     const canvas = document.createElement('canvas')
     this.canvasContainer.className = 'canvas'
     this.canvasContainer.appendChild(canvas)
-    
+
     this.canvaser = new Canvaser(canvas, image);
 
     const toolbarWrap = document.createElement('div');
@@ -112,25 +110,25 @@ export default class PopupMediaEditor extends PopupElement {
 
     this.acceptBtn = Button('btn-circle rp btn-corner z-depth-1', {
       icon: 'check',
-      noRipple: true, 
+      noRipple: true
     })
     this.header.nextElementSibling.append(this.acceptBtn)
-    this.acceptBtn.onclick = () => this.saveEditedAndMoveBack(); 
+    this.acceptBtn.onclick = () => this.saveEditedAndMoveBack();
 
     const sidebar = new SidebarSlider({
       sidebarEl: (this.container as HTMLElement),
       navigationType: 'right',
       canHideFirst: false
-    }); 
+    });
 
     sidebar
-      .createTab(AppMediaEditorTab)
-      .open({ canvaser: this.canvaser, onClose: () => this.hide(), cropRulerContainer: this.cropRulerContainer });
+    .createTab(AppMediaEditorTab)
+    .open({canvaser: this.canvaser, onClose: () => this.hide(), cropRulerContainer: this.cropRulerContainer});
   }
 
   private saveEditedAndMoveBack() {
     // XENA TODO deal with files
-    console.log("XE accepting, saving the file");
+    console.log('XE accepting, saving the file');
     this.gracefullyExiting = true;
     this.hide();
   }

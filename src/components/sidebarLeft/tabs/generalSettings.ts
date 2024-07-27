@@ -87,7 +87,7 @@ export class RangeSettingSelector {
       onMouseUp: () => {
         this.onChangeRelease?.();
       }
-      
+
     });
 
     this.container.append(details, this.range.container);

@@ -1,6 +1,6 @@
 export class Mat3 {
   constructor(arr: number[]) {
-    if (arr.length != 9) throw new Error("Invalid array length");
+    if(arr.length != 9) throw new Error('Invalid array length');
     this.mat = arr;
   }
 
@@ -13,9 +13,9 @@ export class Mat3 {
     const b = other.mat;
 
     const n = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-    for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 3; j++) {
-        for (let k = 0; k < 3; k++) {
+    for(let i = 0; i < 3; i++) {
+      for(let j = 0; j < 3; j++) {
+        for(let k = 0; k < 3; k++) {
           n[i * 3 + j] += a[i * 3 + k] * b[k * 3 + j];
         }
       }
@@ -26,11 +26,11 @@ export class Mat3 {
 
   public inverse(): Mat3 {
     const [a, b, c, d, e, f, g, h, i] = this.mat;
-    let x = e * i - h * f,
+    const x = e * i - h * f,
       y = f * g - d * i,
       z = d * h - g * e,
       det = a * x + b * y + c * z;
-    if (det == 0) return Mat3.identity();
+    if(det == 0) return Mat3.identity();
     const newMat = [
       x,
       c * h - b * i,
@@ -40,7 +40,7 @@ export class Mat3 {
       d * c - a * f,
       z,
       g * b - a * h,
-      a * e - d * b,
+      a * e - d * b
     ];
 
     return new Mat3(newMat.map((v) => v / det));

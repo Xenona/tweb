@@ -1,4 +1,4 @@
-import type { Canvaser } from "./Canvaser";
+import type {Canvaser} from './Canvaser';
 
 export class HistoryValueHelper<T> {
   constructor(canvaser: Canvaser, getVal: () => T, setVal: (val: T) => void) {

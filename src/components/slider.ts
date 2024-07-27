@@ -77,7 +77,7 @@ export default class SidebarSlider {
     if(id !== undefined && this.historyTabIds[this.historyTabIds.length - 1] !== id) {
       this.removeTabFromHistory(id);
       return false;
-    }   
+    }
 
     // console.log('sidebar-close-button click:', this.historyTabIDs);
     const closingId = this.historyTabIds.pop(); // pop current
@@ -89,7 +89,7 @@ export default class SidebarSlider {
   };
 
   protected pushNavigationItem(tab: SliderSuperTab) {
-    if (!this.isNavigational) return;
+    if(!this.isNavigational) return;
     const navigationItem: NavigationItem = {
       type: this.navigationType,
       onPop: (canAnimate) => {

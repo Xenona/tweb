@@ -67,7 +67,7 @@ export default class RangeSelector {
     this.setMinMax(this.min, this.max);
     seek.value = '' + value;
 
-    if (value) {
+    if(value) {
       this.setProgress(value);
     }
 

@@ -1,29 +1,29 @@
-import IS_TOUCH_SUPPORTED from "../../../environment/touchSupport";
-import findUpClassName from "../../../helpers/dom/findUpClassName";
-import handleTabSwipe from "../../../helpers/dom/handleTabSwipe";
-import lockTouchScroll from "../../../helpers/dom/lockTouchScroll";
-import ListenerSetter from "../../../helpers/listenerSetter";
-import { i18n, LangPackKey } from "../../../lib/langPack";
-import Button from "../../button";
-import { Canvaser } from "../../canvaser/Canvaser";
-import { horizontalMenu } from "../../horizontalMenu";
-import Icon from "../../icon";
-import ripple from "../../ripple";
-import { ScrollableX } from "../../scrollable";
-import SliderSuperTab from "../../sliderTab";
-import SwipeHandler from "../../swipeHandler";
-import { EditorBrushTab } from "./editorBrush";
-import { EditorCropTab } from "./editorCrop";
-import { EditorElmojiTab } from "./editorEmoji";
-import { EditorFilterTab } from "./editorFilter";
-import { EditorTextTab } from "./editorText";
+import IS_TOUCH_SUPPORTED from '../../../environment/touchSupport';
+import findUpClassName from '../../../helpers/dom/findUpClassName';
+import handleTabSwipe from '../../../helpers/dom/handleTabSwipe';
+import lockTouchScroll from '../../../helpers/dom/lockTouchScroll';
+import ListenerSetter from '../../../helpers/listenerSetter';
+import {i18n, LangPackKey} from '../../../lib/langPack';
+import Button from '../../button';
+import {Canvaser} from '../../canvaser/Canvaser';
+import {horizontalMenu} from '../../horizontalMenu';
+import Icon from '../../icon';
+import ripple from '../../ripple';
+import {ScrollableX} from '../../scrollable';
+import SliderSuperTab from '../../sliderTab';
+import SwipeHandler from '../../swipeHandler';
+import {EditorBrushTab} from './editorBrush';
+import {EditorCropTab} from './editorCrop';
+import {EditorElmojiTab} from './editorEmoji';
+import {EditorFilterTab} from './editorFilter';
+import {EditorTextTab} from './editorText';
 
 export interface IAppMediaEditorTabParams {
   onClose: () => void,
   canvaser: Canvaser,
   cropRulerContainer: HTMLElement,
 }
- 
+
 export type ScrollableMenuTabType = 'filter' | 'crop' | 'text' | 'brush' | 'emoji';
 export type ScrollableMenuTab = {
   type: ScrollableMenuTabType,
@@ -35,7 +35,6 @@ export type ScrollableMenuTab = {
 }
 
 export default class AppMediaEditorTab extends SliderSuperTab {
-
   redoBtn: HTMLButtonElement;
   undoBtn: HTMLButtonElement;
   canvaser: Canvaser;
@@ -59,7 +58,7 @@ export default class AppMediaEditorTab extends SliderSuperTab {
   textTab: EditorTextTab;
   brushTab: EditorBrushTab;
   emojiTab: EditorElmojiTab;
-  
+
   imageContainer: HTMLElement;
   cropRulerContainer: HTMLElement;
 
@@ -84,21 +83,21 @@ export default class AppMediaEditorTab extends SliderSuperTab {
 
     // ** undo
     this.undoBtn = Button('btn-icon', {
-      icon: "undo",
+      icon: 'undo'
     })
     this.undoBtn.onclick = () => this.canvaser.undo();
     this.header.append(this.undoBtn)
 
     // ** redo
     this.redoBtn = Button('btn-icon', {
-      icon: "redo",
+      icon: 'redo'
     })
     this.redoBtn.onclick = () => this.canvaser.redo();
     this.header.append(this.redoBtn)
 
     // ** title
     this.setTitle('Edit');
-   
+
     this.filterTab = new EditorFilterTab(this.canvaser);
     this.cropTab = new EditorCropTab(this.canvaser);
     this.textTab = new EditorTextTab(this.canvaser);
@@ -106,32 +105,30 @@ export default class AppMediaEditorTab extends SliderSuperTab {
     this.emojiTab = new EditorElmojiTab(this.canvaser);
 
     this.createToolMenu();
-    
+
     this.tabs['filter'].append(this.filterTab.container);
     this.tabs['crop'].append(this.cropTab.container);
     this.tabs['text'].append(this.textTab.container);
     this.tabs['brush'].append(this.brushTab.container);
     this.tabs['emoji'].append(this.emojiTab.container);
-    
   }
 
   private createToolMenu() {
-
     this.mediaTabs = [{
       type: 'filter',
-      icon: 'enhancebars',
+      icon: 'enhancebars'
     }, {
       type: 'crop',
-      icon: 'crop',
+      icon: 'crop'
     }, {
       type: 'text',
-      icon: 'text',
+      icon: 'text'
     }, {
       type: 'brush',
-      icon: 'brush',
+      icon: 'brush'
     }, {
       type: 'emoji',
-      icon: 'smile',  
+      icon: 'smile'
     }]
 
     const container = this.tools = document.createElement('div');
@@ -148,7 +145,7 @@ export default class AppMediaEditorTab extends SliderSuperTab {
     scrollableX.append(this.menuList);
 
     // creating headers for tabs
-    for (const mediaTab of this.mediaTabs) {
+    for(const mediaTab of this.mediaTabs) {
       const menuTab = document.createElement('div');
       menuTab.classList.add('menu-horizontal-div-item');
       const span = document.createElement('span');
@@ -204,7 +201,7 @@ export default class AppMediaEditorTab extends SliderSuperTab {
     }
 
     // creating the content for tabs
-    for (const mediaTab of this.mediaTabs) {
+    for(const mediaTab of this.mediaTabs) {
       const container = document.createElement('div');
       container.classList.add('search-super-tab-container', 'search-super-container-' + mediaTab.type, 'tabs-tab');
       const content = document.createElement('div');
@@ -219,11 +216,10 @@ export default class AppMediaEditorTab extends SliderSuperTab {
 
     container.append(header, this.tabsContainer);
     this.content.append(this.tools)
- 
+
     // ^ here the layout is done.
 
     this.selectTab = horizontalMenu(this.menuList, this.tabsContainer, (id, tabContent, animate) => {
-
       const newMediaTab = this.mediaTabs[id];
       const fromMediaTab = this.mediaTab;
       this.mediaTab = newMediaTab;
@@ -260,50 +256,47 @@ export default class AppMediaEditorTab extends SliderSuperTab {
 
       this.prevTabId = id;
 
-     
 
-      
-      if (this.cropTab) {
-        if (id === 1) { // crop tab
+      if(this.cropTab) {
+        if(id === 1) { // crop tab
           this.canvaser.setTool(this.cropTab.curCropTool);
           this.cropRulerContainer.appendChild(this.cropTab.cropRuler)
           this.canvaser.onUpdate = this.cropTab.onUpdate.bind(this.cropTab)
         } else {
-          if (this.cropTab.cropRuler.isConnected) {
+          if(this.cropTab.cropRuler.isConnected) {
             this.cropRulerContainer.removeChild(this.cropTab.cropRuler);
           }
         }
       }
 
-      if (this.brushTab) {
-        if (id === 3) {
+      if(this.brushTab) {
+        if(id === 3) {
           this.canvaser.setTool(this.brushTab.curBrushTool);
 
           this.canvaser.onUpdate = undefined;
         }
       }
 
-      if (this.textTab) {
-        if (id === 2) {
+      if(this.textTab) {
+        if(id === 2) {
           this.canvaser.setTool((this.textTab.curTextTool))
           this.canvaser.onUpdate = undefined;
         }
       }
 
-      if (this.filterTab) {
-        if (id === 0) {
+      if(this.filterTab) {
+        if(id === 0) {
           this.canvaser.setTool(this.filterTab.curFilterTool)
-          this.canvaser.onUpdate = this.filterTab.onUpdate.bind(this.filterTab); 
-        } 
+          this.canvaser.onUpdate = this.filterTab.onUpdate.bind(this.filterTab);
+        }
       }
 
-      if (this.emojiTab) {
-        if (id === 4) {
+      if(this.emojiTab) {
+        if(id === 4) {
           this.canvaser.setTool(this.emojiTab.curEmojiTool)
           this.canvaser.onUpdate = undefined;
         }
       }
-        
     }, () => {
       this.scrollable.onScroll();
       if(this.mediaTab.scroll !== undefined) {
@@ -318,7 +311,7 @@ export default class AppMediaEditorTab extends SliderSuperTab {
 
       this.onTransitionEnd();
     }, undefined, scrollableX, this.listenerSetter)
- 
+
     this.mediaTab = this.mediaTabs[0];
 
     // XENA TODO hacky hack
@@ -335,26 +328,22 @@ export default class AppMediaEditorTab extends SliderSuperTab {
   private scrollToStart() {
     this.scrollable.scrollIntoViewNew({
       element: this.container,
-      position: 'start',
+      position: 'start'
     });
   }
-
-
 }
 
 export function setToolActive(toolsContainer: HTMLElement, tool: HTMLElement, className: string) {
   const c = toolsContainer.querySelectorAll(`.${className}`);
-  for (let i = 0; i < c.length; i++) {
-    if (c[i] instanceof HTMLElement) {
+  for(let i = 0; i < c.length; i++) {
+    if(c[i] instanceof HTMLElement) {
       c[i].classList.remove(className);
-
     }
   }
   tool.classList.add(className);
 }
 
-export function createNamedSection(name: LangPackKey): HTMLElement{
-
+export function createNamedSection(name: LangPackKey): HTMLElement {
   const section = document.createElement('section');
   section.classList.add('named-section');
   const title = document.createElement('header');
@@ -363,5 +352,5 @@ export function createNamedSection(name: LangPackKey): HTMLElement{
   section.append(title);
 
   return section
-} 
+}
 

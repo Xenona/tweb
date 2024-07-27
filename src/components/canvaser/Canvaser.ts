@@ -1,10 +1,10 @@
-import { Cropper } from "./Crop";
-import { Layer, LayerPriority } from "./Layer";
-import { MouseEv } from "./Mouse";
-import { RenderCtx } from "./Renderer";
-import { RootEffects } from "./RootEffects";
-import { RootImage } from "./RootImage";
-import { BaseTool, NoneTool } from "./Tool";
+import {Cropper} from './Crop';
+import {Layer, LayerPriority} from './Layer';
+import {MouseEv} from './Mouse';
+import {RenderCtx} from './Renderer';
+import {RootEffects} from './RootEffects';
+import {RootImage} from './RootImage';
+import {BaseTool, NoneTool} from './Tool';
 
 type EditHistory = {
   undo: () => void;
@@ -28,16 +28,16 @@ export class Canvaser {
     this.resizeObserver = new ResizeObserver(this.canvasActuallyResized);
     this.resizeObserver.observe(canvas);
 
-    canvas.addEventListener("mousemove", this.mouseMove);
-    canvas.addEventListener("mouseup", this.mouseUpDown);
-    canvas.addEventListener("mousedown", this.mouseUpDown);
+    canvas.addEventListener('mousemove', this.mouseMove);
+    canvas.addEventListener('mouseup', this.mouseUpDown);
+    canvas.addEventListener('mousedown', this.mouseUpDown);
   }
 
   detach() {
     this.resizeObserver.unobserve(this.canvas);
-    this.canvas.removeEventListener("mousemove", this.mouseMove);
-    this.canvas.removeEventListener("mouseup", this.mouseUpDown);
-    this.canvas.removeEventListener("mousedown", this.mouseUpDown);
+    this.canvas.removeEventListener('mousemove', this.mouseMove);
+    this.canvas.removeEventListener('mouseup', this.mouseUpDown);
+    this.canvas.removeEventListener('mousedown', this.mouseUpDown);
   }
 
   public getLayersOrdered() {
@@ -45,14 +45,14 @@ export class Canvaser {
     for(const l of this.layers) {
       const p = l.priority;
       while(priorities.length <= p) priorities.push([]);
-      priorities[p].push(l) 
+      priorities[p].push(l)
     }
-    
+
     return priorities.flat()
   }
 
   public emitUpdate() {
-    if (this.updateRequested) return;
+    if(this.updateRequested) return;
 
     this.updateRequested = true;
 
@@ -73,7 +73,7 @@ export class Canvaser {
     this.rootEffects.apply(ctx);
     this.rootImage.render(ctx);
     this.rootEffects.finish(ctx);
-    ctx.saveFrame("image");
+    ctx.saveFrame('image');
 
     this.getLayersOrdered().forEach((l) => l.render(ctx));
 
@@ -92,7 +92,7 @@ export class Canvaser {
 
   public undo() {
     const h = this.undoStack.pop();
-    if (!h) return;
+    if(!h) return;
     h.undo();
     this.redoStack.push(h);
     this.onUpdate?.(this);
@@ -100,7 +100,7 @@ export class Canvaser {
 
   public redo() {
     const h = this.redoStack.pop();
-    if (!h) return;
+    if(!h) return;
     h.redo();
     this.undoStack.push(h);
     this.onUpdate?.(this);
@@ -116,7 +116,7 @@ export class Canvaser {
       redo: () => {
         this.layers.push(l);
         this.emitUpdate();
-      },
+      }
     });
     this.focusedLayer = l;
     this.emitUpdate();
@@ -136,7 +136,7 @@ export class Canvaser {
       pressed: ev.buttons == 1,
       shift: ev.shiftKey,
       ctrl: ev.ctrlKey,
-      iFactor: this.ctx.iFactor,
+      iFactor: this.ctx.iFactor
     };
   }
 
@@ -145,7 +145,7 @@ export class Canvaser {
     this.tool.mouseMove({
       ...ev,
       dx: ev.x - this.prevMousePos[0],
-      dy: ev.y - this.prevMousePos[1],
+      dy: ev.y - this.prevMousePos[1]
     });
     this.prevMousePos = [ev.x, ev.y];
   };
@@ -158,19 +158,19 @@ export class Canvaser {
   public tryFocusLayer(ev: MouseEv) {
     this.focusedLayer =
       this.getLayersOrdered()
-        .reverse()
-        .find((l) => l.shouldFocus(ev)) ?? null;
+      .reverse()
+      .find((l) => l.shouldFocus(ev)) ?? null;
     this.emitUpdate();
   }
 
   private canvasActuallyResized = () => {
-    if (this.ctx.updateIFactor()) this.emitUpdate();
+    if(this.ctx.updateIFactor()) this.emitUpdate();
   };
 
   get iFactor() {
     return this.ctx.iFactor;
   }
-  
+
   get isHistoryEmpty() {
     return this.undoStack.length === 0
   }
@@ -189,9 +189,9 @@ export class Canvaser {
 
   private undoStack: EditHistory[] = [];
   private redoStack: EditHistory[] = [];
-  
+
   private prevMousePos: [number, number] = [0, 0];
   private resizeObserver: ResizeObserver;
-  
+
   public onUpdate: (canvaser: Canvaser) => void;
 }

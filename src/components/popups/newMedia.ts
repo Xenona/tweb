@@ -54,7 +54,7 @@ import {Accessor, createRoot, createSignal, Setter} from 'solid-js';
 import SelectedEffect from '../chat/selectedEffect';
 import PopupMakePaid from './makePaid';
 import paymentsWrapCurrencyAmount from '../../helpers/paymentsWrapCurrencyAmount';
-import { ButtonMenuItemOptions, ButtonMenuItemOptionsVerifiable, ButtonMenuSync } from '../buttonMenu';
+import {ButtonMenuItemOptions, ButtonMenuItemOptionsVerifiable, ButtonMenuSync} from '../buttonMenu';
 import createContextMenu from '../../helpers/dom/createContextMenu';
 import findUpClassName from '../../helpers/dom/findUpClassName';
 import PopupMediaEditor from './mediaEditor';
@@ -345,22 +345,22 @@ export default class PopupNewMedia extends PopupElement {
       },
       {
         icon: 'delete',
-          // @ts-ignore
+        // @ts-ignore
         text: '',
         onClick: () => {
           this.rmFile(item.file);
         },
         verify: () => isMedia
-      },  
+      },
       {
         icon: 'enhancebars',
         // @ts-ignore
         text: '',
-        onClick: async () => {
+        onClick: async() => {
           // XENA TODO the heck is this context menu
           const url = await apiManagerProxy.invoke('createObjectURL', item.file);
           const imageEl = new Image();
-          imageEl.addEventListener('load', async () => {
+          imageEl.addEventListener('load', async() => {
             PopupElement.createPopup(PopupMediaEditor, imageEl).show();
           }, {once: true})
           await renderImageFromUrlPromise(imageEl, url);
@@ -673,7 +673,7 @@ export default class PopupNewMedia extends PopupElement {
   private onKeyDown = (e: KeyboardEvent) => {
     const target = e.target as HTMLElement;
 
-    if (appNavigationController.findItemByType('media-editor')) return;
+    if(appNavigationController.findItemByType('media-editor')) return;
 
     const {input} = this.messageInputField;
     if(target !== input) {
@@ -923,17 +923,17 @@ export default class PopupNewMedia extends PopupElement {
       params.menu.menuButtons = [
         {
           icon: 'enhancebars',
-          onClick: async () => {
+          onClick: async() => {
             // XENA TODO need to think what i should do with updated file
             const url = await apiManagerProxy.invoke('createObjectURL', params.file);
             const imageEl = new Image();
-            imageEl.addEventListener('load', async () => {
+            imageEl.addEventListener('load', async() => {
               PopupElement.createPopup(PopupMediaEditor, imageEl).show();
             }, {once: true})
             await renderImageFromUrlPromise(imageEl, url);
           }
         },
-        {   
+        {
           icon: 'mediaspoiler',
           onClick: () => {
             this.applyMediaSpoiler(params);

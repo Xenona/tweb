@@ -1,10 +1,10 @@
-import type { Canvaser } from "./Canvaser";
-import { HistoryValueHelper } from "./History";
-import { Layer, LayerPriority } from "./Layer";
-import { MouseEv, MouseMoveEv } from "./Mouse";
-import { Rect } from "./Rect";
-import { DrawableImages, RenderCtx, getDrawableImageSize } from "./Renderer";
-import { IMouseResizable, Resizer, ResizerRect } from "./Resizer";
+import type {Canvaser} from './Canvaser';
+import {HistoryValueHelper} from './History';
+import {Layer, LayerPriority} from './Layer';
+import {MouseEv, MouseMoveEv} from './Mouse';
+import {Rect} from './Rect';
+import {DrawableImages, RenderCtx, getDrawableImageSize} from './Renderer';
+import {IMouseResizable, Resizer, ResizerRect} from './Resizer';
 
 type TextResult = {
   totalW: number;
@@ -20,14 +20,14 @@ export type TextOptions = {
   color: string;
   size: number;
   font: string;
-  align: "left" | "center" | "right";
-  mode: "normal" | "stroke" | "shield";
+  align: 'left' | 'center' | 'right';
+  mode: 'normal' | 'stroke' | 'shield';
 };
 
 const alignComputers = {
   left: (w: number, t: number) => -t / 2,
   center: (w: number, t: number) => -t / 2 + (t - w) / 2,
-  right: (w: number, t: number) => -t / 2 + (t - w),
+  right: (w: number, t: number) => -t / 2 + (t - w)
 };
 
 function drawShield(c: CanvasRenderingContext2D, t: TextResult) {
@@ -42,7 +42,7 @@ function drawShield(c: CanvasRenderingContext2D, t: TextResult) {
   c.moveTo(x[0] + w[0] / 2, -hh);
   c.arcTo(x[0], -hh, x[0], -hh + lh, Math.min(radLimit, w[0] / 2));
 
-  for (let i = 1; i < x.length; i++) {
+  for(let i = 1; i < x.length; i++) {
     const diff = Math.abs(x[i] - x[i - 1]);
     const rad = Math.min(radLimit, diff / 2);
     c.arcTo(x[i - 1], -hh + lh * i, x[i], -hh + lh * i, rad);
@@ -53,7 +53,7 @@ function drawShield(c: CanvasRenderingContext2D, t: TextResult) {
   c.arcTo(x[l], hh, xw[l], hh, Math.min(radLimit, w[l] / 2));
   c.arcTo(xw[l], hh, xw[l], hh - lh, Math.min(radLimit, w[l] / 2));
 
-  for (let i = l; i >= 1; i--) {
+  for(let i = l; i >= 1; i--) {
     const diff = Math.abs(x[i - 1] + w[i - 1] - x[i] - w[i]);
     const rad = Math.min(radLimit, diff / 2);
     c.arcTo(xw[i], -hh + lh * i, xw[i - 1], -hh + lh * i, rad);
@@ -69,11 +69,11 @@ export class TextLayer extends Layer implements IMouseResizable {
     super(canvaser);
     this.opts = {
       text,
-      color: "#FFFFFF",
+      color: '#FFFFFF',
       size: 120,
-      font: "sans-serif",
-      align: "center",
-      mode: "normal",
+      font: 'sans-serif',
+      align: 'center',
+      mode: 'normal'
     };
     this.textRes = {
       totalW: 0,
@@ -81,7 +81,7 @@ export class TextLayer extends Layer implements IMouseResizable {
       lineH: 0,
       linesW: [],
       linesX: [],
-      lines: [],
+      lines: []
     };
 
     const [cw, ch] = canvaser.crop.getSize();
@@ -93,7 +93,7 @@ export class TextLayer extends Layer implements IMouseResizable {
       Math.random() * rh - rh / 2
     );
     (this.angle = -canvaser.crop.getAngle() + 0),
-      (this.resizer = new Resizer(this));
+    (this.resizer = new Resizer(this));
     this.resizer.setForcedRatio(1);
     this.resizer.setRendRect(new ResizerRect());
 
@@ -102,7 +102,7 @@ export class TextLayer extends Layer implements IMouseResizable {
       () => ({
         pos: this.pos,
         angle: this.angle,
-        opts: this.opts,
+        opts: this.opts
       }),
       (v) => {
         this.pos = v.pos;
@@ -115,56 +115,56 @@ export class TextLayer extends Layer implements IMouseResizable {
 
   public render(ctx: RenderCtx) {
     ctx.withTransform(
-      { x: this.pos[0], y: this.pos[1], rotate: this.angle },
+      {x: this.pos[0], y: this.pos[1], rotate: this.angle},
       () =>
         ctx.with2D((c) => {
           this.textRes = this.computeText(c);
 
-          if (this.opts.mode === "normal") {
+          if(this.opts.mode === 'normal') {
             c.fillStyle = this.opts.color;
-          } else if (this.opts.mode === "stroke") {
-            c.fillStyle = "white";
+          } else if(this.opts.mode === 'stroke') {
+            c.fillStyle = 'white';
             c.strokeStyle = this.opts.color;
-            c.lineJoin = "bevel";
+            c.lineJoin = 'bevel';
             c.lineWidth = this.opts.size / 24;
-          } else if (this.opts.mode === "shield") {
+          } else if(this.opts.mode === 'shield') {
             c.fillStyle = this.opts.color;
             drawShield(c, this.textRes);
             c.fill();
-            c.fillStyle = "white";
+            c.fillStyle = 'white';
           }
 
-          for (let i = 0; i < this.textRes.lines.length; i++) {
+          for(let i = 0; i < this.textRes.lines.length; i++) {
             const ops: [string, number, number] = [
               this.textRes.lines[i],
               this.textRes.linesX[i],
-              -this.textRes.totalH / 2 + (i + 1) * this.textRes.lineH,
+              -this.textRes.totalH / 2 + (i + 1) * this.textRes.lineH
             ];
             c.fillText(...ops);
-            if (this.opts.mode === "stroke") c.strokeText(...ops);
+            if(this.opts.mode === 'stroke') c.strokeText(...ops);
           }
         })
     );
 
-    if (this.canvaser.focusedLayer == this) this.resizer.render(ctx);
+    if(this.canvaser.focusedLayer == this) this.resizer.render(ctx);
   }
 
   public computeText(c: CanvasRenderingContext2D): TextResult {
     c.font = `bold ${this.opts.size}px "${this.opts.font}"  `;
-    c.textBaseline = "bottom";
+    c.textBaseline = 'bottom';
 
     const lines = this.opts.text
-      .split("\n")
-      .map((e) => e.trim())
-      .filter((e) => e.length > 0);
-    if (lines.length == 0)
+    .split('\n')
+    .map((e) => e.trim())
+    .filter((e) => e.length > 0);
+    if(lines.length == 0)
       return {
         totalH: 0,
         totalW: 0,
         lineH: 0,
         linesW: [],
         linesX: [],
-        lines: [],
+        lines: []
       };
     const linesMetrics = lines.map((l) => c.measureText(l));
     const lineH =
@@ -185,7 +185,7 @@ export class TextLayer extends Layer implements IMouseResizable {
       lineH,
       linesW,
       linesX,
-      lines,
+      lines
     };
   }
 
@@ -195,7 +195,7 @@ export class TextLayer extends Layer implements IMouseResizable {
       cy: this.pos[1],
       angle: this.angle,
       w: this.textRes.totalW + 16,
-      h: this.textRes.totalH + 16,
+      h: this.textRes.totalH + 16
     };
   }
 
@@ -208,7 +208,7 @@ export class TextLayer extends Layer implements IMouseResizable {
   public mouseMove(ev: MouseMoveEv) {
     const [dx, dy] = this.canvaser.crop.toImgVelocity(ev.dx, ev.dy);
 
-    this.resizer.mouseMove({ ...ev, dx, dy });
+    this.resizer.mouseMove({...ev, dx, dy});
   }
 
   public get priority(): LayerPriority {
@@ -216,11 +216,11 @@ export class TextLayer extends Layer implements IMouseResizable {
   }
 
   public mouseUpDown(ev: MouseEv): void {
-    if (!this.resizer.isInside(ev, true)) {
+    if(!this.resizer.isInside(ev, true)) {
       this.canvaser.focusedLayer = null;
       this.canvaser.tryFocusLayer(ev);
       return;
-    } else if (!ev.pressed) this.hist.emitHistory();
+    } else if(!ev.pressed) this.hist.emitHistory();
   }
 
   public shouldFocus(ev: MouseEv): boolean {
@@ -228,7 +228,7 @@ export class TextLayer extends Layer implements IMouseResizable {
   }
 
   public updateText(opts: Partial<TextOptions>) {
-    this.opts = { ...this.opts, ...opts };
+    this.opts = {...this.opts, ...opts};
     this.canvaser.emitUpdate();
   }
 

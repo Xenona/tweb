@@ -44,7 +44,7 @@ import safeAssign from '../../helpers/object/safeAssign';
 import ButtonIcon from '../buttonIcon';
 import StickersTabCategory from './category';
 import {Middleware} from '../../helpers/middleware';
-import { EmoticonsDropdown } from '.';
+import {EmoticonsDropdown} from '.';
 
 export const EMOTICONSSTICKERGROUP: AnimationItemGroup = 'emoticons-dropdown';
 
@@ -100,11 +100,11 @@ export const EMOJI_TEXT_COLOR = 'primary-text-color';
 export class EmoticonsFrame {
   public lazyLoadQueue = new LazyLoadQueue(1);
 
-   container: HTMLElement;
-   tabsEl: HTMLElement;
+  container: HTMLElement;
+  tabsEl: HTMLElement;
   private tabId = -1;
 
-    tabs: {[id: number]: EmoticonsTab};
+  tabs: {[id: number]: EmoticonsTab};
 
   private searchButton: HTMLElement;
   private deleteBtn: HTMLElement;
@@ -133,7 +133,6 @@ export class EmoticonsFrame {
     tabsToRender?: EmoticonsTab[],
     customOnSelect?: (emoji: {element: HTMLElement} & ReturnType<typeof getEmojiFromElement>) => void,
   } = {}) {
-
     safeAssign(this, options);
     this.element = renderEmojiDropdownElement()
 
@@ -144,7 +143,6 @@ export class EmoticonsFrame {
       send_gifs: undefined,
       send_stickers: undefined
     };
-
   }
 
   public canUseEmoji(emoji: AppEmoji, showToast?: boolean) {
@@ -320,7 +318,6 @@ export class EmoticonsFrame {
     this.listenerSetter.add(appImManager)('peer_changing', onPeerChanging);
     this.listenerSetter.add(appImManager)('peer_changed', onPeerChanged);
     onPeerChanged();
-
   }
 
   public getElement() {
@@ -562,7 +559,7 @@ export class EmoticonsFrame {
 
   public addLazyLoadQueueRepeat(lazyLoadQueue: LazyLoadQueueIntersector, processInvisibleDiv: (div: HTMLElement) => void, middleware: Middleware) {
     const listenerSetter = new ListenerSetter();
-    
+
     middleware.onClean(() => {
       listenerSetter.removeAll();
     });
@@ -585,7 +582,6 @@ export class EmoticonsFrame {
     this.tabsToRender.forEach((tab) => (tab as EmojiTab).destroy?.());
     this.element.remove();
   }
-
 }
 
 const emoticonsDropdown = new EmoticonsFrame();

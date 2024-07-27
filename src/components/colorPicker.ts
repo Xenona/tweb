@@ -61,15 +61,15 @@ export default class ColorPicker {
     sliderH: 8,
     sliderW: 380,
     sliderRY: 4,
-    sliderRX: 4,
+    sliderRX: 4
   }) {
     this.container = document.createElement('div');
     this.container.classList.add(ColorPicker.BASE_CLASS);
 
-    // When using multiple instances of the Picker, 
+    // When using multiple instances of the Picker,
     // conflicts may arise, because multiple id (all the same).
     // Thus - the key
-    const key = Math.random().toString(16);  
+    const key = Math.random().toString(16);
 
     const html = `
       <svg class="${ColorPicker.BASE_CLASS + '-box'}" viewBox="0 0 ${boxWidth} ${boxHeight}">
