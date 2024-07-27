@@ -5,12 +5,11 @@ import lockTouchScroll from "../../../helpers/dom/lockTouchScroll";
 import ListenerSetter from "../../../helpers/listenerSetter";
 import { i18n, LangPackKey } from "../../../lib/langPack";
 import Button from "../../button";
+import { Canvaser } from "../../canvaser/Canvaser";
 import { horizontalMenu } from "../../horizontalMenu";
 import Icon from "../../icon";
-import { ICanvaser } from "../../popups/mediaEditor";
 import ripple from "../../ripple";
 import { ScrollableX } from "../../scrollable";
-import { RangeSettingSelector } from "../../sidebarLeft/tabs/generalSettings";
 import SliderSuperTab from "../../sliderTab";
 import SwipeHandler from "../../swipeHandler";
 import { EditorBrushTab } from "./editorBrush";
@@ -21,8 +20,8 @@ import { EditorTextTab } from "./editorText";
 
 export interface IAppMediaEditorTabParams {
   onClose: () => void,
-  canvaser: ICanvaser,
-  imageContainer: HTMLElement,
+  canvaser: Canvaser,
+  cropRulerContainer: HTMLElement,
 }
  
 export type ScrollableMenuTabType = 'filter' | 'crop' | 'text' | 'brush' | 'emoji';
@@ -39,7 +38,7 @@ export default class AppMediaEditorTab extends SliderSuperTab {
 
   redoBtn: HTMLButtonElement;
   undoBtn: HTMLButtonElement;
-  canvaser: ICanvaser;
+  canvaser: Canvaser;
   tools: HTMLElement;
   navScrollable: ScrollableX;
   nav: HTMLElement;
@@ -60,13 +59,14 @@ export default class AppMediaEditorTab extends SliderSuperTab {
   textTab: EditorTextTab;
   brushTab: EditorBrushTab;
   emojiTab: EditorElmojiTab;
-
+  
   imageContainer: HTMLElement;
+  cropRulerContainer: HTMLElement;
 
-  public async init({onClose, canvaser, imageContainer}: IAppMediaEditorTabParams) {
+  public async init({onClose, canvaser, cropRulerContainer}: IAppMediaEditorTabParams) {
     this.init = null;
     this.canvaser = canvaser;
-    this.imageContainer = imageContainer;
+    this.cropRulerContainer = cropRulerContainer;
 
     this.container.classList.add('media-editor-tab');
 
@@ -99,20 +99,20 @@ export default class AppMediaEditorTab extends SliderSuperTab {
     // ** title
     this.setTitle('Edit');
    
-    this.createToolMenu();
-
-
     this.filterTab = new EditorFilterTab(this.canvaser);
     this.cropTab = new EditorCropTab(this.canvaser);
     this.textTab = new EditorTextTab(this.canvaser);
     this.brushTab = new EditorBrushTab(this.canvaser);
     this.emojiTab = new EditorElmojiTab(this.canvaser);
 
+    this.createToolMenu();
+    
     this.tabs['filter'].append(this.filterTab.container);
     this.tabs['crop'].append(this.cropTab.container);
     this.tabs['text'].append(this.textTab.container);
     this.tabs['brush'].append(this.brushTab.container);
     this.tabs['emoji'].append(this.emojiTab.container);
+    
   }
 
   private createToolMenu() {
@@ -260,20 +260,47 @@ export default class AppMediaEditorTab extends SliderSuperTab {
 
       this.prevTabId = id;
 
-      // XENA TODO hacky hack, maybe there's a better option
-      // this allows start creating text right when the tab is opened
-      // also the element should be removed if unchanged and tab was
-      // chanded
-      if (id === 2) { // font tab
-        this.canvaser.createFontElement();
-      }
+     
+
       
       if (this.cropTab) {
         if (id === 1) { // crop tab
-          this.imageContainer.appendChild(this.cropTab.cropRuler)
+          this.canvaser.setTool(this.cropTab.curCropTool);
+          this.cropRulerContainer.appendChild(this.cropTab.cropRuler)
+          this.canvaser.onUpdate = this.cropTab.onUpdate.bind(this.cropTab)
         } else {
-          if (this.cropTab.cropRuler.isConnected) 
-            this.imageContainer.removeChild(this.cropTab.cropRuler);
+          if (this.cropTab.cropRuler.isConnected) {
+            this.cropRulerContainer.removeChild(this.cropTab.cropRuler);
+          }
+        }
+      }
+
+      if (this.brushTab) {
+        if (id === 3) {
+          this.canvaser.setTool(this.brushTab.curBrushTool);
+
+          this.canvaser.onUpdate = undefined;
+        }
+      }
+
+      if (this.textTab) {
+        if (id === 2) {
+          this.canvaser.setTool((this.textTab.curTextTool))
+          this.canvaser.onUpdate = undefined;
+        }
+      }
+
+      if (this.filterTab) {
+        if (id === 0) {
+          this.canvaser.setTool(this.filterTab.curFilterTool)
+          this.canvaser.onUpdate = this.filterTab.onUpdate.bind(this.filterTab); 
+        } 
+      }
+
+      if (this.emojiTab) {
+        if (id === 4) {
+          this.canvaser.setTool(this.emojiTab.curEmojiTool)
+          this.canvaser.onUpdate = undefined;
         }
       }
         
@@ -293,6 +320,7 @@ export default class AppMediaEditorTab extends SliderSuperTab {
     }, undefined, scrollableX, this.listenerSetter)
  
     this.mediaTab = this.mediaTabs[0];
+
     // XENA TODO hacky hack
     (this.menuList.children[0] as HTMLElement).click();
   }

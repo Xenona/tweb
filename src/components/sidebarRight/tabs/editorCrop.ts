@@ -1,6 +1,7 @@
 import IS_TOUCH_SUPPORTED from "../../../environment/touchSupport";
 import Button from "../../button";
-import { AspectRatios, ICanvaser } from "../../popups/mediaEditor";
+import { Canvaser } from "../../canvaser/Canvaser";
+import { CropTool } from "../../canvaser/Crop";
 import { createManyRows } from "../../row";
 import { createNamedSection, setToolActive } from "./mediaEditor";
 
@@ -9,14 +10,22 @@ import { createNamedSection, setToolActive } from "./mediaEditor";
 
 export class EditorCropTab {
   
-  canvaser: ICanvaser;
+  canvaser: Canvaser;
   container: HTMLElement;
   cropRuler: HTMLElement;
+  curCropTool: CropTool;
+  setAngleOnUpdate: (angle: number) => void;
 
-  constructor(canvaser: ICanvaser) {
+  constructor(canvaser: Canvaser) {
     this.canvaser = canvaser;
-    this.cropRuler = this.getCropRuler();
+    this.curCropTool = new CropTool(canvaser);
+    
+    const {commonContainer, setAngle }= this.getCropRuler();
+    this.cropRuler = commonContainer;
+    this.setAngleOnUpdate = setAngle;
+    
 
+    
     this.container = document.createElement('div');
     this.container.classList.add('editor-tab', 'crop', 'scrollable', 'scrollable-y')
 
@@ -46,7 +55,7 @@ export class EditorCropTab {
         titleLangArgs: "Free",
         title: "Free",
         clickable: () => {
-          this.canvaser.setAspectRatio(AspectRatios.free);
+          this.curCropTool.setForcedRatio(undefined);
           setToolActive(section, free.container, "tool-selected");
         },
       },
@@ -57,7 +66,7 @@ export class EditorCropTab {
         titleLangArgs: "Original",
         title: "Original",
         clickable: () => {
-          this.canvaser.setAspectRatio(AspectRatios.original);
+          this.curCropTool.setForcedRatio(this.canvaser.rootImage.width/this.canvaser.rootImage.height);
           setToolActive(section, original.container, "tool-selected");
         },
       },
@@ -68,7 +77,7 @@ export class EditorCropTab {
         titleLangArgs: "Square",
         title: "Square",
         clickable: () => {
-          this.canvaser.setAspectRatio(AspectRatios.square);
+          this.curCropTool.setForcedRatio(1);
           setToolActive(section, square.container, "tool-selected");
         },
       },
@@ -76,7 +85,7 @@ export class EditorCropTab {
         icon: "size3x2",
         title: "3:2",
         clickable: () => {
-          this.canvaser.setAspectRatio(AspectRatios.x3x2);
+          this.curCropTool.setForcedRatio(3/2);
           setToolActive(section, x3x2.container, "tool-selected");
         },
       },
@@ -84,7 +93,7 @@ export class EditorCropTab {
         icon: "size3x2",
         title: "2:3",
         clickable: () => {
-          this.canvaser.setAspectRatio(AspectRatios.x2x3);
+          this.curCropTool.setForcedRatio(2/3);
           setToolActive(section, x2x3.container, "tool-selected");
         },
         className: "rotated",
@@ -93,7 +102,7 @@ export class EditorCropTab {
         icon: "size4x3",
         title: "4:3",
         clickable: () => {
-          this.canvaser.setAspectRatio(AspectRatios.x4x3);
+          this.curCropTool.setForcedRatio(4/3);
           setToolActive(section, x4x3.container, "tool-selected");
         },
       },
@@ -101,7 +110,7 @@ export class EditorCropTab {
         icon: "size4x3",
         title: "3:4",
         clickable: () => {
-          this.canvaser.setAspectRatio(AspectRatios.x3x4);
+          this.curCropTool.setForcedRatio(3/4);
           setToolActive(section, x3x4.container, "tool-selected");
         },
         className: "rotated",
@@ -110,7 +119,7 @@ export class EditorCropTab {
         icon: "size5x4",
         title: "5:4",
         clickable: () => {
-          this.canvaser.setAspectRatio(AspectRatios.x5x4);
+          this.curCropTool.setForcedRatio(5/4);
           setToolActive(section, x5x4.container, "tool-selected");
         },
       },
@@ -118,7 +127,7 @@ export class EditorCropTab {
         icon: "size5x4",
         title: "4:5",
         clickable: () => {
-          this.canvaser.setAspectRatio(AspectRatios.x4x5);
+          this.curCropTool.setForcedRatio(4/5)
           setToolActive(section, x4x5.container, "tool-selected");
         },
         className: "rotated",
@@ -127,7 +136,7 @@ export class EditorCropTab {
         icon: "size7x6",
         title: "7:5",
         clickable: () => {
-          this.canvaser.setAspectRatio(AspectRatios.x7x5);
+          this.curCropTool.setForcedRatio(7/5);
           setToolActive(section, x7x5.container, "tool-selected");
         },
       },
@@ -135,7 +144,7 @@ export class EditorCropTab {
         icon: "size7x6",
         title: "5:7",
         clickable: () => {
-          this.canvaser.setAspectRatio(AspectRatios.x5x7);
+          this.curCropTool.setForcedRatio(5/7)
           setToolActive(section, x5x7.container, "tool-selected");
         },
         className: "rotated",
@@ -144,7 +153,7 @@ export class EditorCropTab {
         icon: "size16x9",
         title: "16:9",
         clickable: () => {
-          this.canvaser.setAspectRatio(AspectRatios.x16x9);
+          this.curCropTool.setForcedRatio(16/9)
           setToolActive(section, x16x9.container, "tool-selected");
         },
       },
@@ -152,7 +161,7 @@ export class EditorCropTab {
         icon: "size16x9",
         title: "9:16",
         clickable: () => {
-          this.canvaser.setAspectRatio(AspectRatios.x9x16);
+          this.curCropTool.setForcedRatio(9/16);
           setToolActive(section, x9x16.container, "tool-selected");
         },
         className: "rotated",
@@ -188,6 +197,7 @@ export class EditorCropTab {
   }
 
   private getCropRuler() {
+
     const container = document.createElement('div');
     container.classList.add('rotation-container');
     
@@ -205,10 +215,10 @@ export class EditorCropTab {
 
     const labels: {angle: number, position: number, label: HTMLElement}[] = [];
   
-    for (let i = -90; i <= 90; i += 2.5) {
+    for (let i = -180; i <= 180; i += 2.5) {
       const dot = document.createElement('div');
       dot.classList.add('rotation-dot');
-      dot.style.left = `${((i + 90) / 180) * 100}%`; 
+      dot.style.left = `${((i + 180) / 360) * 100}%`; 
       if (Math.abs(i) % 15 === 0) {
         dot.style.backgroundColor = '#FFFFFF';
         dot.style.height = '2px';
@@ -220,13 +230,13 @@ export class EditorCropTab {
         const label = document.createElement('div');
         label.classList.add('rotation-label');
         label.id = `rotation-label-${i}deg`
-        label.style.left = `${((i + 90) / 180) * 100}%`;
+        label.style.left = `${((i + 180) / 360) * 100}%`;
         label.innerText = `${i}°`;
         slider.appendChild(label);
 
         labels.push({
           angle: i,
-          position: (i + 90) / 180,
+          position: (i + 180) / 360,
           label,
         });
       }
@@ -269,10 +279,9 @@ export class EditorCropTab {
         if (!(sliderRect.left+(x) > rect.left+sliderRect.width/2) && !(sliderRect.left+(x)+2 < rect.left - sliderRect.width/2))  {
           slider.style.transform = `translateX(${prev + x}px)`;
           prev = prev + x;
-          const angle = -(((prev / rect.width) * 180));
+          const angle = -(((prev / rect.width) * 360));
   
-          this.canvaser.setAngle(angle);
-         
+          this.canvaser.crop.setAngle(angle / 180 * Math.PI);
         }
       }
     }
@@ -298,9 +307,10 @@ export class EditorCropTab {
           labels.forEach(({label}) => label.classList.remove('active'));
           closestLabel.label.classList.add('active');
           
-          this.canvaser.setAngle(closestLabel.angle);
+          this.canvaser.crop.setAngle(closestLabel.angle / 180 * Math.PI);
         }
-  
+        
+        this.canvaser.crop.finishAngleEdit();
         isDragging = false;
       }
     }
@@ -321,17 +331,41 @@ export class EditorCropTab {
     const rotate = Button('btn-icon rotateBtn', {
       icon: 'rotate',
     })
-    let angleNum = 0; 
-    rotate.onclick = this.canvaser.setAngle.bind(this.canvaser, ((angleNum++)%4+1)*90);
+    
+    rotate.onclick = () => {
+      let numOfPies = Math.round((this.canvaser.crop.getAngle()-Math.PI/2)/(Math.PI/2));
+      let nextAngle = (numOfPies*(Math.PI/2));
+      if (nextAngle < -Math.PI) nextAngle+=2*Math.PI;
+
+      let croppedAngle = ((nextAngle)%(2*Math.PI));
+      const value = croppedAngle;
+      this.canvaser.crop.setAngle(value);
+      this.onUpdate(this.canvaser)
+    };
     const flip = Button('btn-icon flipBtn', {
       icon: 'flip_editor',
     })
-    flip.onclick = this.canvaser.flip.bind(this.canvaser);
+
+    // XENA TODO flip
+    // flip.onclick = this.canvaser.flip.bind(this.canvaser);
 
     commonContainer.append(rotate, container, flip);
 
+    function setAngle(angle: number) {
+      const rect = sliderWrapper.getBoundingClientRect();
+      isDragging = true;
+      prev = -(((angle)*rect.width)/360);
+      slider.style.transform = `translateX(${prev}px)`;
+      endDrag(); 
+      isDragging = false;
+    }
 
-    return commonContainer;
+    return {commonContainer, setAngle};
+  }
+ 
+
+  public onUpdate(canvaser: Canvaser) {
+    this.setAngleOnUpdate(canvaser.crop.getAngle()*180/Math.PI)
   }
   
 }

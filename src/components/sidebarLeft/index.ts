@@ -73,7 +73,6 @@ import {makeMediaSize} from '../../helpers/mediaSize';
 import ReactionElement from '../chat/reaction';
 import setBlankToAnchor from '../../lib/richTextProcessor/setBlankToAnchor';
 import PopupElement from '../popups';
-import PopupMediaEditor from '../popups/mediaEditor';
 import PopupLimitReached from '../popups/limitReached';
 
 export const LEFT_COLUMN_ACTIVE_CLASSNAME = 'is-left-column-shown';
@@ -387,10 +386,6 @@ export class AppSidebarLeft extends SidebarSlider {
         onClick: onContactsClick
       }],
       noIcon: true,
-      onOpen: () => {
-          // XENA TODO REMOVE THIS (TESTING PURPOSES)
-          PopupElement.createPopup(PopupMediaEditor).show();
-      }
     });
     this.newBtnMenu.className = 'btn-circle rp btn-corner z-depth-1 btn-menu-toggle animated-button-icon';
     this.newBtnMenu.tabIndex = -1;

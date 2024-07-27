@@ -58,6 +58,7 @@ import { ButtonMenuItemOptions, ButtonMenuItemOptionsVerifiable, ButtonMenuSync 
 import createContextMenu from '../../helpers/dom/createContextMenu';
 import findUpClassName from '../../helpers/dom/findUpClassName';
 import PopupMediaEditor from './mediaEditor';
+import appNavigationController from '../appNavigationController';
 
 type SendFileParams = SendFileDetails & {
   file?: File,
@@ -355,9 +356,14 @@ export default class PopupNewMedia extends PopupElement {
         icon: 'enhancebars',
         // @ts-ignore
         text: '',
-        onClick: () => {
+        onClick: async () => {
           // XENA TODO the heck is this context menu
-          PopupElement.createPopup(PopupMediaEditor, item.file).show();
+          const url = await apiManagerProxy.invoke('createObjectURL', item.file);
+          const imageEl = new Image();
+          imageEl.addEventListener('load', async () => {
+            PopupElement.createPopup(PopupMediaEditor, imageEl).show();
+          }, {once: true})
+          await renderImageFromUrlPromise(imageEl, url);
         },
         verify: () => isMedia
 
@@ -666,6 +672,9 @@ export default class PopupNewMedia extends PopupElement {
 
   private onKeyDown = (e: KeyboardEvent) => {
     const target = e.target as HTMLElement;
+
+    if (appNavigationController.findItemByType('media-editor')) return;
+
     const {input} = this.messageInputField;
     if(target !== input) {
       if(target.tagName === 'INPUT' || target.isContentEditable) {
@@ -914,12 +923,17 @@ export default class PopupNewMedia extends PopupElement {
       params.menu.menuButtons = [
         {
           icon: 'enhancebars',
-          onClick: () => {
+          onClick: async () => {
             // XENA TODO need to think what i should do with updated file
-            PopupElement.createPopup(PopupMediaEditor, params.file).show();
+            const url = await apiManagerProxy.invoke('createObjectURL', params.file);
+            const imageEl = new Image();
+            imageEl.addEventListener('load', async () => {
+              PopupElement.createPopup(PopupMediaEditor, imageEl).show();
+            }, {once: true})
+            await renderImageFromUrlPromise(imageEl, url);
           }
         },
-        {
+        {   
           icon: 'mediaspoiler',
           onClick: () => {
             this.applyMediaSpoiler(params);

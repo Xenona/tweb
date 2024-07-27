@@ -1,4 +1,6 @@
-import { ICanvaser, Pens } from "../../popups/mediaEditor";
+import { ArrowBrush, BlurBrush, BrusherLayer, BrusherTool, EraserBrush, MarkerBrush, NeonBrush, PenBrush } from "../../canvaser/Brusher";
+import { Canvaser } from "../../canvaser/Canvaser";
+import { Pens } from "../../popups/mediaEditor";
 import { createManyRows } from "../../row";
 import { ShortColorPicker } from "../../shortColorPicker";
 import { RangeSettingSelector } from "../../sidebarLeft/tabs/generalSettings";
@@ -7,7 +9,7 @@ import { createNamedSection, setToolActive } from "./mediaEditor";
 export type PenColorsCSS =  '--pen-color' | '--arrow-color' | '--mark-color' | '--neon-color' | ''
 export class EditorBrushTab {
   container: HTMLElement;
-  canvaser: ICanvaser;
+  canvaser: Canvaser;
   colorPicker: ShortColorPicker;
   sizeRange: RangeSettingSelector;
   toolSection: HTMLElement;
@@ -20,15 +22,21 @@ export class EditorBrushTab {
     '--neon-color': "#62E5E0",
     '': '',
   }
+  curBrushTool: BrusherTool;
 
-  constructor(canvaser: ICanvaser) {
+  constructor(canvaser: Canvaser) {
     this.canvaser = canvaser;
     this.container = document.createElement('div');
     this.container.classList.add('editor-tab', 'brush', 'scrollable', 'scrollable-y')
+    this.curBrushTool = new BrusherTool(this.canvaser);
+    this.curBrushTool.setBrush(PenBrush)
+
+
+    this.canvaser.setTool(this.curBrushTool);
 
     this.colorPicker = new ShortColorPicker(
       (color) => {
-        this.canvaser.setPenColor(color.hex);
+        this.curBrushTool.setColor(color.hex);
         this.container.style.setProperty('--range-color', color.hex);
         this.container.style.setProperty(this.currChangingPen, color.hex);
         this.savedColors[this.currChangingPen] = color.hex;
@@ -47,8 +55,9 @@ export class EditorBrushTab {
       30,
     )
     this.sizeRange.onChange = (value) => {
-      this.canvaser.setPenSize(value);
+      this.curBrushTool.setSize(value);
     } 
+    // this.sizeRange.onChangeRelease = () => this.curBrushTool.
 
     const [
       pen, 
@@ -65,7 +74,7 @@ export class EditorBrushTab {
         titleLangArgs: "Pen",
         className: 'brush-row',
         clickable: () => {
-          this.onPenSelect(Pens.pen, '--pen-color', pen.container);
+          this.onPenSelect(PenBrush, '--pen-color', pen.container);
         }
       },
       {
@@ -75,7 +84,7 @@ export class EditorBrushTab {
         titleLangArgs: "Arrow",
         className: 'brush-row',
         clickable: () => {
-          this.onPenSelect(Pens.arrow, '--arrow-color', arrow.container);
+          this.onPenSelect(ArrowBrush, '--arrow-color', arrow.container);
         }
       },
       {
@@ -85,7 +94,7 @@ export class EditorBrushTab {
         titleLangArgs: "Brush",
         className: 'brush-row',
         clickable: () => {
-          this.onPenSelect(Pens.mark, '--mark-color', mark.container);
+          this.onPenSelect(MarkerBrush, '--mark-color', mark.container);
         }
       },
       {
@@ -95,7 +104,7 @@ export class EditorBrushTab {
         titleLangArgs: "Neon",
         className: 'brush-row',
         clickable: () => {
-          this.onPenSelect(Pens.neon, '--neon-color', neon.container);
+          this.onPenSelect(NeonBrush, '--neon-color', neon.container);
         }
       },
       {
@@ -105,7 +114,7 @@ export class EditorBrushTab {
         titleLangArgs: "Blur",
         className: 'brush-row',
         clickable: () => {
-          this.onPenSelect(Pens.blur, '', blur.container);
+          this.onPenSelect(BlurBrush, '', blur.container);
           this.container.style.setProperty('--range-color', '#ffffff')
         }
       },
@@ -116,7 +125,7 @@ export class EditorBrushTab {
         titleLangArgs: "Eraser",
         className: 'brush-row',
         clickable: () => {
-          this.onPenSelect(Pens.eraser, '', eraser.container);
+          this.onPenSelect(EraserBrush, '', eraser.container);
           this.container.style.setProperty('--range-color', '#ffffff')
         }
       }
@@ -144,8 +153,9 @@ export class EditorBrushTab {
     
   }
 
-  private onPenSelect(pen: Pens, variable: PenColorsCSS, container: HTMLElement) {
-    this.canvaser.setPen(pen);
+  private onPenSelect(pen: typeof BrusherLayer, variable: PenColorsCSS, container: HTMLElement) {
+    
+    this.curBrushTool.setBrush(pen);
     setToolActive(this.toolSection, container, 'tool-selected');
     this.currChangingPen = variable
     this.colorPicker.setColor(this.savedColors[this.currChangingPen]);

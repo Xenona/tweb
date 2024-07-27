@@ -20,7 +20,39 @@
 
       & .image-container {
         flex: 1;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        position: relative;
 
+        & .canvas {
+          max-height: 90%; 
+          max-width: 95%; 
+          flex-shrink: 1; 
+          flex-basis: 0; 
+          flex: 1 0 70%; 
+          display: flex; 
+          align-items: center; 
+          justify-content: center;
+          padding: 2%;
+        }
+
+        & .canvas > canvas {
+          display: block; 
+          max-width: 100%; 
+          max-height: 100%; 
+          align-self: center; 
+         
+        }
+        
+        .crop-ruler-container {
+          width: 100%;
+          position: absolute;
+          bottom: 0;
+          left: 0px;
+          right: 0px;
+        }
+        
         .crop-ruler {
 
           display: flex;
@@ -59,7 +91,7 @@
         
         .rotation-slider {
           position: relative;
-          width: 200%; 
+          width: 400%; 
           height: 58px;
           display: flex;
           align-items: center;

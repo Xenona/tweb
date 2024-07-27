@@ -54,7 +54,8 @@ export type PopupOptions = Partial<{
   buttons: Array<PopupButton>,
   title: boolean | LangPackKey | DocumentFragment | HTMLElement,
   floatingHeader: boolean,
-  withFooterConfirm: boolean
+  withFooterConfirm: boolean,
+  specialNavigationType: NavigationItem["type"]
 }>;
 
 export interface PopupElementConstructable<T extends PopupElement = any> {
@@ -94,6 +95,7 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
   protected isConfirmationNeededOnClose: PopupOptions['isConfirmationNeededOnClose'];
 
   protected navigationItem: NavigationItem;
+  protected specialNavigationType: NavigationItem["type"];
 
   protected listenerSetter: ListenerSetter;
 
@@ -118,6 +120,7 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
     this.element.classList.add('popup');
     this.element.className = 'popup' + (className ? ' ' + className : '');
     this.container.classList.add('popup-container', 'z-depth-1');
+    this.specialNavigationType = options.specialNavigationType
 
     if(overlayCounter.isDarkOverlayActive) {
       this.night = true;
@@ -321,7 +324,7 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
 
   public show() {
     this.navigationItem = {
-      type: 'popup',
+      type: this.specialNavigationType ? this.specialNavigationType : 'popup',
       onPop: () => {
         if(this.isConfirmationNeededOnClose) {
           const result = this.isConfirmationNeededOnClose();

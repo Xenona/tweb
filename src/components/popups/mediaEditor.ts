@@ -4,6 +4,7 @@ import confirmationPopup from '../confirmationPopup';
 import AppMediaEditorTab from '../sidebarRight/tabs/mediaEditor';
 import { Aligns, Strokes } from '../sidebarRight/tabs/editorText';
 import SidebarSlider from '../slider';
+import { Canvaser } from '../canvaser/Canvaser';
 
 
 export enum AspectRatios {
@@ -23,14 +24,14 @@ export enum AspectRatios {
 } 
 
 export const FontList: string[] = [
-  'Roboto-Medium.woff2',
-  'Typewriter_Normal.woff2',
-  'AvenirNextCyr-BoldItalic.woff2',
-  'Courier_New_Bold.woff2',
-  'Noteworthy_Bold.woff2',
-  'Georgia.woff2',
-  'Papyrus.woff2',
-  'snell_roundhand.woff2',
+  'Roboto',
+  'Typewriter',
+  'Avenir Next',
+  'Courier New Serif',
+  'Noteworthy',
+  'Georgia',
+  'Papyrus',
+  'Snell Roundhand',
 ];
 
 export const FontsMap = {
@@ -52,244 +53,24 @@ export enum Pens {
   blur,
   eraser,
 }
-
-export interface ICanvaser {
-  undo: () => void,
-  redo: () => void,
-
-  // to close the popup without confirmation
-  isHistoryEmpty: () => boolean;
-
-  // all the values are pulled out of design
-  onEnhanceChange: (value: number) => void;
-  onBrightnessChange: (value: number) => void;
-  onContrastChange: (value: number) => void;
-  onSaturationChange: (value: number) => void;
-  onWarmthChange: (value: number) => void;
-  onFadeChange: (value: number) => void;
-  onHighlightsChange: (value: number) => void;
-  onShadowsChange: (value: number) => void;
-  onVignetteChange: (value: number) => void;
-  onGrainChange: (value: number) => void;
-  onSharpenChange: (value: number) => void;
-  
-  ENHANCE_MIN: number; // 0
-  ENHANCE_MAX: number; // 100
-
-  BRIGHTNESS_MIN: number; // -100
-  BRIGHTNESS_MAX: number; // 100
-
-  CONTRAST_MIN: number; // -100
-  CONTRAST_MAX: number; // 100
-
-  SATURATION_MIN: number; // -100
-  SATURATION_MAX: number; // 100
-
-  WARMTH_MIN: number; // -100
-  WARMTH_MAX: number; // 100
-
-  FADE_MIN: number; // 0
-  FADE_MAX: number; // 100
-
-  HIGHLIGHTS_MIN: number; // -100
-  HIGHLIGHTS_MAX: number; // 100
-
-  SHADOWS_MIN: number; // -100
-  SHADOWS_MAX: number; // 100
-
-  VIGNETTE_MIN: number; // 0
-  VIGNETTE_MAX: number; // 100
-
-  GRAIN_MIN: number; // 0
-  GRAIN_MAX: number; // 100
-
-  SHARPEN_MIN: number; // 0
-  SHARPEN_MAX: number; // 100
-
-  setAspectRatio: (ratio: AspectRatios) => void;
-  setAngle: (angle: number) => void;
-  flip: () => void;
-
-  setTextSize: (size: number) => void;
-  createFontElement: () => void;
-  setFont: (font: string) => void;
-  setFontColor: (hex: string) => void;
-  setFontAlignment: (alignment: Aligns) => void;
-  setFontStroke: (stroke: Strokes) => void;
-  onTextChange: (text: string) => void;
-
-  setPenSize: (size: number) => void;
-  setPenColor: (hex: string) => void;
-  setPen: (pen: Pens) => void; 
-
-  addSticker: (img: ImageBitmap) => void;
-
-}
-
-
-
-class Canvaser implements ICanvaser {
-  public ENHANCE_MIN = 0;
-  public ENHANCE_MAX = 100;
-
-  public BRIGHTNESS_MIN = -100;
-  public BRIGHTNESS_MAX = 100;
-
-  public CONTRAST_MIN = -100;
-  public CONTRAST_MAX = 100;
-
-  public SATURATION_MIN = -100;
-  public SATURATION_MAX = 100;
-
-  public WARMTH_MIN = -100;
-  public WARMTH_MAX = 100;
-
-  public FADE_MIN = 0;
-  public FADE_MAX = 100;
-
-  public HIGHLIGHTS_MIN = -100;
-  public HIGHLIGHTS_MAX = 100;
-
-  public SHADOWS_MIN = -100;
-  public SHADOWS_MAX = 100;
-
-  public VIGNETTE_MIN = 0;
-  public VIGNETTE_MAX = 100;
-
-  public GRAIN_MIN = 0;
-  public GRAIN_MAX = 100;
-
-  public SHARPEN_MIN = 0;
-  public SHARPEN_MAX = 100;
-
-  private p(...args: any[]) {
-    console.log("XE", ...args);
-  }
-  public undo() {
-    this.p("undo");
-  }
-  public redo() {
-    this.p("redo");
-  }
-  public onEnhanceChange(value: number) {
-    this.p("enchance changing", value);
-  }
-
-  public onBrightnessChange(value: number) {
-    this.p("brightness changing", value);
-  }
-
-  public onContrastChange(value: number) {
-    this.p("contrast changing", value);
-  }
-
-  public onSaturationChange(value: number) {
-    this.p("saturation changing", value);
-  }
-
-  public onWarmthChange(value: number) {
-    this.p("warmth changing", value);
-  }
-
-  public onFadeChange(value: number) {
-    this.p("fade changing", value);
-  }
-
-  public onHighlightsChange(value: number) {
-    this.p("highlights changing", value);
-  }
-
-  public onShadowsChange(value: number) {
-    this.p("shadows changing", value);
-  }
-
-  public onVignetteChange(value: number) {
-    this.p("vignette changing", value);
-  }
-
-  public onGrainChange(value: number) {
-    this.p("grain changing", value);
-  }
-
-  public onSharpenChange(value: number) {
-    this.p("sharpen changing", value);
-  }
-
-  public setAspectRatio(ratio: AspectRatios) {
-    this.p("setting ratio", ratio);
-  } 
-
-  public setAngle(angle: number) {
-    this.p("setting angle", angle)
-  }
-
-  public flip() {
-    this.p('flipped')
-  }
-
-  public setTextSize(size: number) {
-    this.p('setting text size', size);
-  }
-
-  public setFont(font: string) {
-    this.p('setting font to', font)
-  }
-
-  public setFontColor(hex: string) {
-    this.p('setting font color to', hex);
-  }
-
-  public setFontAlignment(alignment: 'left' | 'center' | 'right') {
-    this.p('setting font alignment to', alignment)
-  }
-
-  public setFontStroke(stroke: 'no' | 'yes' | 'frame') {
-    this.p('setting font stroke to', stroke)
-  }
-
-  public createFontElement() {
-    this.p('created font element');
-  };
-
-  public onTextChange(text: string) {
-    this.p('new text', text);
-  };
-
-  public setPenSize(size: number) {
-    this.p('setting pen size', size);
-  }
-
-  public setPenColor(hex: string) {
-    this.p('setting pen color to', hex);
-  }
-
-  public setPen(pen: Pens) {
-    this.p('settings pen', pen);
-  }
-
-  public addSticker(img: ImageBitmap) {
-    this.p('adding sticker', img)
-  };
-
-  public isHistoryEmpty() {
-    return true;
-  };
-}
-
+ 
 export default class PopupMediaEditor extends PopupElement {
 
   acceptBtn: HTMLButtonElement;
-  canvaser: ICanvaser;
+  canvaser: Canvaser;
   gracefullyExiting: boolean = false;
   imageContainer: HTMLElement;
+  cropRulerContainer: HTMLElement;
+  canvasContainer: HTMLElement;
 
   // XENA TODO deal with the file
-  constructor(image?: File) {
+  constructor(image: HTMLImageElement) {
     super('popup-media-editor', {
+      specialNavigationType: 'media-editor',
       overlayClosable: true,
       isConfirmationNeededOnClose: () => {
         
-        if (this.canvaser.isHistoryEmpty()) this.gracefullyExiting = true;
+        if (this.canvaser.isHistoryEmpty) this.gracefullyExiting = true;
         if (!this.gracefullyExiting) return confirmationPopup({
           
           // XENA TODO deal with i18n
@@ -305,11 +86,22 @@ export default class PopupMediaEditor extends PopupElement {
         });
       }
     })
-    this.canvaser = new Canvaser()
-
+    
     this.imageContainer = document.createElement('div');
     this.imageContainer.classList.add('image-container')
     this.container.prepend(this.imageContainer)
+
+    this.canvasContainer = document.createElement('div');
+    this.cropRulerContainer = document.createElement('div');
+    this.cropRulerContainer.classList.add('crop-ruler-container')
+    this.imageContainer.append(this.canvasContainer, this.cropRulerContainer);
+
+    
+    const canvas = document.createElement('canvas')
+    this.canvasContainer.className = 'canvas'
+    this.canvasContainer.appendChild(canvas)
+    
+    this.canvaser = new Canvaser(canvas, image);
 
     const toolbarWrap = document.createElement('div');
     toolbarWrap.classList.add('sidebar-slider', 'tabs-container', 'toolbar-wrap')
@@ -333,7 +125,7 @@ export default class PopupMediaEditor extends PopupElement {
 
     sidebar
       .createTab(AppMediaEditorTab)
-      .open({ canvaser: this.canvaser, onClose: () => this.hide(), imageContainer: this.imageContainer });
+      .open({ canvaser: this.canvaser, onClose: () => this.hide(), cropRulerContainer: this.cropRulerContainer });
   }
 
   private saveEditedAndMoveBack() {

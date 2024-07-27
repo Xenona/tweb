@@ -1,43 +1,38 @@
-import { c } from "vitest/dist/reporters-5f784f42";
 import { IS_WEBM_SUPPORTED } from "../../../environment/videoSupport";
 import createVideo from "../../../helpers/dom/createVideo";
-import findUpClassName from "../../../helpers/dom/findUpClassName";
 import findUpTag from "../../../helpers/dom/findUpTag";
-import { attachVideoLeakListeners, leakVideoFallbacks, onVideoLeak, SHOULD_HANDLE_VIDEO_LEAK } from "../../../helpers/dom/handleVideoLeak";
 import { renderImageFromUrlPromise } from "../../../helpers/dom/renderImageFromUrl";
 import framesCache from "../../../helpers/framesCache";
-import makeError from "../../../helpers/makeError";
 import { getMiddleware } from "../../../helpers/middleware";
-import noop from "../../../helpers/noop";
-import { isSavingLottiePreview, saveLottiePreview } from "../../../helpers/saveLottiePreview";
 import sequentialDom from "../../../helpers/sequentialDom";
-import { PhotoSize } from "../../../layer";
 import { MyDocument } from "../../../lib/appManagers/appDocsManager";
 import appDownloadManager from "../../../lib/appManagers/appDownloadManager";
 import { AppManagers } from "../../../lib/appManagers/managers";
-import choosePhotoSize from "../../../lib/appManagers/utils/photos/choosePhotoSize";
 import apiManagerProxy from "../../../lib/mtproto/mtprotoworker";
 import lottieLoader from "../../../lib/rlottie/lottieLoader";
 import rootScope from "../../../lib/rootScope";
-import { ThumbCache } from "../../../lib/storages/thumbs";
-import animationIntersector from "../../animationIntersector";
 import StickersTab from "../../emoticonsDropdown/tabs/stickers";
 import LazyLoadQueue from "../../lazyLoadQueue";
-import { ICanvaser } from "../../popups/mediaEditor";
 import { videosCache } from "../../wrappers/sticker";
 import RLottiePlayer from "../../../lib/rlottie/rlottiePlayer";
+import { Canvaser } from "../../canvaser/Canvaser";
+import { StickerLayer } from "../../canvaser/Sticker";
+import { NoneTool } from "../../canvaser/Tool";
 
 export class EditorElmojiTab {
   
-  canvaser: ICanvaser;
+  canvaser: Canvaser;
   container: HTMLElement;
   stickersTab: StickersTab;
   managers: AppManagers;
-  constructor(canvaser: ICanvaser) {
+  curEmojiTool: NoneTool;
+
+  constructor(canvaser: Canvaser) {
     this.canvaser = canvaser;
     this.managers = rootScope.managers;
     this.container = document.createElement('div');
     this.container.classList.add('editor-tab', 'emoji')
+    this.curEmojiTool = new NoneTool(this.canvaser)
     
     const lazyLoadQueue = new LazyLoadQueue();
 
@@ -65,14 +60,18 @@ export class EditorElmojiTab {
             "enterFrame",
             () => {
               createImageBitmap(img.canvas[0]).then((bitmap) => {
-                this.canvaser.addSticker(bitmap)
+                this.canvaser.addLayer(new StickerLayer(this.canvaser, bitmap));
               });
             },
             { once: true },
           );
         } else if (img instanceof HTMLImageElement) {
           createImageBitmap(img).then((bitmap) => {
-            this.canvaser.addSticker(bitmap)
+            this.canvaser.addLayer(new StickerLayer(this.canvaser, bitmap));
+          });
+        } else if (img instanceof HTMLVideoElement) {
+          createImageBitmap(img).then((bitmap) => {
+            this.canvaser.addLayer(new StickerLayer(this.canvaser, bitmap));
           });
         }
       });

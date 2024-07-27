@@ -37,6 +37,7 @@ export class RangeSettingSelector {
   private range: RangeSelector;
 
   public onChange: (value: number) => void;
+  public onChangeRelease: () => void;
 
   constructor(
     name: LangPackKey,
@@ -82,7 +83,11 @@ export class RangeSettingSelector {
           // console.log('font size scrub:', value);
           valueDiv.innerText = '' + value;
         }
+      },
+      onMouseUp: () => {
+        this.onChangeRelease?.();
       }
+      
     });
 
     this.container.append(details, this.range.container);
