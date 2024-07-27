@@ -36,6 +36,7 @@ export default async function getPeerTitle<
   } = options;
 
   let title = '';
+
   if(peerId.isUser()) {
     const user = apiManagerProxy.getUser(peerId.toUserId());
     if(user) {

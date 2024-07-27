@@ -3,11 +3,12 @@ import deferredPromise, { CancellablePromise } from "../helpers/cancellablePromi
 
 export class MultiUserTracker {
 
-  deferredUsers: CancellablePromise<string>;
+  private deferredUsers: CancellablePromise<string>;
+  private loadPeersForMenu: CancellablePromise<void>;
 
   constructor() {
     this.deferredUsers = deferredPromise<string>();
-
+    this.loadPeersForMenu = deferredPromise<void>();
 
   }
 
@@ -17,9 +18,15 @@ export class MultiUserTracker {
 
   public resolveUser(user: string) {
     this.deferredUsers.resolve(user)
-    
   }
 
+  public async waitMenuPeers(): Promise<void> {
+    return this.loadPeersForMenu;
+  }
+
+  public resolveMenuPeers() {
+    this.loadPeersForMenu.resolve()
+  }
 }
 
 const multiUserTracker = new MultiUserTracker()

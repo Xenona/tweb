@@ -83,6 +83,8 @@ import { avatarNew } from '../avatarNew';
 import PeerTitle from '../peerTitle';
 import getPeerId from '../../lib/appManagers/utils/peers/getPeerId';
 import wrapPeerTitle from '../wrappers/peerTitle';
+import getPeerTitle from '../wrappers/getPeerTitle';
+import multiUserTracker from '../../lib/multiUserTracker';
 
 export const LEFT_COLUMN_ACTIVE_CLASSNAME = 'is-left-column-shown';
 
@@ -156,6 +158,11 @@ export class AppSidebarLeft extends SidebarSlider {
     for (let stringId of userIds) {
       const id = parseInt(stringId);
       const div = document.createElement('div');
+      
+      
+      
+      multiUserTracker.waitMenuPeers().then((e) => {})
+
       const badge = createBadge('span', 24, 'primary');
       div.classList.add('account-btn')
       const newAvatar = avatarNew({
@@ -164,20 +171,15 @@ export class AppSidebarLeft extends SidebarSlider {
         peerId: id.toPeerId(),
         wrapOptions: {customEmojiSize: makeMediaSize(32, 32)},
       });
-
-      // const peerTitle = new PeerTitle({
-      //   peerId: id.toPeerId()
-      // });
-
-      const peerTitle = await wrapPeerTitle({
+      const peerTitle = await getPeerTitle({
         peerId: id.toPeerId() as PeerId,
         dialog: false,
         onlyFirstName: false,
         plainText: false
       })
-
-
       div.append(newAvatar.node, peerTitle, badge)
+
+
 
       profileButtons.push({
         onClick: () => {

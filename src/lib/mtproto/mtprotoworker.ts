@@ -171,6 +171,8 @@ class ApiManagerProxy extends MTProtoMessagePort {
       },
 
       peers: (payload) => {
+
+        console.log("XE PEER SMTH IN PROXY")
         if(payload.key) {
           reconcilePeer(payload.key.toPeerId(), payload.value as any);
         } else {
@@ -783,6 +785,9 @@ class ApiManagerProxy extends MTProtoMessagePort {
       this.mirrors[name] = value;
       return;
     }
+
+    console.log("XE PEER MIRROR TASK ", payload)
+    console.trace("XE PEER MIRROR TASK")
 
     const mirror = this.mirrors[name] ??= {} as any;
     setDeepProperty(mirror, key, value, true);

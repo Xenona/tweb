@@ -63,7 +63,6 @@ export class AppUsersManager extends AppManager {
 
   protected after() {
     this.clear(true);
-    setInterval(() => console.log("XE USERS OF MANAGER", this.users), 10000)
     setInterval(this.updateUsersStatuses, 60000);
 
     this.rootScope.addEventListener('state_synchronized', this.updateUsersStatuses);

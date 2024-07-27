@@ -76,10 +76,6 @@ export class SessionStorage extends LocalStorageController<StorageType> {
   
   constructor() {
     super();
-
-    console.error("XE CREATING MANAGERERERERERERER")
-
-    
     // this.get('all_users').then(users => {
 
     //   if (users) {
@@ -115,7 +111,6 @@ export class SessionStorage extends LocalStorageController<StorageType> {
     newUser.auth_key_fingerprint = await this.get('auth_key_fingerprint');
 
     let currUsers = await this.get('all_users');
-    console.log("XE USER COPY FROM STORAGE BEFORE", currUsers)
 
     if (!currUsers) {
       currUsers = {};
@@ -123,7 +118,6 @@ export class SessionStorage extends LocalStorageController<StorageType> {
     currUsers[newUser.user_auth.id] = newUser;
 
     super.set({all_users: currUsers});
-    console.log("XE USER COPY FROM STORAGE AND SET", currUsers)
 
   }
 
@@ -150,7 +144,7 @@ export class SessionStorage extends LocalStorageController<StorageType> {
   public async get<T extends keyof StorageType>(key: T, useCache?: boolean) {
   
     const res = await super.get(key, useCache);
-    console.log("XE GET KEY", key, res)
+    // console.log("XE GET KEY", key, res)
 
     return res
   }
@@ -168,12 +162,6 @@ export class SessionStorage extends LocalStorageController<StorageType> {
     return Promise.resolve();
   }
 
-  // public async clear(): Promise<void> {
-    
-  //   // debugger;
-    
-  //   super.clear();
-  // }
 }
 
 const sessionStorage = new SessionStorage();

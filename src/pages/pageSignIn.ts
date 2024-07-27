@@ -174,7 +174,7 @@ const onFirstMount = () => {
           });
         }
       }
-      console.log('XE ERROR AFTER CUSTOM AUTH on then', code)
+      console.log('XE THEN AFTER CUSTOM AUTH on then', code)
 
 
       import('./pageAuthCode').then((m) => m.default.mount(Object.assign(code, {phone_number: phone_number})));
