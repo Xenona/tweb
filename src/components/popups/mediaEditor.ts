@@ -150,7 +150,6 @@ export default class PopupMediaEditor extends PopupElement {
     })    
     
     
-    console.log('XE accepting, saving the file', this.result.params.file);
     this.gracefullyExiting = true;
     this.result.changeImg(this.result.params.file, URL.createObjectURL(blob))
     this.hide();
