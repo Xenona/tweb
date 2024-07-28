@@ -1,11 +1,11 @@
 import './style.css'
-import { Canvaser } from './canvaser/Canvaser'
+import { Canvaser } from '../../src/components/canvaser/Canvaser'
 import { Controls, ControlsGroup } from './controls'
-import { BaseTool, NoneTool } from './canvaser/Tool'
-import { CropTool } from './canvaser/Crop'
-import { ArrowBrush, BlurBrush, BrusherTool, EraserBrush, MarkerBrush, NeonBrush, PenBrush } from './canvaser/Brusher'
-import { StickerLayer } from './canvaser/Sticker'
-import { TextLayer, TextOptions } from './canvaser/Text'
+import { BaseTool, NoneTool } from '../../src/components/canvaser/Tool'
+import { CropTool } from '../../src/components/canvaser/Crop'
+import { ArrowBrush, BlurBrush, BrusherTool, EraserBrush, MarkerBrush, NeonBrush, PenBrush } from '../../src/components/canvaser/Brusher'
+import { StickerLayer } from '../../src/components/canvaser/Sticker'
+import { TextLayer, TextOptions } from '../../src/components/canvaser/Text'
 
 const appEl = document.querySelector<HTMLDivElement>('#app')
 
@@ -42,6 +42,7 @@ controls
   .group('Base load')
   .btn('load image 1', () => setImageBase('/src1.jpg'))
   .btn('load image 2', () => setImageBase('/src2.jpg'))
+  .btn('load image 3', () => setImageBase('/src3.jpg'))
 
 const ctrlModes: ControlsGroup[] = []
 
@@ -64,6 +65,14 @@ function createMode(label: string, getTool: ()=>BaseTool) {
 const effectFinish = () => canvaser.rootEffects.finishEdit()
 createMode('Filters', () => new NoneTool(canvaser))
   .slider(
+    'Brightness',
+    [-100, 0, 100],
+    (val) => {
+      canvaser.rootEffects.brightness.setValue(val)
+    },
+    effectFinish
+  )
+  .slider(
     'Contrast',
     [-100, 0, 100],
     (val) => {
@@ -72,18 +81,58 @@ createMode('Filters', () => new NoneTool(canvaser))
     effectFinish
   )
   .slider(
-    'Blur',
-    [0, 0, 20],
+    'Saturation',
+    [-100, 0, 100],
     (val) => {
-      canvaser.rootEffects.blur.setValue(val)
+      canvaser.rootEffects.saturate.setValue(val)
     },
     effectFinish
   )
   .slider(
-    'Brightness',
+    'Warmnth',
     [-100, 0, 100],
     (val) => {
-      canvaser.rootEffects.brightness.setValue(val)
+      canvaser.rootEffects.warmth.setValue(val)
+    },
+    effectFinish
+  )
+  .slider(
+    'Fade',
+    [0, 0, 100],
+    (val) => {
+      canvaser.rootEffects.fade.setValue(val)
+    },
+    effectFinish
+  )
+  .slider(
+    'Shadows',
+    [-100, 0, 100],
+    (val) => {
+      canvaser.rootEffects.shadows.setValue(val)
+    },
+    effectFinish
+  )
+  .slider(
+    'Highlights',
+    [-100, 0, 100],
+    (val) => {
+      canvaser.rootEffects.highlights.setValue(val)
+    },
+    effectFinish
+  )
+  .slider(
+    'Vignette',
+    [0, 0, 100],
+    (val) => {
+      canvaser.rootEffects.vignette.setValue(val)
+    },
+    effectFinish
+  )
+  .slider(
+    'Blur',
+    [0, 0, 20],
+    (val) => {
+      canvaser.rootEffects.blur.setValue(val)
     },
     effectFinish
   )
