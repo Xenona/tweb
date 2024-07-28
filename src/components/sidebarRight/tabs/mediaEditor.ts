@@ -308,6 +308,9 @@ export default class AppMediaEditorTab extends SliderSuperTab {
           this.canvaser.setTool((this.textTab.curTextTool))
           this.canvaser.onUpdate = this.textTab.onUpdate.bind(this.textTab);
         } else {
+          this.canvaser.focusedLayer = undefined;
+      this.canvaser.emitUpdate();
+      this.canvaser.onUpdate?.(this.canvaser);
           this.textTab.setDefault();
         }
       }
@@ -336,6 +339,7 @@ export default class AppMediaEditorTab extends SliderSuperTab {
         unlockScroll();
         unlockScroll = undefined;
       }
+      
       this.canvaser.focusedLayer = undefined;
       this.canvaser.emitUpdate();
       this.canvaser.onUpdate?.(this.canvaser);
