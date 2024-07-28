@@ -1,4 +1,4 @@
-import deferredPromise, { CancellablePromise } from '../../helpers/cancellablePromise';
+import deferredPromise, {CancellablePromise} from '../../helpers/cancellablePromise';
 import {Cropper} from './Crop';
 import {Layer, LayerPriority} from './Layer';
 import {MouseEv} from './Mouse';
@@ -38,7 +38,7 @@ export class Canvaser {
     canvas.addEventListener('touchstart', this.handleTouchStart);
   }
 
- 
+
   detach() {
     this.resizeObserver.unobserve(this.canvas);
     this.canvas.removeEventListener('mousemove', this.mouseMove);
@@ -51,7 +51,7 @@ export class Canvaser {
   }
 
   private handleTouchStart = (e: TouchEvent) => {
-    // debugger 
+    // debugger
     const transformedEvent = this.touchIntoMouseEvent(e);
     this.mouseUpDown(transformedEvent)
   }
@@ -88,7 +88,7 @@ export class Canvaser {
   private doUpdate() {
     const updProm = this.updatePromise
     this.updatePromise = null;
-    
+
     this.tool.update();
     this.tool.render(this.ctx);
     this.ctx.cleanup();
@@ -101,7 +101,7 @@ export class Canvaser {
     this.crop.apply(ctx);
 
     this.rootEffects.apply(ctx);
-    this.ctx.withTransform({ flip: this.crop.isFlip() }, () =>{
+    this.ctx.withTransform({flip: this.crop.isFlip()}, () =>{
       this.rootImage.render(ctx);
     })
     this.rootEffects.finish(ctx);
@@ -193,16 +193,13 @@ export class Canvaser {
   }
 
   private touchIntoMouseEvent(ev: TouchEvent): MouseEv {
-    
     console.log('touch', this.lastClick)
-    if (ev.touches.length == 0) {
-      let click = this.lastClick;
+    if(ev.touches.length == 0) {
+      const click = this.lastClick;
       click.pressed = false;
       this.lastClick = null;
       return click;
     };
-    console.log("XE ", ev.touches[0].clientX, ev.touches[0].clientY)
-    console.log("SCREEN ", this.canvas.offsetLeft, this.canvas.offsetTop)
     //  {
     //   x: 0,
     //   y: 0,
@@ -234,7 +231,7 @@ export class Canvaser {
 
   private mouseMove = (event: MouseEvent | MouseEv) => {
     let ev;
-    if (event instanceof MouseEvent) {
+    if(event instanceof MouseEvent) {
       ev = this.intoMouseEvent(event);
     } else {
       ev = event
@@ -249,7 +246,7 @@ export class Canvaser {
 
   private mouseUpDown = (event: MouseEvent | MouseEv) => {
     let ev;
-    if (event instanceof MouseEvent) {
+    if(event instanceof MouseEvent) {
       ev = this.intoMouseEvent(event);
     } else {
       ev = event

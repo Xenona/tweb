@@ -19,7 +19,7 @@ const onFirstMount = () => {
   sessionStorage.get('user_auth').then((user) => {
     rootScope.managers.appStoragesManager.updateStorages(user.id.toString());
   })
-  
+
   if(!I18n.requestedServerLanguage) {
     I18n.getCacheLangPack().then((langPack) => {
       if(langPack.local) {

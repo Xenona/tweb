@@ -40,22 +40,22 @@ const REFRESH_KEYS: Array<keyof State> = [
 // const REFRESH_KEYS_WEEK = ['dialogs', 'allDialogsLoaded', 'updates', 'pinnedOrders'] as any as Array<keyof State>;
 
 async function loadStateInner() {
-  // debugger;  
+  // debugger;
 
   const nextUser = await sessionStorage.get('next_user', false);
   if(nextUser) {
     if(nextUser == 'none') {
-      await sessionStorage.clear(); 
+      await sessionStorage.clear();
       await sessionStorage.delete('next_user')
     } else {
-      let userId = parseInt(nextUser);
+      const userId = parseInt(nextUser);
       await sessionStorage.swapUsers(userId);
     }
-    await sessionStorage.delete("next_user")  
+    await sessionStorage.delete('next_user')
   }
 
   let id = (await sessionStorage.get('user_auth'))?.id.toString();
-  if (!id) id = '';
+  if(!id) id = '';
 
   multiUserTracker.resolveUser(id)
 

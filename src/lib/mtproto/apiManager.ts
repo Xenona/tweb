@@ -288,9 +288,8 @@ export class ApiManager extends ApiManagerMethods {
     if(this.loggingOut) {
       return;
     }
-    console.trace("XE LOGINOUT OUT OUT ")
 
-    
+
     this.loggingOut = true;
     const storageKeys: Array<DcAuthKey> = [];
 
@@ -321,12 +320,10 @@ export class ApiManager extends ApiManagerMethods {
 
     // return;
     const currentUser = await sessionStorage.get('user_auth');
-    if (currentUser) {
-
+    if(currentUser) {
       sessionStorage.deleteUser(parseInt(currentUser.id.toString()));
       const users = Object.keys(await sessionStorage.get('all_users')).filter((u) => parseInt(u) != currentUser.id)
-      if (users.length) {
-        
+      if(users.length) {
         sessionStorage.set( {
           'next_user': users[0]
         })
@@ -336,7 +333,7 @@ export class ApiManager extends ApiManagerMethods {
         })
       }
     }
-      
+
     return Promise.all(logoutPromises).catch((error) => {
       error.handled = true;
     }).finally(clear)/* .then(() => {
@@ -560,7 +557,6 @@ export class ApiManager extends ApiManagerMethods {
         error = {message: error};
       }
 
-      console.log('XE ERROR AFTER CUSTOM AUTH ', error)
 
       if((error.code === 401 && error.type === 'SESSION_REVOKED') ||
         (error.code === 406 && error.type === 'AUTH_KEY_DUPLICATED')) {
@@ -582,7 +578,7 @@ export class ApiManager extends ApiManagerMethods {
           if(!error.handled) {
             if(error.code === 401) {
               this.logOut();
-            } else {  
+            } else {
               // ErrorService.show({error: error}); // WARNING
             }
 
@@ -606,7 +602,6 @@ export class ApiManager extends ApiManagerMethods {
         }
       }
 
-      // console.log("XE WRAP API CALL PARAMS", {method, params, options})
       const promise = cachedNetworker.wrapApiCall(method, params, options);
 
       if(prepareTempMessageId) {

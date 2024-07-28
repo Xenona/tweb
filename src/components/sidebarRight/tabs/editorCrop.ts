@@ -340,7 +340,7 @@ export class EditorCropTab {
       icon: 'flip_editor'
     })
     flip.onclick = () => {
-      this.canvaser.crop.doFlip(); 
+      this.canvaser.crop.doFlip();
     }
     // XENA TODO flip
     // flip.onclick = this.canvaser.flip.bind(this.canvaser);

@@ -903,33 +903,33 @@ export default class PopupNewMedia extends PopupElement {
       const img = new Image();
       itemDiv.append(img);
 
-      const changeImg = async (file: File, objectURL: string) => {
+      const changeImg = async(file: File, objectURL: string) => {
         const url = await apiManagerProxy.invoke('createObjectURL', file);
         const imageEl = new Image();
         await renderImageFromUrlPromise(imageEl, url);
         img.replaceWith(imageEl)
 
-        for (let i = 0; i < this.willAttach.sendFileDetails.length; i++) {
-          const areFilesEqual = await this.areFilesEqual( 
+        for(let i = 0; i < this.willAttach.sendFileDetails.length; i++) {
+          const areFilesEqual = await this.areFilesEqual(
             (this.willAttach.sendFileDetails[i].file),
             params.file
           )
-          if (areFilesEqual) {
+          if(areFilesEqual) {
             this.willAttach.sendFileDetails[i].file = file;
             this.willAttach.sendFileDetails[i].objectURL = objectURL;
           }
-        } 
+        }
 
-        for (let i = 0; i < this.files.length; i++) {
-          const areFilesEqual =  await this.areFilesEqual( 
+        for(let i = 0; i < this.files.length; i++) {
+          const areFilesEqual =  await this.areFilesEqual(
             (this.files[i]),
             params.file
           )
-        
-          if (areFilesEqual) {
-              this.files[i] = file;
+
+          if(areFilesEqual) {
+            this.files[i] = file;
           }
-        } 
+        }
       }
 
       params.menu.menuButtons = [
@@ -1107,21 +1107,21 @@ export default class PopupNewMedia extends PopupElement {
 
   private async rmFile(file: File) {
     const filteredSendFileDetails = [];
-    for (const e of this.willAttach.sendFileDetails) {
-      if (!(await this.areFilesEqual(e.file, file))) {
+    for(const e of this.willAttach.sendFileDetails) {
+      if(!(await this.areFilesEqual(e.file, file))) {
         filteredSendFileDetails.push(e);
       }
     }
     this.willAttach.sendFileDetails = filteredSendFileDetails;
-  
+
     const filteredFiles = [];
-    for (const e of this.files) {
-      if (!(await this.areFilesEqual(e, file))) {
+    for(const e of this.files) {
+      if(!(await this.areFilesEqual(e, file))) {
         filteredFiles.push(e);
       }
     }
     this.files = filteredFiles;
-    
+
     if(!this.files.length || !this.willAttach.sendFileDetails.length) {
       this.hide();
       return;
@@ -1131,22 +1131,22 @@ export default class PopupNewMedia extends PopupElement {
 
   private async areFilesEqual(file1: File, file2: File): Promise<boolean> {
     const start = performance.now();
-      if (file1.name === file2.name &&
+    if(file1.name === file2.name &&
           file1.size === file2.size &&
           file1.type === file2.type &&
           file1.lastModified === file2.lastModified) {
-            const a = await  this.areFilesContentEqual(file1, file2) ;
-            return a
-      }
-
-      return Promise.resolve(false);
+      const a = await  this.areFilesContentEqual(file1, file2) ;
+      return a
     }
+
+    return Promise.resolve(false);
+  }
 
   private async areFilesContentEqual(file1: File, file2: File): Promise<boolean> {
     const [checksum1, checksum2] = await Promise.all([this.generateChecksum(file1), this.generateChecksum(file2)]);
     return checksum1 === checksum2;
   }
-  
+
   private async generateChecksum(file: File): Promise<string> {
     const buffer = await file.arrayBuffer();
     const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);

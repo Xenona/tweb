@@ -83,9 +83,9 @@ export class PasswordManager extends AppManager {
       return this.apiManager.invokeApi('auth.checkPassword', {
         password: inputCheckPassword as InputCheckPasswordSRP.inputCheckPasswordSRP
       }, options).then((auth) => {
-          if(auth._ === 'auth.authorization') {
-            this.apiManager.setUser(auth.user);
-          }  
+        if(auth._ === 'auth.authorization') {
+          this.apiManager.setUser(auth.user);
+        }
 
         return auth;
       });

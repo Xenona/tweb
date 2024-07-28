@@ -393,7 +393,7 @@ export default class IDBStorage<T extends Database<any>, StoreName extends strin
     log?: string,
     storeName = this.storeName
   ) {
-    console.log("thhhfihsisf", this.storeName);
+    console.log('thhhfihsisf', this.storeName);
     let perf: number;
 
     if(log) {

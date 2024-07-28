@@ -9,7 +9,7 @@ import type {Dialog} from '../../appMessagesManager';
 import type {User} from '../../appUsersManager';
 import DATABASE_STATE from '../../../../config/databases/state';
 import AppStorage from '../../../storage';
-import { CancellablePromise } from '../../../../helpers/cancellablePromise';
+import {CancellablePromise} from '../../../../helpers/cancellablePromise';
 
 export type StoragesStorages = {
   users: AppStorage<Record<UserId, User>, typeof DATABASE_STATE>,

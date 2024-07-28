@@ -158,7 +158,7 @@ const onFirstMount = () => {
       settings: {
         _: 'codeSettings', // that's how we sending Type
         pFlags: {}
-      },
+      }
       // lang_code: navigator.language || 'en'
     })
     .then(async(code) => {
@@ -174,13 +174,10 @@ const onFirstMount = () => {
           });
         }
       }
-      console.log('XE THEN AFTER CUSTOM AUTH on then', code)
-
 
       import('./pageAuthCode').then((m) => m.default.mount(Object.assign(code, {phone_number: phone_number})));
     }).catch((err) => {
       toggle();
-      console.log('XE ERROR AFTER CUSTOM AUTH on err', err)
 
       switch(err.type) {
         case 'PHONE_NUMBER_INVALID':

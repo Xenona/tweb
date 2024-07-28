@@ -5,7 +5,7 @@ import AppMediaEditorTab from '../sidebarRight/tabs/mediaEditor';
 import {Aligns, Strokes} from '../sidebarRight/tabs/editorText';
 import SidebarSlider from '../slider';
 import {Canvaser} from '../canvaser/Canvaser';
-import { NoneTool } from '../canvaser/Tool';
+import {NoneTool} from '../canvaser/Tool';
 
 export const FontList: string[] = [
   'Roboto',
@@ -67,7 +67,7 @@ export default class PopupMediaEditor extends PopupElement {
       }
     })
 
-    this.result = result; 
+    this.result = result;
 
     this.imageContainer = document.createElement('div');
     this.imageContainer.classList.add('image-container')
@@ -115,15 +115,15 @@ export default class PopupMediaEditor extends PopupElement {
     await this.canvaser.emitUpdate()
     await this.canvaser.emitUpdate();
 
-        // debugger;
+    // debugger;
     const blob = await new Promise<Blob>(resolve=>this.canvas.toBlob(blob =>  resolve(blob)))
-    
+
     this.result.params.file = new File([blob], this.result.params.file.name, {
       lastModified: this.result.params.file.lastModified,
-      type: this.result.params.file.type,
-    })    
-    
-    
+      type: this.result.params.file.type
+    })
+
+
     this.gracefullyExiting = true;
     this.result.changeImg(this.result.params.file, URL.createObjectURL(blob))
     this.hide();

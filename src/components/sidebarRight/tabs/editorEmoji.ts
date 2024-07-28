@@ -33,7 +33,7 @@ export class EditorElmojiTab {
     this.container.classList.add('editor-tab', 'emoji')
     this.curEmojiTool = new NoneTool(this.canvaser)
     this.curEmojiTool.onOrOutLayoutClickAction = (action: 'on' | 'out') => {
-      if (action === "on") {
+      if(action === 'on') {
         verifyDeleteBtn(true);
       } else {
         verifyDeleteBtn(false);

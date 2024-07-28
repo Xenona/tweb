@@ -62,7 +62,7 @@ export class EditorFilterTab {
       {
         // XENA TODO deal with i18n
         // @ts-ignore
-        name: "Saturation",
+        name: 'Saturation',
         min: this.canvaser.rootEffects.saturate.getInfo().min,
         max: this.canvaser.rootEffects.saturate.getInfo().max,
         onChangeCb: (val: number) => this.canvaser.rootEffects.saturate.setValue(val),
@@ -71,7 +71,7 @@ export class EditorFilterTab {
       {
         // XENA TODO deal with i18n
         // @ts-ignore
-        name: "Warmth",
+        name: 'Warmth',
         min: this.canvaser.rootEffects.warmth.getInfo().min,
         max: this.canvaser.rootEffects.warmth.getInfo().max,
         onChangeCb: (val: number) => this.canvaser.rootEffects.warmth.setValue(val),
@@ -80,7 +80,7 @@ export class EditorFilterTab {
       {
         // XENA TODO deal with i18n
         // @ts-ignore
-        name: "Fade",
+        name: 'Fade',
         min: this.canvaser.rootEffects.fade.getInfo().min,
         max: this.canvaser.rootEffects.fade.getInfo().max,
         onChangeCb: (val: number) => this.canvaser.rootEffects.fade.setValue(val),
@@ -89,7 +89,7 @@ export class EditorFilterTab {
       {
         // XENA TODO deal with i18n
         // @ts-ignore
-        name: "Highlights",
+        name: 'Highlights',
         min: this.canvaser.rootEffects.highlights.getInfo().min,
         max: this.canvaser.rootEffects.highlights.getInfo().max,
         onChangeCb: (val: number) => this.canvaser.rootEffects.highlights.setValue(val),
@@ -98,7 +98,7 @@ export class EditorFilterTab {
       {
         // XENA TODO deal with i18n
         // @ts-ignore
-        name: "Shadows",
+        name: 'Shadows',
         min: this.canvaser.rootEffects.shadows.getInfo().min,
         max: this.canvaser.rootEffects.shadows.getInfo().max,
         onChangeCb: (val: number) => this.canvaser.rootEffects.shadows.setValue(val),
@@ -107,12 +107,12 @@ export class EditorFilterTab {
       {
         // XENA TODO deal with i18n
         // @ts-ignore
-        name: "Vignette",
+        name: 'Vignette',
         min: this.canvaser.rootEffects.vignette.getInfo().min,
         max: this.canvaser.rootEffects.vignette.getInfo().max,
         onChangeCb: (val: number) => this.canvaser.rootEffects.vignette.setValue(val),
         onFinish: () => this.canvaser.rootEffects.finishEdit()
-      },
+      }
       // {
       //   // XENA TODO deal with i18n
       //   // @ts-ignore
@@ -143,7 +143,7 @@ export class EditorFilterTab {
       fade.container,
       highlights.container,
       shadows.container,
-      vignette.container,
+      vignette.container
       // grain.container,
       // sharpen.container,
     );

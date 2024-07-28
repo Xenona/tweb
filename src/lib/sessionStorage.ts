@@ -9,7 +9,7 @@ import type {UserAuth} from './mtproto/mtproto_config';
 import type {DcId} from '../types';
 import {MOUNT_CLASS_TO} from '../config/debug';
 import LocalStorageController from './localStorage';
-import { User } from '../layer';
+import {User} from '../layer';
 
 export type AllUsers = {
   [key: number]: {
@@ -30,19 +30,19 @@ export type AllUsers = {
   }
 }
 
-const UserSpecificKeys = [ 'user_auth' ,
-                                'state_id' ,
-                                'dc1_auth_key' ,
-                                'dc2_auth_key' ,
-                                'dc3_auth_key' ,
-                                'dc4_auth_key' ,
-                                'dc5_auth_key' ,
-                                'dc1_server_salt' ,
-                                'dc2_server_salt' ,
-                                'dc3_server_salt' ,
-                                'dc4_server_salt' ,
-                                'dc5_server_salt' ,
-                                'auth_key_fingerprint']
+const UserSpecificKeys = ['user_auth',
+  'state_id',
+  'dc1_auth_key',
+  'dc2_auth_key',
+  'dc3_auth_key',
+  'dc4_auth_key',
+  'dc5_auth_key',
+  'dc1_server_salt',
+  'dc2_server_salt',
+  'dc3_server_salt',
+  'dc4_server_salt',
+  'dc5_server_salt',
+  'auth_key_fingerprint']
 
 type StorageType = {
   dc: DcId,
@@ -70,12 +70,11 @@ type StorageType = {
   },
   k_build: number
 }
-                                
-export class SessionStorage extends LocalStorageController<StorageType> {
 
+export class SessionStorage extends LocalStorageController<StorageType> {
   users: AllUsers = {}
   cache: {partObj: any, onlyLocal: boolean}[];
-  
+
   constructor() {
     super();
     // this.get('all_users').then(users => {
@@ -114,12 +113,12 @@ export class SessionStorage extends LocalStorageController<StorageType> {
 
     let currUsers = await this.get('all_users');
 
-    if (!currUsers) {
+    if(!currUsers) {
       currUsers = {};
     }
     currUsers[userUpdate.user_auth.id] = Object.assign(
       currUsers[userUpdate.user_auth.id] ?? {},
-      userUpdate,
+      userUpdate
     );
 
     await super.set({all_users: currUsers});
@@ -129,10 +128,10 @@ export class SessionStorage extends LocalStorageController<StorageType> {
     // return [] as User[];
     const users = await this.get('all_users');
     return Object.values(users)
-      .map(e=> {
-        const d = e.user_info ?? { _: "userEmpty", id: 0 };
-        d.id = e.user_auth.id;
-        return d
+    .map(e=> {
+      const d = e.user_info ?? {_: 'userEmpty', id: 0};
+      d.id = e.user_auth.id;
+      return d
     })
   }
 
@@ -141,15 +140,14 @@ export class SessionStorage extends LocalStorageController<StorageType> {
     if(user.id in users) {
       users[user.id as number].user_info = user;
     } else {
-      console.warn("No user locally found")
+      console.warn('No user locally found')
     }
-    await this.set({ all_users: users })
+    await this.set({all_users: users})
   }
 
   public async swapUsers(newId: number) {
-    
     await this.delete('user_auth');
-      
+
     await this.delete('dc1_auth_key')
     await this.delete('dc2_auth_key')
     await this.delete('dc3_auth_key')
@@ -162,37 +160,32 @@ export class SessionStorage extends LocalStorageController<StorageType> {
     await this.delete('dc5_server_salt');
     await this.delete('auth_key_fingerprint')
     await this.delete('state_id')
-    
+
     const user: AllUsers[number] = (await this.get('all_users'))[newId];
-    console.log("XE USER SWAP", user)
-    
+
     await this.set(user);
   }
 
   public async get<T extends keyof StorageType>(key: T, useCache?: boolean) {
-  
     const res = await super.get(key, useCache);
-    // console.log("XE GET KEY", key, res)
 
     return res
   }
 
   public async set(obj: Partial<StorageType>, onlyLocal?: boolean) {
     await super.set(obj, onlyLocal);
-    
-    let userAuth = obj['user_auth'];
 
-    if (userAuth) {
-      await this.copyUserFromStorage() 
+    const userAuth = obj['user_auth'];
+
+    if(userAuth) {
+      await this.copyUserFromStorage()
     }
 
     return Promise.resolve();
   }
-
 }
 
 const sessionStorage = new SessionStorage();
-
 
 
 MOUNT_CLASS_TO.appStorage = sessionStorage;

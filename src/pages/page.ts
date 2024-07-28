@@ -18,7 +18,6 @@ export default class Page {
     public onShown?: () => void
   ) {
     this.pageEl = document.body.querySelector('.' + className) as HTMLDivElement;
-    console.log("XE PAGE PAGEEL", this.pageEl, className)
   }
 
   get installed() {
@@ -27,14 +26,14 @@ export default class Page {
 
   public async mount(...args: any[]) {
     // this.pageEl.style.display = '';
-    
+
     if(this.onMount) {
       const res = this.onMount(...args);
       if(res instanceof Promise) {
         await res;
       }
     }
-    
+
     if(!this._installed) {
       if(this.onFirstMount) {
         try {
@@ -49,7 +48,7 @@ export default class Page {
 
       this._installed = true;
     }
-    
+
     pagesManager.setPage(this);
   }
 }

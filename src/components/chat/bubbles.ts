@@ -185,7 +185,7 @@ import safeWindowOpen from '../../helpers/dom/safeWindowOpen';
 import findAndSplice from '../../helpers/array/findAndSplice';
 import generatePhotoForExtendedMediaPreview from '../../lib/appManagers/utils/photos/generatePhotoForExtendedMediaPreview';
 import icon from '../icon';
-import { lockCustomEmojiLoad, unlockCustomEmojiLoad } from '../../lib/customEmoji/renderer';
+import {lockCustomEmojiLoad, unlockCustomEmojiLoad} from '../../lib/customEmoji/renderer';
 
 class FastTimeoutTracker {
   expireAt: number;
@@ -365,7 +365,7 @@ class LazyLoadQueueLocker {
 
   lock() {
     if(this.lockCount == 0) {
-      console.timeStamp("Lock q")
+      console.timeStamp('Lock q')
       this.queue.lock();
     }
     this.lockCount++;
@@ -374,7 +374,7 @@ class LazyLoadQueueLocker {
   unlock() {
     this.lockCount--;
     if(this.lockCount == 0) {
-      console.timeStamp("Unlock q")
+      console.timeStamp('Unlock q')
       this.queue.unlockAndRefresh();
     }
   }
@@ -382,10 +382,10 @@ class LazyLoadQueueLocker {
   timerLock(timeout: number) {
     const nextUnlock = performance.now() + timeout
     if(nextUnlock < this.unlockAt + 4 ) return;
-    
+
     if(this.unlockTimer == -1) this.lock();
     else clearTimeout(this.unlockTimer);
-    
+
     this.unlockAt = nextUnlock;
     this.unlockTimer = window.setTimeout(() => {
       this.unlock();
@@ -3186,7 +3186,7 @@ export default class ChatBubbles {
         clearTimeout(this.isScrollingTimeout);
       } else if(!this.chatInner.classList.contains('is-scrolling')) {
         this.chatInner.classList.add('is-scrolling');
-      } 
+      }
 
       this.isScrollingTimeout = window.setTimeout(() => {
         this.chatInner.classList.remove('is-scrolling');
@@ -3195,7 +3195,7 @@ export default class ChatBubbles {
     }
 
     this.scrollPerfTracker.trigger(300);
-        
+
     if(distanceToEnd < SCROLLED_DOWN_THRESHOLD && (forceDown || this.scrollable.loadedAll.bottom || this.chat.setPeerPromise || !this.peerId)) {
       this.container.classList.add('scrolled-down');
       this.scrolledDown = true;
@@ -5031,7 +5031,7 @@ export default class ChatBubbles {
       }
 
       this.lazyLoadQueueLocker.lock();
-      
+
       bubble = this.bubbles[fullMid] = newBubble;
       let originalPromise = this.renderMessage(message, reverse, bubble, middleware);
       if(processResult) {
@@ -5039,11 +5039,11 @@ export default class ChatBubbles {
       }
 
       const promise = originalPromise.then((r) => ((r && realMiddleware() ? {...r, updatePosition, canAnimateLadder} : undefined) as typeof result));
-      
+
       this.renderMessagesQueue(promise.catch(() => undefined).then((r) => {
-        if(IS_ANDROID) { 
+        if(IS_ANDROID) {
           this.lazyLoadQueueLocker.timerLock(100);
-        } 
+        }
         this.scrollPerfTracker.trigger(250);
         this.lazyLoadQueueLocker.unlock()
         return r;

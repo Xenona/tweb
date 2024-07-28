@@ -4,7 +4,7 @@
  * https://github.com/morethanwords/tweb/blob/master/LICENSE
  */
 
-import { CancellablePromise } from '../../helpers/cancellablePromise';
+import {CancellablePromise} from '../../helpers/cancellablePromise';
 import {logger} from '../logger';
 import {AppManager} from './manager';
 import createStorages from './utils/storages/createStorages';

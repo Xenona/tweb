@@ -83,7 +83,7 @@ export default class AppMediaEditorTab extends SliderSuperTab {
 
     // ** delete (sticker, text)
     this.deleteBtn = Button('btn-icon', {
-      icon: 'delete',
+      icon: 'delete'
     })
     // XENA TODO button
     this.deleteBtn.onclick = () => {
@@ -96,7 +96,7 @@ export default class AppMediaEditorTab extends SliderSuperTab {
 
     this.deleteBtn.style.display = 'none';
     this.header.append(this.deleteBtn);
-    
+
     // ** undo
     this.undoBtn = Button('btn-icon', {
       icon: 'undo'
@@ -116,8 +116,7 @@ export default class AppMediaEditorTab extends SliderSuperTab {
     this.setTitle('Edit');
 
     const verifyDeleteBtn = (show: boolean) => {
-      console.log("XE show", show)
-      if (show) {
+      if(show) {
         this.deleteBtn.style.display = 'flex';
       } else {
         this.deleteBtn.style.display = 'none';
@@ -285,7 +284,7 @@ export default class AppMediaEditorTab extends SliderSuperTab {
         this.canvaser.emitUpdate();
         this.canvaser.onUpdate?.(this.canvaser);
         this.textTab.setDefault();
-      } 
+      }
 
       this.prevTabId = id;
 
@@ -340,11 +339,11 @@ export default class AppMediaEditorTab extends SliderSuperTab {
         unlockScroll();
         unlockScroll = undefined;
       }
-      
+
       this.canvaser.focusedLayer = undefined;
       this.canvaser.emitUpdate();
       this.canvaser.onUpdate?.(this.canvaser);
-      
+
       this.deleteBtn.style.display = 'none';
 
       this.onTransitionEnd();

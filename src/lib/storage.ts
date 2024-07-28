@@ -66,14 +66,13 @@ export default class AppStorage<
   private deleteDeferred = deferredPromise<void>();
 
   constructor(private db: T, private storeName: typeof db['stores'][number]['name'], dbPostfix?: string) {
-    
-    if (!dbPostfix) {
+    if(!dbPostfix) {
       this.storage = multiUserTracker.getUsers().then((user) => {
         const newDb = {
           ...db,
           name: `${db.name}_${user}`
         }
-        
+
         return new IDBStorage<T>(newDb, storeName)
       })
     } else {
@@ -81,7 +80,7 @@ export default class AppStorage<
         ...db,
         name: `${db.name}_${dbPostfix}`
       }
-      
+
       this.storage=Promise.resolve(new IDBStorage<T>(newDb, storeName))
     }
 

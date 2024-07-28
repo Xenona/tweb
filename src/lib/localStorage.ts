@@ -184,7 +184,7 @@ export default class LocalStorageController<Storage extends Record<string, any>>
   private async proxy<T>(type: LocalStorageProxyTask['payload']['type'], ...args: LocalStorageProxyTask['payload']['args']): Promise<T> {
     if(IS_WORKER) {
       const port = MTProtoMessagePort.getInstance<false>();
-      if (port)
+      if(port)
         return port.invoke('localStorageProxy', {type, args});
     }
 

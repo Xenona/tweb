@@ -171,7 +171,6 @@ class ApiManagerProxy extends MTProtoMessagePort {
       },
 
       peers: (payload) => {
-
         if(payload.key) {
           reconcilePeer(payload.key.toPeerId(), payload.value as any);
         } else {

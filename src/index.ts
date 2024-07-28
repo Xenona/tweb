@@ -358,7 +358,7 @@ IMAGE_MIME_TYPES_SUPPORTED_PROMISE.then((mimeTypes) => {
   }
 
   let authState = stateResult.state.authState;
-  console.log("XEX           E EE E E E E E EE E E E E E E E E EE E E E E E E E E E E E ", authState)
+  console.log('XEX           E EE E E E E E EE E E E E E E E E EE E E E E E E E E E E E ', authState)
 
   const hash = location.hash;
   const splitted = hash.split('?');
@@ -492,6 +492,4 @@ IMAGE_MIME_TYPES_SUPPORTED_PROMISE.then((mimeTypes) => {
     fadeInWhenFontsReady(document.getElementById('main-columns'), loadFonts());
     (await import('./pages/pageIm')).default.mount();
   }
-
-
 });
