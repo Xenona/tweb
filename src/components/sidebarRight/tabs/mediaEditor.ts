@@ -280,8 +280,21 @@ export default class AppMediaEditorTab extends SliderSuperTab {
         }
       }
 
+      if(this.prevTabId == 2) {
+        this.canvaser.focusedLayer = undefined;
+        this.canvaser.emitUpdate();
+        this.canvaser.onUpdate?.(this.canvaser);
+        this.textTab.setDefault();
+      } 
+
       this.prevTabId = id;
 
+      if(this.filterTab) {
+        if(id === 0) {
+          this.canvaser.setTool(this.filterTab.curFilterTool)
+          this.canvaser.onUpdate = this.filterTab.onUpdate.bind(this.filterTab);
+        }
+      }
 
       if(this.cropTab) {
         if(id === 1) { // crop tab
@@ -295,30 +308,18 @@ export default class AppMediaEditorTab extends SliderSuperTab {
         }
       }
 
+      if(this.textTab) {
+        if(id === 2) {
+          this.canvaser.setTool((this.textTab.curTextTool))
+          this.canvaser.onUpdate = this.textTab.onUpdate.bind(this.textTab);
+        }
+      }
+
       if(this.brushTab) {
         if(id === 3) {
           this.canvaser.setTool(this.brushTab.curBrushTool);
 
           this.canvaser.onUpdate = undefined;
-        }
-      }
-
-      if(this.textTab) {
-        if(id === 2) {
-          this.canvaser.setTool((this.textTab.curTextTool))
-          this.canvaser.onUpdate = this.textTab.onUpdate.bind(this.textTab);
-        } else {
-          this.canvaser.focusedLayer = undefined;
-      this.canvaser.emitUpdate();
-      this.canvaser.onUpdate?.(this.canvaser);
-          this.textTab.setDefault();
-        }
-      }
-
-      if(this.filterTab) {
-        if(id === 0) {
-          this.canvaser.setTool(this.filterTab.curFilterTool)
-          this.canvaser.onUpdate = this.filterTab.onUpdate.bind(this.filterTab);
         }
       }
 
