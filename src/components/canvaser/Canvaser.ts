@@ -67,7 +67,7 @@ export class Canvaser {
     this.tool.update();
     this.tool.render(this.ctx);
     this.ctx.cleanup();
-    
+
     updProm.resolve();
   }
 
@@ -127,6 +127,26 @@ export class Canvaser {
     });
     this.focusedLayer = l;
     this.emitUpdate();
+  }
+
+  public deleteLayer(l: Layer) {
+    let lastPos = this.layers.length;
+    const hist = {
+      undo: () => {
+        this.layers.splice(lastPos, 0, l);
+        this.emitUpdate();
+      },
+      redo: () => {
+        if(this.focusedLayer == l) this.focusedLayer = undefined;
+        lastPos = this.layers.indexOf(l)
+        this.layers.splice(lastPos, 1);
+        this.emitUpdate();
+      }
+    }
+    hist.redo();
+    this.emitHistory(hist);
+    this.emitUpdate();
+    this.onUpdate?.(this);
   }
 
   private intoMouseEvent(ev: MouseEvent): MouseEv {

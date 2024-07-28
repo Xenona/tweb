@@ -26,13 +26,19 @@ export class EditorElmojiTab {
   managers: AppManagers;
   curEmojiTool: NoneTool;
 
-  constructor(canvaser: Canvaser) {
+  constructor(canvaser: Canvaser, verifyDeleteBtn: (show: boolean) => void) {
     this.canvaser = canvaser;
     this.managers = rootScope.managers;
     this.container = document.createElement('div');
     this.container.classList.add('editor-tab', 'emoji')
     this.curEmojiTool = new NoneTool(this.canvaser)
-
+    this.curEmojiTool.onOrOutLayoutClickAction = (action: 'on' | 'out') => {
+      if (action === "on") {
+        verifyDeleteBtn(true);
+      } else {
+        verifyDeleteBtn(false);
+      }
+    }
     const lazyLoadQueue = new LazyLoadQueue();
 
     const stickersTab = new StickersTab(this.managers)
@@ -60,6 +66,7 @@ export class EditorElmojiTab {
             () => {
               createImageBitmap(img.canvas[0]).then((bitmap) => {
                 this.canvaser.addLayer(new StickerLayer(this.canvaser, bitmap));
+                verifyDeleteBtn(true);
               });
             },
             {once: true}
@@ -67,10 +74,12 @@ export class EditorElmojiTab {
         } else if(img instanceof HTMLImageElement) {
           createImageBitmap(img).then((bitmap) => {
             this.canvaser.addLayer(new StickerLayer(this.canvaser, bitmap));
+            verifyDeleteBtn(true);
           });
         } else if(img instanceof HTMLVideoElement) {
           createImageBitmap(img).then((bitmap) => {
             this.canvaser.addLayer(new StickerLayer(this.canvaser, bitmap));
+            verifyDeleteBtn(true);
           });
         }
       });

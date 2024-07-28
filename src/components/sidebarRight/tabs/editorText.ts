@@ -24,7 +24,7 @@ export class EditorTextTab {
   curTextTool: NoneTool;
   input: HTMLTextAreaElement;
 
-  constructor(canvaser: Canvaser) {
+  constructor(canvaser: Canvaser, verifyDeleteBtn: (show: boolean) => void) {
     this.canvaser = canvaser;
     this.curTextTool = new NoneTool(this.canvaser);
     this.curTextTool.onOrOutLayoutClickAction = (action: 'on' | 'out') => {
@@ -40,9 +40,11 @@ export class EditorTextTab {
             stroke: mode
 
           })
+          verifyDeleteBtn(true)
         }
       } else {
-        this.setFontTabWithSettings({
+          verifyDeleteBtn(false)
+          this.setFontTabWithSettings({
           text: '',
           alignment: 'left',
           font: FontList[0],
@@ -125,6 +127,7 @@ export class EditorTextTab {
     this.input = document.createElement('textarea');
     this.input.addEventListener('input', (ev: any) => {
       if(!(this.canvaser.focusedLayer instanceof TextLayer)) {
+        verifyDeleteBtn(true);
         this.canvaser.addLayer(new TextLayer(this.canvaser, ev.target.value));
       }
       this.setTextInfoHist({text: ev.target.value});
@@ -247,6 +250,10 @@ export class EditorTextTab {
       snellRoundhand.container)
     this.container.append(this.sizeRange.container, this.fontSection);
 
+    this.setDefault()
+  }
+
+  public setDefault() {
     this.setFontTabWithSettings({
       text: '',
       alignment: 'left',
@@ -255,6 +262,25 @@ export class EditorTextTab {
       size: 24,
       stroke: 'normal'
     })
+  }
+
+  public onUpdate(canvaser: Canvaser) {
+    if (canvaser?.focusedLayer instanceof TextLayer) {
+      if(this.canvaser.focusedLayer instanceof TextLayer) {
+        const {align, color, font, mode, size, text} = this.canvaser.focusedLayer.getText();
+        this.setFontTabWithSettings({
+          text: text,
+          alignment: align,
+          font: font,
+          hexColor: color,
+          size: Math.round(size/SIZE_MULTIPLIER),
+          stroke: mode
+
+        })
+      }
+    } else {
+      this.setDefault();
+    }
   }
 
   public setFontTabWithSettings({alignment, hexColor, stroke, size, font, text}: {

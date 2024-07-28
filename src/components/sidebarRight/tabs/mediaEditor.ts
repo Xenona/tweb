@@ -37,6 +37,7 @@ export type ScrollableMenuTab = {
 export default class AppMediaEditorTab extends SliderSuperTab {
   redoBtn: HTMLButtonElement;
   undoBtn: HTMLButtonElement;
+  deleteBtn: HTMLButtonElement;
   canvaser: Canvaser;
   tools: HTMLElement;
   navScrollable: ScrollableX;
@@ -80,6 +81,22 @@ export default class AppMediaEditorTab extends SliderSuperTab {
     animatedCloseIcon.classList.add('animated-close-icon');
     newCloseBtn.append(animatedCloseIcon);
 
+    // ** delete (sticker, text)
+    this.deleteBtn = Button('btn-icon', {
+      icon: 'delete',
+    })
+    // XENA TODO button
+    this.deleteBtn.onclick = () => {
+      if(this.canvaser.focusedLayer) {
+        this.canvaser.deleteLayer(this.canvaser.focusedLayer);
+        this.deleteBtn.style.display = 'none'
+        this.canvaser.onUpdate?.(this.canvaser);
+      }
+    }
+
+    this.deleteBtn.style.display = 'none';
+    this.header.append(this.deleteBtn);
+    
     // ** undo
     this.undoBtn = Button('btn-icon', {
       icon: 'undo'
@@ -94,14 +111,24 @@ export default class AppMediaEditorTab extends SliderSuperTab {
     this.redoBtn.onclick = () => this.canvaser.redo();
     this.header.append(this.redoBtn)
 
+
     // ** title
     this.setTitle('Edit');
 
+    const verifyDeleteBtn = (show: boolean) => {
+      console.log("XE show", show)
+      if (show) {
+        this.deleteBtn.style.display = 'flex';
+      } else {
+        this.deleteBtn.style.display = 'none';
+      }
+    }
+
     this.filterTab = new EditorFilterTab(this.canvaser);
     this.cropTab = new EditorCropTab(this.canvaser);
-    this.textTab = new EditorTextTab(this.canvaser);
+    this.textTab = new EditorTextTab(this.canvaser, verifyDeleteBtn);
     this.brushTab = new EditorBrushTab(this.canvaser);
-    this.emojiTab = new EditorElmojiTab(this.canvaser);
+    this.emojiTab = new EditorElmojiTab(this.canvaser, verifyDeleteBtn);
 
     this.createToolMenu();
 
@@ -279,7 +306,9 @@ export default class AppMediaEditorTab extends SliderSuperTab {
       if(this.textTab) {
         if(id === 2) {
           this.canvaser.setTool((this.textTab.curTextTool))
-          this.canvaser.onUpdate = undefined;
+          this.canvaser.onUpdate = this.textTab.onUpdate.bind(this.textTab);
+        } else {
+          this.textTab.setDefault();
         }
       }
 
@@ -307,6 +336,11 @@ export default class AppMediaEditorTab extends SliderSuperTab {
         unlockScroll();
         unlockScroll = undefined;
       }
+      this.canvaser.focusedLayer = undefined;
+      this.canvaser.emitUpdate();
+      this.canvaser.onUpdate?.(this.canvaser);
+      
+      this.deleteBtn.style.display = 'none';
 
       this.onTransitionEnd();
     }, undefined, scrollableX, this.listenerSetter)
