@@ -152,49 +152,6 @@ export class AppSidebarLeft extends SidebarSlider {
       }
     };
 
-    let profileButtons: ButtonMenuVerifiable[] = [];
-    const users = await sessionStorage.get('all_users');
-    const userIds = Object.keys(users);
-    for (let stringId of userIds) {
-      const id = parseInt(stringId);
-      const div = document.createElement('div');
-      
-      
-      
-      multiUserTracker.waitMenuPeers().then((e) => {})
-
-      const badge = createBadge('span', 24, 'primary');
-      div.classList.add('account-btn')
-      const newAvatar = avatarNew({
-        middleware: (getMiddleware()).get(),
-        size: 24,
-        peerId: id.toPeerId(),
-        wrapOptions: {customEmojiSize: makeMediaSize(32, 32)},
-      });
-      const peerTitle = await getPeerTitle({
-        peerId: id.toPeerId() as PeerId,
-        dialog: false,
-        onlyFirstName: false,
-        plainText: false
-      })
-      div.append(newAvatar.node, peerTitle, badge)
-
-
-
-      profileButtons.push({
-        onClick: () => {
-          sessionStorage.swapUsers((id));
-          sessionStorage.set({
-            'next_user': id.toString()
-          })
-          appRuntimeManager.reload();         
-        },
-        textElement: div 
-      })
-      // }
-    }
-
-  
     
     const menuButtons: ButtonMenuVerifiable[] = [
       {
@@ -205,8 +162,10 @@ export class AppSidebarLeft extends SidebarSlider {
         onClick: async () => {
           
          
-        const users = (await sessionStorage.get('all_users'));
-        if (Object.keys(users).length >= MAX_ACCOUNTS_WITHOUT_PREMIUM) {
+        const users = (await sessionStorage.getAccountUsers());
+        await this.managers.appUsersManager?.saveApiUsers(users)
+
+        if (users.length >= MAX_ACCOUNTS_WITHOUT_PREMIUM) {
           PopupElement.createPopup(PopupLimitReached).show();
 
         } else {
@@ -393,10 +352,6 @@ export class AppSidebarLeft extends SidebarSlider {
     }
     ];
 
-    for (let i = 0; i < profileButtons.length; i++) {
-      menuButtons.unshift(profileButtons[i]);
-    }
-
     const filteredButtons = menuButtons.filter(Boolean);
     const filteredButtonsSliced = filteredButtons.slice();
     this.toolsBtn = ButtonMenuToggle({
@@ -431,6 +386,48 @@ export class AppSidebarLeft extends SidebarSlider {
             buttons.splice(i+1, 0, ...attachMenuBotsButtons);
             break
           }
+        }
+
+        // Accounts
+        if(filteredButtons[0].icon === "plus") {
+
+          let profileButtons: ButtonMenuVerifiable[] = [];
+          const users = await sessionStorage.getAccountUsers();
+          await this.managers.appUsersManager?.saveApiUsers(users)
+          for (let user of users) {
+            const id = user.id;
+            const div = document.createElement('div');
+            multiUserTracker.waitMenuPeers().then((e) => {})
+            const badge = createBadge('span', 24, 'primary');
+            div.classList.add('account-btn')
+            const newAvatar = avatarNew({
+              middleware: (getMiddleware()).get(),
+              size: 24,
+              peerId: id.toPeerId(),
+              wrapOptions: {customEmojiSize: makeMediaSize(32, 32)},
+            });
+            const peerTitle = await getPeerTitle({
+              peerId: id.toPeerId() as PeerId,
+              dialog: false,
+              onlyFirstName: false,
+              plainText: false
+            })
+            div.append(newAvatar.node, peerTitle, badge)
+
+            profileButtons.push({
+              onClick: () => {
+                // sessionStorage.swapUsers((parseInt(id.toString())));
+                sessionStorage.set({
+                  'next_user': id.toString()
+                })
+                appRuntimeManager.reload();         
+              },
+              textElement: div 
+            })
+            // }
+          }
+          filteredButtons.splice(0, 0, ...profileButtons)
+
         }
         
       },

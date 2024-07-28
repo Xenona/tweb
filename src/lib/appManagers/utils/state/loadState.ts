@@ -45,13 +45,13 @@ async function loadStateInner() {
   const nextUser = await sessionStorage.get('next_user', false);
   if(nextUser) {
     if(nextUser == 'none') {
-      sessionStorage.clear();
-      stateStorage.delete("authState");
-      sessionStorage.delete('next_user')
+      await sessionStorage.clear(); 
+      await sessionStorage.delete('next_user')
     } else {
       let userId = parseInt(nextUser);
-      sessionStorage.swapUsers(userId);
+      await sessionStorage.swapUsers(userId);
     }
+    await sessionStorage.delete("next_user")  
   }
 
   let id = (await sessionStorage.get('user_auth'))?.id.toString();

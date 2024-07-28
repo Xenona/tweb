@@ -721,7 +721,7 @@ export class AppUsersManager extends AppManager {
     return 0;
   }
 
-  public  getUser(id: User | UserId) {
+  public getUser(id: User | UserId) {
     if(isObject<User>(id)) {
       return id;
     }

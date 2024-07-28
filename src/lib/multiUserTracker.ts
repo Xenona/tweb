@@ -1,5 +1,6 @@
 import deferredPromise, { CancellablePromise } from "../helpers/cancellablePromise";
-
+import rootScope from "./rootScope";
+import sessionStorage from "./sessionStorage";
 
 export class MultiUserTracker {
 
@@ -9,7 +10,22 @@ export class MultiUserTracker {
   constructor() {
     this.deferredUsers = deferredPromise<string>();
     this.loadPeersForMenu = deferredPromise<void>();
+    rootScope.addEventListener('user_auth', () => {
 
+      const a = () => {
+
+        rootScope.managers.appUsersManager.getSelf().then((e) => {
+          console.log('XE eeeeeeeeeeeeeee', e)
+          if (e) {
+            sessionStorage.updateSelfInfo(e)
+          } else {
+            setTimeout(a, 100)
+            
+          }
+        })
+      }
+      setTimeout(a, 1000)
+      })
   }
 
   public async getUsers(): Promise<string> {

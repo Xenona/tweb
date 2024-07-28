@@ -298,7 +298,6 @@ export default class SuperMessagePort<
 
     const source: MessageEventSource = event.source || event.currentTarget as any; // can have no source
 
-    console.log("XE PEERS TASK TYPE", task.type)
     // @ts-ignore
     this.processTaskMap[task.type](task, source, event);
   };

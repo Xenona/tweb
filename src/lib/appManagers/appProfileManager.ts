@@ -26,6 +26,7 @@ import getPeerActiveUsernames from './utils/peers/getPeerActiveUsernames';
 import getParticipantsCount from './utils/chats/getParticipantsCount';
 import callbackifyAll from '../../helpers/callbackifyAll';
 import indexOfAndSplice from '../../helpers/array/indexOfAndSplice';
+import sessionStorage from '../sessionStorage';
 
 export type UserTyping = Partial<{userId: UserId, action: SendMessageAction, timeout: number}>;
 
@@ -708,7 +709,7 @@ export class AppProfileManager extends AppManager {
       about
     }).then((user) => {
       this.appUsersManager.saveApiUser(user);
-
+      sessionStorage.updateSelfInfo(user);
       if(about !== undefined) {
         const peerId = user.id.toPeerId();
         const userFull = this.usersFull[user.id];
