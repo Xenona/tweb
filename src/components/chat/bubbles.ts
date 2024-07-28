@@ -350,6 +350,50 @@ function appendBubbleTime(bubble: HTMLElement, element: HTMLElement, callback: (
   callback();
 }
 
+class LazyLoadQueueLocker {
+  lockCount: number;
+  queue: LazyLoadQueue;
+  unlockAt: number
+  unlockTimer: number
+
+  constructor(queue: LazyLoadQueue) {
+    this.queue = queue;
+    this.lockCount = 0;
+    this.unlockAt = 0;
+    this.unlockTimer = -1;
+  }
+
+  lock() {
+    if(this.lockCount == 0) {
+      console.timeStamp("Lock q")
+      this.queue.lock();
+    }
+    this.lockCount++;
+  }
+
+  unlock() {
+    this.lockCount--;
+    if(this.lockCount == 0) {
+      console.timeStamp("Unlock q")
+      this.queue.unlockAndRefresh();
+    }
+  }
+
+  timerLock(timeout: number) {
+    const nextUnlock = performance.now() + timeout
+    if(nextUnlock < this.unlockAt + 4 ) return;
+    
+    if(this.unlockTimer == -1) this.lock();
+    else clearTimeout(this.unlockTimer);
+    
+    this.unlockAt = nextUnlock;
+    this.unlockTimer = window.setTimeout(() => {
+      this.unlock();
+      this.unlockTimer = -1;
+    }, timeout);
+  }
+}
+
 export default class ChatBubbles {
   public container: HTMLDivElement;
   public chatInner: HTMLDivElement;
@@ -477,6 +521,7 @@ export default class ChatBubbles {
   private changedMids: Map<number, number>; // used when message is sent faster than temporary one was rendered
 
   private scrollPerfTracker: FastTimeoutTracker;
+  private lazyLoadQueueLocker: LazyLoadQueueLocker;
 
   constructor(
     private chat: Chat,
@@ -500,6 +545,7 @@ export default class ChatBubbles {
       cancelable: false
     });
     this.lazyLoadQueue = new LazyLoadQueue(undefined, true);
+    this.lazyLoadQueueLocker = new LazyLoadQueueLocker(this.lazyLoadQueue);
     this.lazyLoadQueue.queueId = ++queueId;
 
     this.changedMids = new Map();
@@ -1202,7 +1248,7 @@ export default class ChatBubbles {
     let middleware: ReturnType<ChatBubbles['getMiddleware']>;
     useHeavyAnimationCheck(() => {
       this.isHeavyAnimationInProgress = true;
-      this.lazyLoadQueue.lock();
+      this.lazyLoadQueueLocker.lock();
       middleware = this.getMiddleware();
 
       // if(this.sliceViewportDebounced) {
@@ -1212,7 +1258,7 @@ export default class ChatBubbles {
       this.isHeavyAnimationInProgress = false;
 
       if(middleware?.()) {
-        this.lazyLoadQueue.unlockAndRefresh();
+        this.lazyLoadQueueLocker.unlock();
 
         // if(this.sliceViewportDebounced) {
         //   this.sliceViewportDebounced();
@@ -3148,7 +3194,7 @@ export default class ChatBubbles {
       }, 1350 + (scrollDimensions?.duration ?? 0));
     }
 
-    this.scrollPerfTracker.trigger(400);
+    this.scrollPerfTracker.trigger(300);
         
     if(distanceToEnd < SCROLLED_DOWN_THRESHOLD && (forceDown || this.scrollable.loadedAll.bottom || this.chat.setPeerPromise || !this.peerId)) {
       this.container.classList.add('scrolled-down');
@@ -4167,7 +4213,7 @@ export default class ChatBubbles {
       chatInner.classList.add('bubbles-inner');
     }
 
-    this.lazyLoadQueue.lock();
+    this.lazyLoadQueueLocker.lock();
 
     const canScroll = samePeer && sameSearch;
     // const haveToScrollToBubble = (topMessage && (isJump || samePeer)) || isTarget;
@@ -4330,9 +4376,9 @@ export default class ChatBubbles {
       animationIntersector.unlockGroup(this.chat.animationGroup);
       animationIntersector.checkAnimations(false, this.chat.animationGroup/* , true */);
 
-      // fastRaf(() => {
-      this.lazyLoadQueue.unlock();
-      // });
+      fastRaf(() => {
+        this.lazyLoadQueueLocker.unlock();
+      });
 
       const afterSetPromise = Promise.all([
         setPeerPromise,
@@ -4812,13 +4858,6 @@ export default class ChatBubbles {
     this.updatePlaceholderPosition?.();
 
     restoreScroll?.();
-
-    m(pause(!this.chat.setPeerPromise ? 0 : 1000))
-    .then(() => m(getHeavyAnimationPromise()))
-    .then(() => {
-      this.lazyLoadQueue.setAllSeen();
-    }).catch(noop);
-
     // this.setStickyDateManually();
   };
 
@@ -4991,6 +5030,8 @@ export default class ChatBubbles {
         this.bubbleGroups.changeBubbleByBubble(bubble, newBubble);
       }
 
+      this.lazyLoadQueueLocker.lock();
+      
       bubble = this.bubbles[fullMid] = newBubble;
       let originalPromise = this.renderMessage(message, reverse, bubble, middleware);
       if(processResult) {
@@ -4998,8 +5039,15 @@ export default class ChatBubbles {
       }
 
       const promise = originalPromise.then((r) => ((r && realMiddleware() ? {...r, updatePosition, canAnimateLadder} : undefined) as typeof result));
-
-      this.renderMessagesQueue(promise.catch(() => undefined));
+      
+      this.renderMessagesQueue(promise.catch(() => undefined).then((r) => {
+        if(IS_ANDROID) { 
+          this.lazyLoadQueueLocker.timerLock(100);
+        } 
+        this.scrollPerfTracker.trigger(250);
+        this.lazyLoadQueueLocker.unlock()
+        return r;
+      }));
 
       result = await promise;
       if(!realMiddleware()) {
@@ -7410,6 +7458,7 @@ export default class ChatBubbles {
     changedResults?: ReactionCount[],
     loadPromises?: Promise<any>[]
   ) {
+    // return;
     if(this.peerId.isUser() && USER_REACTIONS_INLINE/*  || true */) {
       return;
     }
