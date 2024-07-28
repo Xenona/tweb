@@ -781,9 +781,7 @@ export default class PopupNewMedia extends PopupElement {
         sendFileDetails: d
       };
 
-      console.error("XE", w)
-
-      if(!willSendPaidMedia) {
+                    if(!willSendPaidMedia) {
         delete w.stars;
       }
 
@@ -909,25 +907,27 @@ export default class PopupNewMedia extends PopupElement {
         const url = await apiManagerProxy.invoke('createObjectURL', file);
         const imageEl = new Image();
         await renderImageFromUrlPromise(imageEl, url);
-        console.log('XE img', img, imageEl)
         img.replaceWith(imageEl)
 
         for (let i = 0; i < this.willAttach.sendFileDetails.length; i++) {
-          if (this.areFilesEqual( 
+          const areFilesEqual = await this.areFilesEqual( 
             (this.willAttach.sendFileDetails[i].file),
             params.file
-          )) {
+          )
+          if (areFilesEqual) {
             this.willAttach.sendFileDetails[i].file = file;
             this.willAttach.sendFileDetails[i].objectURL = objectURL;
           }
         } 
 
         for (let i = 0; i < this.files.length; i++) {
-          if (this.areFilesEqual( 
+          const areFilesEqual =  await this.areFilesEqual( 
             (this.files[i]),
             params.file
-          )) {
-            this.files[i] = file;
+          )
+        
+          if (areFilesEqual) {
+              this.files[i] = file;
           }
         } 
       }
@@ -936,11 +936,9 @@ export default class PopupNewMedia extends PopupElement {
         {
           icon: 'enhancebars',
           onClick: async() => {
-            // XENA TODO need to think what i should do with updated file
             const url = await apiManagerProxy.invoke('createObjectURL', params.file);
             const imageEl = new Image();
             imageEl.addEventListener('load', async() => {
-              console.log("xE 123477867453245664", params.file)
               PopupElement.createPopup(PopupMediaEditor, imageEl, {params, changeImg}).show();
             }, {once: true})
             await renderImageFromUrlPromise(imageEl, url);
@@ -1107,9 +1105,23 @@ export default class PopupNewMedia extends PopupElement {
     itemDiv.append(docDiv);
   }
 
-  private rmFile(file: File) {
-    this.willAttach.sendFileDetails = this.willAttach.sendFileDetails.filter((e) => !this.areFilesEqual(e.file, file));
-    this.files = this.files.filter((e) => !this.areFilesEqual(e, file))
+  private async rmFile(file: File) {
+    const filteredSendFileDetails = [];
+    for (const e of this.willAttach.sendFileDetails) {
+      if (!(await this.areFilesEqual(e.file, file))) {
+        filteredSendFileDetails.push(e);
+      }
+    }
+    this.willAttach.sendFileDetails = filteredSendFileDetails;
+  
+    const filteredFiles = [];
+    for (const e of this.files) {
+      if (!(await this.areFilesEqual(e, file))) {
+        filteredFiles.push(e);
+      }
+    }
+    this.files = filteredFiles;
+    
     if(!this.files.length || !this.willAttach.sendFileDetails.length) {
       this.hide();
       return;
@@ -1117,13 +1129,29 @@ export default class PopupNewMedia extends PopupElement {
     this.attachFiles();
   }
 
-  // XENA TODO: think of a better way to compare files
-  private areFilesEqual(file1: File, file2: File): boolean {
-    return (file1.name === file2.name &&
-            file1.size === file2.size &&
-            file1.type === file2.type &&
-            file1.lastModified === file2.lastModified
-    )
+  private async areFilesEqual(file1: File, file2: File): Promise<boolean> {
+    const start = performance.now();
+      if (file1.name === file2.name &&
+          file1.size === file2.size &&
+          file1.type === file2.type &&
+          file1.lastModified === file2.lastModified) {
+            const a = await  this.areFilesContentEqual(file1, file2) ;
+            return a
+      }
+
+      return Promise.resolve(false);
+    }
+
+  private async areFilesContentEqual(file1: File, file2: File): Promise<boolean> {
+    const [checksum1, checksum2] = await Promise.all([this.generateChecksum(file1), this.generateChecksum(file2)]);
+    return checksum1 === checksum2;
+  }
+  
+  private async generateChecksum(file: File): Promise<string> {
+    const buffer = await file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
   private attachFile = (file: File) => {

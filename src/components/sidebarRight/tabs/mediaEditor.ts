@@ -72,7 +72,6 @@ export default class AppMediaEditorTab extends SliderSuperTab {
     // * header
 
     // ** close button
-    // XENA TODO check why all this stuff it required (pasted from sharedMedia.ts:68)
     const newCloseBtn = Button('btn-icon sidebar-close-button', {noRipple: true});
     this.closeBtn.replaceWith(newCloseBtn);
     this.closeBtn = newCloseBtn;
@@ -314,7 +313,6 @@ export default class AppMediaEditorTab extends SliderSuperTab {
 
     this.mediaTab = this.mediaTabs[0];
 
-    // XENA TODO hacky hack
     (this.menuList.children[0] as HTMLElement).click();
   }
 

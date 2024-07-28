@@ -68,7 +68,6 @@ export default class PopupMediaEditor extends PopupElement {
     changeImg: (file: File, objectURL: string) => void,
   };
 
-  // XENA TODO deal with the file
   constructor(image: HTMLImageElement, result : {params: {file: File,
     [key: string]: any},
     changeImg: (file: File, objectURL: string) => void,
