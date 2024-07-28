@@ -25,8 +25,29 @@ import CustomEmojiElement, {CustomEmojiElements} from './element';
 import assumeType from '../../helpers/assumeType';
 import {IS_WEBM_SUPPORTED} from '../../environment/videoSupport';
 import {observeResize, unobserveResize} from '../../components/resizeObserver';
+import deferredPromise, { CancellablePromise } from '../../helpers/cancellablePromise';
 
 const globalLazyLoadQueue = new LazyLoadQueue();
+
+let deferLoadPromise: CancellablePromise<void> | null = null
+let deferLoadCnt = 0;
+
+export function lockCustomEmojiLoad() {
+  console.log("CEMR LOCK", deferLoadCnt);
+  if(deferLoadCnt == 0) {
+    deferLoadPromise = deferredPromise();
+  }
+  deferLoadCnt ++;
+}
+
+export function unlockCustomEmojiLoad() {
+  console.log("CEMR UNLOCK", deferLoadCnt);
+  deferLoadCnt --;
+  if(deferLoadCnt == 0) {
+    deferLoadPromise?.resolve();
+    deferLoadPromise = null;
+  }
+}
 
 export class CustomEmojiRendererElement extends HTMLElement {
   public static globalLazyLoadQueue: LazyLoadQueue = globalLazyLoadQueue;
@@ -723,22 +744,31 @@ export class CustomEmojiRendererElement extends HTMLElement {
         return Promise.all(promises.filter(Boolean));
       };
 
-      const load = () => {
+      const tryLoad: (fromLazyLoad: boolean) => Promise<void> = (fromLazyLoad: boolean) => {
         if(!middleware()) return;
+        
+        if(deferLoadPromise) {
+          deferLoadPromise.then(()=> tryLoad(false));
+          return Promise.resolve();
+        }
+
+        if(lazyLoadQueue && !fromLazyLoad) {
+          lazyLoadQueue.push({
+            div: renderer.canvas,
+            load: () => tryLoad(true)
+          });
+          return Promise.resolve();
+        }
+
+        console.log("LOCK LOAD LOAD LOAD")
+
         const cached = loadFromPromises(cachedPromises);
         const uncached = uncachedPromisesPromise.then((promises) => loadFromPromises(promises));
-        return Promise.all([cached, uncached]);
+        return Promise.all([cached, uncached]).then(()=>{});
       };
 
-      if(lazyLoadQueue) {
-        lazyLoadQueue.push({
-          div: renderer.canvas,
-          load
-        });
-      } else {
-        load();
-      }
-
+      tryLoad(false);
+      
       return Promise.all(cachedPromises).then(() => Promise.all(loadPromises)).then(() => {});
     });
 

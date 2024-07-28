@@ -185,6 +185,38 @@ import safeWindowOpen from '../../helpers/dom/safeWindowOpen';
 import findAndSplice from '../../helpers/array/findAndSplice';
 import generatePhotoForExtendedMediaPreview from '../../lib/appManagers/utils/photos/generatePhotoForExtendedMediaPreview';
 import icon from '../icon';
+import { lockCustomEmojiLoad, unlockCustomEmojiLoad } from '../../lib/customEmoji/renderer';
+
+class FastTimeoutTracker {
+  expireAt: number;
+  start: () => void;
+  finish: () => void;
+  curTimeout: number;
+
+  constructor(start: () => void, finish: () => void) {
+    this.start = start
+    this.finish = finish;
+    this.expireAt = 0
+    this.curTimeout = -1;
+  }
+
+  trigger(timeout: number) {
+    if(this.curTimeout == -1) {
+      this.start();
+    }
+    const newExpire = performance.now() + timeout;
+    if(newExpire > this.expireAt + 4) {
+      if(this.curTimeout != -1)
+        clearTimeout(this.curTimeout);
+
+      this.curTimeout = window.setTimeout(() => {
+        this.curTimeout = -1;
+        this.finish()
+      }, timeout);
+      this.expireAt = newExpire;
+    }
+  }
+}
 
 export const USER_REACTIONS_INLINE = false;
 export const TEST_BUBBLES_DELETION = false;
@@ -443,6 +475,8 @@ export default class ChatBubbles {
   private batchingModifying: Array<() => void>;
 
   private changedMids: Map<number, number>; // used when message is sent faster than temporary one was rendered
+
+  private scrollPerfTracker: FastTimeoutTracker;
 
   constructor(
     private chat: Chat,
@@ -1187,6 +1221,16 @@ export default class ChatBubbles {
 
       middleware = null;
     }, this.listenerSetter);
+
+    this.scrollPerfTracker = new FastTimeoutTracker(() => {
+      if(IS_ANDROID) {
+        lockCustomEmojiLoad();
+      }
+    }, () => {
+      if(IS_ANDROID) {
+        unlockCustomEmojiLoad()
+      }
+    });
   }
 
   private constructBubbles() {
@@ -3096,7 +3140,7 @@ export default class ChatBubbles {
         clearTimeout(this.isScrollingTimeout);
       } else if(!this.chatInner.classList.contains('is-scrolling')) {
         this.chatInner.classList.add('is-scrolling');
-      }
+      } 
 
       this.isScrollingTimeout = window.setTimeout(() => {
         this.chatInner.classList.remove('is-scrolling');
@@ -3104,6 +3148,8 @@ export default class ChatBubbles {
       }, 1350 + (scrollDimensions?.duration ?? 0));
     }
 
+    this.scrollPerfTracker.trigger(400);
+        
     if(distanceToEnd < SCROLLED_DOWN_THRESHOLD && (forceDown || this.scrollable.loadedAll.bottom || this.chat.setPeerPromise || !this.peerId)) {
       this.container.classList.add('scrolled-down');
       this.scrolledDown = true;
