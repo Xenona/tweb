@@ -32,13 +32,38 @@ export class Canvaser {
     canvas.addEventListener('mousemove', this.mouseMove);
     canvas.addEventListener('mouseup', this.mouseUpDown);
     canvas.addEventListener('mousedown', this.mouseUpDown);
+
+    canvas.addEventListener('touchmove', this.handleTouchMove );
+    canvas.addEventListener('touchend', this.handleTouchEnd );
+    canvas.addEventListener('touchstart', this.handleTouchStart);
   }
 
+ 
   detach() {
     this.resizeObserver.unobserve(this.canvas);
     this.canvas.removeEventListener('mousemove', this.mouseMove);
     this.canvas.removeEventListener('mouseup', this.mouseUpDown);
     this.canvas.removeEventListener('mousedown', this.mouseUpDown);
+
+    this.canvas.removeEventListener('touchmove', this.handleTouchMove );
+    this.canvas.removeEventListener('touchend', this.handleTouchEnd );
+    this.canvas.removeEventListener('touchstart', this.handleTouchStart);
+  }
+
+  private handleTouchStart = (e: TouchEvent) => {
+    // debugger 
+    const transformedEvent = this.touchIntoMouseEvent(e);
+    this.mouseUpDown(transformedEvent)
+  }
+
+  private handleTouchEnd = (e: TouchEvent) => {
+    const transformedEvent = this.touchIntoMouseEvent(e);
+    this.mouseUpDown(transformedEvent)
+  }
+
+  private handleTouchMove = (e: TouchEvent) => {
+    const transformedEvent = this.touchIntoMouseEvent(e);
+    this.mouseMove(transformedEvent);
   }
 
   public getLayersOrdered() {
@@ -167,8 +192,53 @@ export class Canvaser {
     };
   }
 
-  private mouseMove = (event: MouseEvent) => {
-    const ev = this.intoMouseEvent(event);
+  private touchIntoMouseEvent(ev: TouchEvent): MouseEv {
+    
+    console.log('touch', this.lastClick)
+    if (ev.touches.length == 0) {
+      let click = this.lastClick;
+      click.pressed = false;
+      this.lastClick = null;
+      return click;
+    };
+    console.log("XE ", ev.touches[0].clientX, ev.touches[0].clientY)
+    console.log("SCREEN ", this.canvas.offsetLeft, this.canvas.offsetTop)
+    //  {
+    //   x: 0,
+    //   y: 0,
+    //   imX: 0,
+    //   imY: 0,
+    //   pressed: false,
+    //   shift: ev.shiftKey,
+    //   ctrl: ev.ctrlKey,
+    //   iFactor: this.ctx.iFactor
+    // };
+    // const b = getBoundingClientRect();
+
+    const x = (ev.touches[0].clientX - this.canvas.offsetLeft) * this.ctx.iFactor - this.canvas.width / 2;
+    const y = (ev.touches[0].clientY - this.canvas.offsetTop) * this.ctx.iFactor - this.canvas.height / 2;
+    console.log({x, y}, this.canvas.width, this.canvas.height)
+    const [imX, imY] = this.crop.toImgCords(x, y);
+    this.lastClick = {
+      x,
+      y,
+      imX,
+      imY,
+      pressed: true,
+      shift: ev.shiftKey,
+      ctrl: ev.ctrlKey,
+      iFactor: this.ctx.iFactor
+    }
+    return this.lastClick;
+  }
+
+  private mouseMove = (event: MouseEvent | MouseEv) => {
+    let ev;
+    if (event instanceof MouseEvent) {
+      ev = this.intoMouseEvent(event);
+    } else {
+      ev = event
+    }
     this.tool.mouseMove({
       ...ev,
       dx: ev.x - this.prevMousePos[0],
@@ -177,8 +247,13 @@ export class Canvaser {
     this.prevMousePos = [ev.x, ev.y];
   };
 
-  private mouseUpDown = (event: MouseEvent) => {
-    const ev = this.intoMouseEvent(event);
+  private mouseUpDown = (event: MouseEvent | MouseEv) => {
+    let ev;
+    if (event instanceof MouseEvent) {
+      ev = this.intoMouseEvent(event);
+    } else {
+      ev = event
+    }
     this.tool.mouseUpDown(ev);
   };
 
@@ -219,6 +294,7 @@ export class Canvaser {
 
   private prevMousePos: [number, number] = [0, 0];
   private resizeObserver: ResizeObserver;
+  private lastClick: MouseEv = null;
 
   public onUpdate: (canvaser: Canvaser) => void;
 }

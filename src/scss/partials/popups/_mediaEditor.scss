@@ -164,6 +164,19 @@
   }
 }
 
+@media only screen and (max-width: 450px) {
+
+  .popup-media-editor {
+    & .popup-container {
+      flex-direction: column;
+    }
+
+    & .image-container {
+      min-height: 40vh    ;
+    }
+  }
+}
+
 .editor {
   &-tab {
 

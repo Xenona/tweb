@@ -7,23 +7,6 @@ import SidebarSlider from '../slider';
 import {Canvaser} from '../canvaser/Canvaser';
 import { NoneTool } from '../canvaser/Tool';
 
-
-export enum AspectRatios {
-  'free',
-  'original',
-  'square',
-  'x3x2',
-  'x2x3',
-  'x4x3',
-  'x3x4',
-  'x5x4',
-  'x4x5',
-  'x7x5',
-  'x5x7',
-  'x16x9',
-  'x9x16',
-}
-
 export const FontList: string[] = [
   'Roboto',
   'Typewriter',
@@ -45,15 +28,6 @@ export const FontsMap = {
   papyrus: FontList[6],
   snellRoundhand: FontList[7]
 } as const;
-
-export enum Pens {
-  pen,
-  arrow,
-  mark,
-  neon,
-  blur,
-  eraser,
-}
 
 export default class PopupMediaEditor extends PopupElement {
   acceptBtn: HTMLButtonElement;

@@ -108,43 +108,47 @@ class CompositionEffect extends RootScalarEffect {
   public filter: CompositionEffectFilter;
 }
 
-// class CompositionEffect extends RootScalarEffect {
+class SharpenEffect extends RootScalarEffect {
   
-//   constructor(
-//     effects: RootEffects,
-//     filter: CompositionEffectFilter,
-//     info: Omit<EffectInfo, "type">
-//   ) {
-//     super(effects, info);
+  constructor(
+    effects: RootEffects,
+    filter: CompositionEffectFilter,
+    info: Omit<EffectInfo, "type">
+  ) {
+    super(effects, info);
 
-//     this.filter = filter;
-//   }
+    this.filter = filter;
+  }
 
-//   public postEffect(ctx: RenderCtx) {
-//     if (
-//       Math.abs(this.value - this.effectInfo.default) /
-//         (this.effectInfo.max - this.effectInfo.min) <
-//       0.01
-//     )
-//       return;
+  public postEffect(ctx: RenderCtx) {
+    if (
+      Math.abs(this.value - this.effectInfo.default) /
+        (this.effectInfo.max - this.effectInfo.min) <
+      0.01
+      )
+    return;
 
+    const f = ctx.copyLast();
       
-//     ctx.with2D((c) => {
-//       const p = this.filter(this.value, c);
+    ctx.with2D((c) => {
+      const p = this.filter(this.value, c);
       
-//       c.globalCompositeOperation = p.compositeMode;
-//       c.fillStyle = p.color;
-//       const w = c.canvas.width;
-//       const h = c.canvas.height;
-//       // console.log(p.color); //
-//       c.fillRect(-w / 2, -h / 2, w, h);
-//     });
+      c.globalCompositeOperation = p.compositeMode;
+      // c.fillStyle = p.color;
+      c.filter = 'blur(4px) invert(1) contrast(0.75)'
+      const w = c.canvas.width;
+      const h = c.canvas.height;
+      // console.log(p.color); //
+      c.fillRect(-w / 2, -h / 2, w, h);
+      
+    });
+    f.dispose();
 
-//     // return this.filter(this.value).compositeMode;
-//   }
+    // return this.filter(this.value).compositeMode;
+  }
 
-//   public filter: CompositionEffectFilter;
-// }
+  public filter: CompositionEffectFilter;
+}
 
 export class RootEffects {
   constructor(canvaser: Canvaser) {
@@ -262,6 +266,19 @@ export class RootEffects {
       }
     );
 
+    this.sharpen = new SharpenEffect(
+      this,
+      (v) => ({
+        compositeMode: "overlay",
+        color: `rgba(255, 255, 255, ${v / 100})`,
+      }),
+      {
+        min: 0,
+        max: 100,
+        default: 0,
+      }
+    );
+
     
 
 
@@ -305,7 +322,8 @@ export class RootEffects {
       this.fade,
       this.shadows,
       this.highlights,
-      this.vignette
+      this.vignette,
+      this.sharpen
     ];
   }
 
@@ -327,4 +345,5 @@ export class RootEffects {
   public shadows: RootScalarEffect;
   public highlights: RootScalarEffect;
   public vignette: RootScalarEffect;
+  public sharpen: SharpenEffect;
 }

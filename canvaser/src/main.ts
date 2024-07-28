@@ -129,6 +129,14 @@ createMode('Filters', () => new NoneTool(canvaser))
     effectFinish
   )
   .slider(
+    'Sharpen',
+    [0, 0, 100],
+    (val) => {
+      canvaser.rootEffects.sharpen.setValue(val)
+    },
+    effectFinish
+  )
+  .slider(
     'Blur',
     [0, 0, 20],
     (val) => {

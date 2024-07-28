@@ -1,6 +1,5 @@
 import {ArrowBrush, BlurBrush, BrusherLayer, BrusherTool, EraserBrush, MarkerBrush, NeonBrush, PenBrush} from '../../canvaser/Brusher';
 import {Canvaser} from '../../canvaser/Canvaser';
-import {Pens} from '../../popups/mediaEditor';
 import {createManyRows} from '../../row';
 import {ShortColorPicker} from '../../shortColorPicker';
 import {RangeSettingSelector} from '../../sidebarLeft/tabs/generalSettings';
