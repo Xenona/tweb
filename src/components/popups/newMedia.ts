@@ -781,6 +781,8 @@ export default class PopupNewMedia extends PopupElement {
         sendFileDetails: d
       };
 
+      console.error("XE", w)
+
       if(!willSendPaidMedia) {
         delete w.stars;
       }
@@ -903,7 +905,7 @@ export default class PopupNewMedia extends PopupElement {
       const img = new Image();
       itemDiv.append(img);
 
-      const changeImg = async (file: File) => {
+      const changeImg = async (file: File, objectURL: string) => {
         const url = await apiManagerProxy.invoke('createObjectURL', file);
         const imageEl = new Image();
         await renderImageFromUrlPromise(imageEl, url);
@@ -916,6 +918,16 @@ export default class PopupNewMedia extends PopupElement {
             params.file
           )) {
             this.willAttach.sendFileDetails[i].file = file;
+            this.willAttach.sendFileDetails[i].objectURL = objectURL;
+          }
+        } 
+
+        for (let i = 0; i < this.files.length; i++) {
+          if (this.areFilesEqual( 
+            (this.files[i]),
+            params.file
+          )) {
+            this.files[i] = file;
           }
         } 
       }

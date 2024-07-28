@@ -65,13 +65,13 @@ export default class PopupMediaEditor extends PopupElement {
   canvas: HTMLCanvasElement;
   result: {params: {file: File,
     [key: string]: any},
-    changeImg: (file: File) => void,
+    changeImg: (file: File, objectURL: string) => void,
   };
 
   // XENA TODO deal with the file
   constructor(image: HTMLImageElement, result : {params: {file: File,
     [key: string]: any},
-    changeImg: (file: File) => void,
+    changeImg: (file: File, objectURL: string) => void,
   }) {
     super('popup-media-editor', {
       specialNavigationType: 'media-editor',
@@ -153,7 +153,7 @@ export default class PopupMediaEditor extends PopupElement {
     
     console.log('XE accepting, saving the file', this.result.params.file);
     this.gracefullyExiting = true;
-    this.result.changeImg(this.result.params.file)
+    this.result.changeImg(this.result.params.file, URL.createObjectURL(blob))
     this.hide();
   }
 }
