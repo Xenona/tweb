@@ -76,7 +76,9 @@ export class Canvaser {
     this.crop.apply(ctx);
 
     this.rootEffects.apply(ctx);
-    this.rootImage.render(ctx);
+    this.ctx.withTransform({ flip: this.crop.isFlip() }, () =>{
+      this.rootImage.render(ctx);
+    })
     this.rootEffects.finish(ctx);
     ctx.saveFrame('image');
 

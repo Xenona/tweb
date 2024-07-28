@@ -71,27 +71,28 @@
 
         .rotation-container {
           position: relative;
-          width: 100%;
+          width: 100vw;
           flex: 1;
           height: 100px;
+          overflow: hidden;
+          mask-image: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1), rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
         }
         
         .slider-wrapper {
           position: absolute;
           left: 50%;
           transform: translateX(-50%);
-          width: 100%; 
+          width: inherit; 
           overflow: visible;
           height: 100px;
           display: flex;
           align-items: center;
           justify-content: center;
-          mask-image: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1), rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
         }
         
         .rotation-slider {
           position: relative;
-          width: 400%; 
+          width: 400vw; 
           height: 58px;
           display: flex;
           align-items: center;

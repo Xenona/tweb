@@ -144,9 +144,9 @@ export class ArrowBrush extends BrusherLayer {
           const dy = lastPoints[9][1] - lastPoints[0][1];
           c.translate(lastPoints[9][0], lastPoints[9][1]);
           c.rotate(Math.atan2(dy, dx));
-          c.moveTo(-40, -35);
+          c.moveTo(-3 * c.lineWidth, -2 * c.lineWidth);
           c.lineTo(0, 0);
-          c.lineTo(-40, 35);
+          c.lineTo(-3 * c.lineWidth, 2 * c.lineWidth);
           c.stroke();
         }
       }

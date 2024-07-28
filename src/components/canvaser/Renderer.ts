@@ -9,6 +9,7 @@ export type Transformation = {
   y?: number;
   rotate?: number;
   scale?: number;
+  flip?: boolean
 };
 
 export type DrawableImages = HTMLImageElement | OffscreenCanvas | ImageBitmap;
@@ -84,6 +85,7 @@ export class RenderCtx {
 
       if(t.rotate) this.curTransform = this.curTransform.rotate(t.rotate);
       if(t.scale) this.curTransform = this.curTransform.scale(t.scale, t.scale);
+      if(t.flip) this.curTransform = this.curTransform.scale(-1, 1);
     }
 
     this.ctx.setTransform(...this.curTransform.toCanvas());

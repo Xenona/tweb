@@ -339,7 +339,9 @@ export class EditorCropTab {
     const flip = Button('btn-icon flipBtn', {
       icon: 'flip_editor'
     })
-
+    flip.onclick = () => {
+      this.canvaser.crop.doFlip(); 
+    }
     // XENA TODO flip
     // flip.onclick = this.canvaser.flip.bind(this.canvaser);
 

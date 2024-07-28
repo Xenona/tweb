@@ -781,7 +781,7 @@ export default class PopupNewMedia extends PopupElement {
         sendFileDetails: d
       };
 
-                    if(!willSendPaidMedia) {
+      if(!willSendPaidMedia) {
         delete w.stars;
       }
 
