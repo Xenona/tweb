@@ -5,6 +5,7 @@ import AppMediaEditorTab from '../sidebarRight/tabs/mediaEditor';
 import {Aligns, Strokes} from '../sidebarRight/tabs/editorText';
 import SidebarSlider from '../slider';
 import {Canvaser} from '../canvaser/Canvaser';
+import { NoneTool } from '../canvaser/Tool';
 
 
 export enum AspectRatios {
@@ -61,9 +62,17 @@ export default class PopupMediaEditor extends PopupElement {
   imageContainer: HTMLElement;
   cropRulerContainer: HTMLElement;
   canvasContainer: HTMLElement;
+  canvas: HTMLCanvasElement;
+  result: {params: {file: File,
+    [key: string]: any},
+    changeImg: (file: File) => void,
+  };
 
   // XENA TODO deal with the file
-  constructor(image: HTMLImageElement) {
+  constructor(image: HTMLImageElement, result : {params: {file: File,
+    [key: string]: any},
+    changeImg: (file: File) => void,
+  }) {
     super('popup-media-editor', {
       specialNavigationType: 'media-editor',
       overlayClosable: true,
@@ -85,6 +94,8 @@ export default class PopupMediaEditor extends PopupElement {
       }
     })
 
+    this.result = result; 
+
     this.imageContainer = document.createElement('div');
     this.imageContainer.classList.add('image-container')
     this.container.prepend(this.imageContainer)
@@ -95,11 +106,10 @@ export default class PopupMediaEditor extends PopupElement {
     this.imageContainer.append(this.canvasContainer, this.cropRulerContainer);
 
 
-    const canvas = document.createElement('canvas')
+    this.canvas = document.createElement('canvas')
     this.canvasContainer.className = 'canvas'
-    this.canvasContainer.appendChild(canvas)
-
-    this.canvaser = new Canvaser(canvas, image);
+    this.canvasContainer.appendChild(this.canvas)
+    this.canvaser = new Canvaser(this.canvas, image);
 
     const toolbarWrap = document.createElement('div');
     toolbarWrap.classList.add('sidebar-slider', 'tabs-container', 'toolbar-wrap')
@@ -126,10 +136,24 @@ export default class PopupMediaEditor extends PopupElement {
     .open({canvaser: this.canvaser, onClose: () => this.hide(), cropRulerContainer: this.cropRulerContainer});
   }
 
-  private saveEditedAndMoveBack() {
-    // XENA TODO deal with files
-    console.log('XE accepting, saving the file');
+  private async saveEditedAndMoveBack() {
+    this.canvaser.focusedLayer = undefined;
+    this.canvaser.setTool(new NoneTool(this.canvaser));
+    await this.canvaser.emitUpdate()
+    await this.canvaser.emitUpdate();
+
+        // debugger;
+    const blob = await new Promise<Blob>(resolve=>this.canvas.toBlob(blob =>  resolve(blob)))
+    
+    this.result.params.file = new File([blob], this.result.params.file.name, {
+      lastModified: this.result.params.file.lastModified,
+      type: this.result.params.file.type,
+    })    
+    
+    
+    console.log('XE accepting, saving the file', this.result.params.file);
     this.gracefullyExiting = true;
+    this.result.changeImg(this.result.params.file)
     this.hide();
   }
 }

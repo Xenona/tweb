@@ -351,24 +351,7 @@ export default class PopupNewMedia extends PopupElement {
           this.rmFile(item.file);
         },
         verify: () => isMedia
-      },
-      {
-        icon: 'enhancebars',
-        // @ts-ignore
-        text: '',
-        onClick: async() => {
-          // XENA TODO the heck is this context menu
-          const url = await apiManagerProxy.invoke('createObjectURL', item.file);
-          const imageEl = new Image();
-          imageEl.addEventListener('load', async() => {
-            PopupElement.createPopup(PopupMediaEditor, imageEl).show();
-          }, {once: true})
-          await renderImageFromUrlPromise(imageEl, url);
-        },
-        verify: () => isMedia
-
-      }
-      ],
+      }],
       listenTo: this.mediaContainer,
       listenerSetter: this.listenerSetter,
       findElement: (e) => {
@@ -920,6 +903,23 @@ export default class PopupNewMedia extends PopupElement {
       const img = new Image();
       itemDiv.append(img);
 
+      const changeImg = async (file: File) => {
+        const url = await apiManagerProxy.invoke('createObjectURL', file);
+        const imageEl = new Image();
+        await renderImageFromUrlPromise(imageEl, url);
+        console.log('XE img', img, imageEl)
+        img.replaceWith(imageEl)
+
+        for (let i = 0; i < this.willAttach.sendFileDetails.length; i++) {
+          if (this.areFilesEqual( 
+            (this.willAttach.sendFileDetails[i].file),
+            params.file
+          )) {
+            this.willAttach.sendFileDetails[i].file = file;
+          }
+        } 
+      }
+
       params.menu.menuButtons = [
         {
           icon: 'enhancebars',
@@ -928,7 +928,8 @@ export default class PopupNewMedia extends PopupElement {
             const url = await apiManagerProxy.invoke('createObjectURL', params.file);
             const imageEl = new Image();
             imageEl.addEventListener('load', async() => {
-              PopupElement.createPopup(PopupMediaEditor, imageEl).show();
+              console.log("xE 123477867453245664", params.file)
+              PopupElement.createPopup(PopupMediaEditor, imageEl, {params, changeImg}).show();
             }, {once: true})
             await renderImageFromUrlPromise(imageEl, url);
           }

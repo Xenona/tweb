@@ -1,3 +1,4 @@
+import deferredPromise, { CancellablePromise } from '../../helpers/cancellablePromise';
 import {Cropper} from './Crop';
 import {Layer, LayerPriority} from './Layer';
 import {MouseEv} from './Mouse';
@@ -52,18 +53,22 @@ export class Canvaser {
   }
 
   public emitUpdate() {
-    if(this.updateRequested) return;
-
-    this.updateRequested = true;
+    if(this.updatePromise) return this.updatePromise;
+    this.updatePromise = deferredPromise()
 
     requestAnimationFrame(() => this.doUpdate());
+    return this.updatePromise;
   }
 
   private doUpdate() {
-    this.updateRequested = false;
+    const updProm = this.updatePromise
+    this.updatePromise = null;
+    
     this.tool.update();
     this.tool.render(this.ctx);
     this.ctx.cleanup();
+    
+    updProm.resolve();
   }
 
   public render(ctx: RenderCtx) {
@@ -177,7 +182,7 @@ export class Canvaser {
 
   private canvas: HTMLCanvasElement;
   private ctx: RenderCtx;
-  private updateRequested = false;
+  private updatePromise: CancellablePromise<void> | null;
   private tool: BaseTool;
 
   public crop: Cropper;
