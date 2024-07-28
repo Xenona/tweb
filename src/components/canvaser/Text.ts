@@ -71,7 +71,7 @@ export class TextLayer extends Layer implements IMouseResizable {
       text,
       color: '#FFFFFF',
       size: 120,
-      font: 'sans-serif',
+      font: 'Roboto',
       align: 'center',
       mode: 'normal'
     };

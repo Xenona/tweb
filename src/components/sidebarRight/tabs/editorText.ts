@@ -128,7 +128,10 @@ export class EditorTextTab {
     this.input.addEventListener('input', (ev: any) => {
       if(!(this.canvaser.focusedLayer instanceof TextLayer)) {
         verifyDeleteBtn(true);
-        this.canvaser.addLayer(new TextLayer(this.canvaser, ev.target.value));
+        const l = new TextLayer(this.canvaser, ev.target.value);
+        this.canvaser.addLayer(l);
+        l.updateText(this.opts)
+        
       }
       this.setTextInfoHist({text: ev.target.value});
     }, true);
@@ -320,6 +323,7 @@ export class EditorTextTab {
   }
 
   private setTextInfo(o: Partial<TextOptions>) {
+    this.opts = { ...this.opts, ... o}
     if(this.canvaser.focusedLayer instanceof TextLayer) {
       this.canvaser.focusedLayer.updateText(o)
     }
@@ -332,9 +336,12 @@ export class EditorTextTab {
   }
 
   private setTextInfoHist(o: Partial<TextOptions>) {
+    this.opts = { ...this.opts, ... o}
     if(this.canvaser.focusedLayer instanceof TextLayer) {
       this.canvaser.focusedLayer.updateText(o)
       this.canvaser.focusedLayer.emitHistory();
     }
   }
+
+  opts: TextOptions
 }

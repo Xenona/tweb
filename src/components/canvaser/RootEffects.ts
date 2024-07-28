@@ -99,7 +99,8 @@ class CompositionEffect extends RootScalarEffect {
       const w = c.canvas.width;
       const h = c.canvas.height;
       // console.log(p.color); //
-      c.fillRect(-w / 2, -h / 2, w, h);
+      c.resetTransform();
+      c.fillRect(0, 0, w, h);
     });
 
     // return this.filter(this.value).compositeMode;
@@ -139,7 +140,8 @@ class SharpenEffect extends RootScalarEffect {
       const w = c.canvas.width;
       const h = c.canvas.height;
       // console.log(p.color); //
-      c.fillRect(-w / 2, -h / 2, w, h);
+      c.resetTransform();
+      c.fillRect(0, 0, w * 4, h * 4);
       
     });
     f.dispose();
